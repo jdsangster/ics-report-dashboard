@@ -45,6 +45,12 @@ export interface ReportHighlights {
   observations: string[];
 }
 
+export interface OrganizationalChange {
+  contributor: string;
+  icGenerated: number;
+  status: string;
+}
+
 /** Shape stored in Supabase's `reports.data` JSONB column (and returned by the webhook payload). */
 export interface ReportPayload {
   metadata: ReportMetadata;
@@ -53,6 +59,7 @@ export interface ReportPayload {
   comparisonTable: ComparisonRow[];
   teamTotals: TeamTotal[];
   highlights: ReportHighlights;
+  organizationalChanges?: OrganizationalChange[];
   conclusion: string;
 }
 

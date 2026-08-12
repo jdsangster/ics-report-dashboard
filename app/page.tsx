@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { LayoutDashboard } from "lucide-react";
 import { reportTypes } from "@/lib/reportTypes";
@@ -44,8 +45,12 @@ export default function ReportsHub() {
         </div>
       </main>
 
-      <footer className="border-t border-border-subtle px-6 py-4 text-center text-xs text-muted">
-        Colombo&amp;Hurd · SharePoint → Power Automate → Webhook → Vercel Dashboard
+      <footer className="flex items-center justify-center gap-3 border-t border-border-subtle px-6 py-4 text-center text-xs text-muted">
+        <span>Colombo&amp;Hurd · Excel (Power BI) → Claude → Reports Center</span>
+        <span className="text-border-subtle">·</span>
+        <Link href="/admin" className="transition-colors hover:text-foreground">
+          Admin
+        </Link>
       </footer>
     </div>
   );

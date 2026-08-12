@@ -45,6 +45,10 @@ export const mockReports: ReportData[] = [
         "Alejandro Portillo and Salome Gutierrez both posted the largest single-agent declines (-5.2 avg).",
       ],
     },
+    organizationalChanges: [
+      { contributor: "Joshua Schmitz", icGenerated: 34, status: "Confirmed promoted (excluded from team totals)" },
+      { contributor: "Santiago Peralta", icGenerated: 21, status: "Confirmed resigned (excluded from team totals)" },
+    ],
     conclusion:
       "The operation closed Week 5 with 1,285 IC, a 16.7% decline from Week 4. The drop was broad-based across teams, with Team Angelo the only group holding above 450 IC. Leadership should prioritize a check-in with Alejandro Portillo and Salome Gutierrez, and evaluate staffing on Team Martin before Week 6.",
   },

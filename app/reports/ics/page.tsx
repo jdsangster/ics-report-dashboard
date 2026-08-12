@@ -8,6 +8,7 @@ import KpiCard from "@/components/KpiCard";
 import PerformanceTable from "@/components/PerformanceTable";
 import OutstandingSection from "@/components/OutstandingSection";
 import ObservationsCard from "@/components/ObservationsCard";
+import OrganizationalChangesCard from "@/components/OrganizationalChangesCard";
 
 export default function Home() {
   const [reports, setReports] = useState<ReportData[]>([]);
@@ -103,6 +104,9 @@ export default function Home() {
             comparisonTable={activeReport.comparisonTable}
             teamTotals={activeReport.teamTotals}
           />
+          {activeReport.organizationalChanges && activeReport.organizationalChanges.length > 0 && (
+            <OrganizationalChangesCard changes={activeReport.organizationalChanges} />
+          )}
           <ObservationsCard
             highlights={activeReport.highlights}
             conclusion={activeReport.conclusion}
