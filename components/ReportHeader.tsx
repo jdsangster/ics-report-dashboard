@@ -1,6 +1,7 @@
 "use client";
 
-import { LayoutDashboard, ChevronDown } from "lucide-react";
+import Link from "next/link";
+import { LayoutDashboard, ChevronDown, ArrowLeft } from "lucide-react";
 import { ReportData, Cadence } from "@/lib/types";
 
 interface ReportHeaderProps {
@@ -27,12 +28,25 @@ export default function ReportHeader({
     <header className="border-b border-border-subtle bg-surface/60 backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/15 text-accent">
+          <Link
+            href="/"
+            className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/15 text-accent transition-colors hover:bg-accent/25"
+            title="Back to Reports Hub"
+          >
             <LayoutDashboard size={20} />
-          </div>
+          </Link>
           <div>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/"
+                className="flex items-center gap-1 text-xs text-muted transition-colors hover:text-foreground"
+              >
+                <ArrowLeft size={12} />
+                Reports Hub
+              </Link>
+            </div>
             <h1 className="text-lg font-semibold tracking-tight text-foreground">
-              ICS Operations Dashboard
+              ICS Performance Report
             </h1>
             <p className="text-xs text-muted">Power BI ICS Report · Executive Summary</p>
           </div>

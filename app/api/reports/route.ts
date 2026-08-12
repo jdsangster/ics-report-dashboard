@@ -3,7 +3,7 @@ import { mockReports } from "@/lib/mockData";
 import { getSupabaseServerClient, REPORTS_TABLE } from "@/lib/supabaseClient";
 import { ReportData } from "@/lib/types";
 
-const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE !== "true";
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE !== "false";
 
 export async function GET() {
   if (DEMO_MODE) {

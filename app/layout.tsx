@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ICS Operations Dashboard",
-  description: "Executive dashboard for Weekly, Daily, and Weekend ICS performance reports.",
+  title: "Colombo&Hurd Reports Center",
+  description: "Executive operations reporting hub for Colombo&Hurd — select a report to view its dashboard.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
