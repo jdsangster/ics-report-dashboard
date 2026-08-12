@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import { ReportData, Cadence } from "@/lib/types";
 import ReportHeader from "@/components/ReportHeader";
 import KpiCard from "@/components/KpiCard";
@@ -60,8 +62,15 @@ export default function Home() {
 
   if (!activeReport) {
     return (
-      <div className="flex flex-1 items-center justify-center text-sm text-muted">
-        No reports available yet.
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 text-sm text-muted">
+        <p>No reports available yet.</p>
+        <Link
+          href="/"
+          className="flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-accent/50"
+        >
+          <ArrowLeft size={13} />
+          Volver a Reports Hub
+        </Link>
       </div>
     );
   }
@@ -115,7 +124,7 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-border-subtle px-6 py-4 text-center text-xs text-muted">
-        SharePoint → Power Automate → Webhook → Vercel Dashboard
+        Colombo&amp;Hurd · Excel (Power BI) → Claude → Reports Center
       </footer>
     </div>
   );
