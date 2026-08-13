@@ -13,7 +13,7 @@ export default function PerformanceTable({ comparisonTable, teamTotals }: Perfor
   const maxTeamTotal = Math.max(...teamTotals.map((t) => t.total), 1);
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+    <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
