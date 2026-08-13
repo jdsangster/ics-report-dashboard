@@ -28,10 +28,10 @@ export default function WeekOverWeekCard({ comparisonTable }: WeekOverWeekCardPr
           <h2 className="text-sm font-semibold text-foreground">Week-over-Week Comparison</h2>
           <p className="text-xs text-muted">Average IC per day by contributor</p>
         </div>
-        <span className="flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-elevated px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:text-foreground">
+        <span className="flex items-center gap-2 rounded-lg border border-accent/40 bg-accent/15 px-4 py-2.5 text-sm font-semibold text-accent transition-colors hover:bg-accent/25">
           {expanded ? "Hide" : "Show"}
           <ChevronDown
-            size={14}
+            size={18}
             className={`transition-transform ${expanded ? "rotate-180" : ""}`}
           />
         </span>
