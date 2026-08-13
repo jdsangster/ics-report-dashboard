@@ -1,12 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0c12;
-  --surface: #12151f;
-  --surface-elevated: #171b28;
-  --border-subtle: #232838;
-  --foreground: #e8eaf1;
-  --muted: #8891a5;
+  /* Navy sampled directly from the ColomboHurd logo background (#071434) */
+  --background: #071434;
+  --surface: #101d3c;
+  --surface-elevated: #1a2644;
+  --border-subtle: #2c3854;
+  --foreground: #eef1f7;
+  --muted: #93a0bf;
   --accent: #5b8cff;
   --accent-soft: #5b8cff1a;
   --success: #34d399;

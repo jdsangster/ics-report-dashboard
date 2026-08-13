@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Lock } from "lucide-react";
 import { getReportType } from "@/lib/reportTypes";
+import BrandLogo from "@/components/BrandLogo";
 
 export default async function ComingSoonReportPage({
   params,
@@ -17,7 +18,9 @@ export default async function ComingSoonReportPage({
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b border-border-subtle bg-surface/60 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-6 py-5">
+        <div className="mx-auto flex max-w-7xl items-center gap-4 px-6 py-5">
+          <BrandLogo />
+          <div className="h-8 w-px bg-border-subtle" />
           <Link
             href="/"
             className="flex items-center gap-1 text-xs text-muted transition-colors hover:text-foreground"

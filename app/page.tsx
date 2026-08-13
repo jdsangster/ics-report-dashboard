@@ -2,21 +2,20 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { LayoutDashboard } from "lucide-react";
 import { reportTypes } from "@/lib/reportTypes";
 import ReportTypeCard from "@/components/ReportTypeCard";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function ReportsHub() {
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b border-border-subtle bg-surface/60 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-6 py-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/15 text-accent">
-            <LayoutDashboard size={20} />
-          </div>
+        <div className="mx-auto flex max-w-7xl items-center gap-4 px-6 py-5">
+          <BrandLogo />
+          <div className="h-8 w-px bg-border-subtle" />
           <div>
             <h1 className="text-lg font-semibold tracking-tight text-foreground">
-              Colombo&amp;Hurd Reports Center
+              Reports Center
             </h1>
             <p className="text-xs text-muted">Executive operations reporting</p>
           </div>
