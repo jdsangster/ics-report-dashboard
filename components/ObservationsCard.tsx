@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ClipboardList, TrendingUp, TrendingDown, MessageSquareQuote } from "lucide-react";
 import { ReportHighlights } from "@/lib/types";
+import { splitIntoParagraphs } from "@/lib/utils";
 
 interface ObservationsCardProps {
   highlights: ReportHighlights;
@@ -78,11 +79,17 @@ export default function ObservationsCard({ highlights, conclusion }: Observation
         transition={{ duration: 0.35, delay: 0.18 }}
         className="rounded-xl border border-border-subtle bg-surface-elevated p-5 lg:col-span-3"
       >
-        <div className="mb-2 flex items-center gap-2">
+        <div className="mb-3 flex items-center gap-2">
           <MessageSquareQuote size={15} className="text-muted" />
           <h3 className="text-sm font-semibold text-foreground">Executive Conclusion</h3>
         </div>
-        <p className="text-sm leading-relaxed text-muted">{conclusion}</p>
+        <div className="space-y-3">
+          {splitIntoParagraphs(conclusion).map((paragraph, i) => (
+            <p key={i} className="text-sm leading-relaxed text-muted">
+              {paragraph}
+            </p>
+          ))}
+        </div>
       </motion.div>
     </div>
   );

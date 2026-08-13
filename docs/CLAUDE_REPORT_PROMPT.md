@@ -29,7 +29,10 @@ Reglas:
   Transition Report" del Word). Si no hay ninguna, omite el campo por completo.
 - highlights.mostImproved y biggestDeclines: máximo 5 cada uno, mismo formato que
   usas en el Word ("Nombre 🔺+X.X").
-- conclusion: el mismo párrafo de cierre que escribes en el reporte de Word.
+- conclusion: el mismo cierre que escribes en el reporte de Word. Si es largo,
+  sepáralo en 2-4 párrafos cortos usando una línea en blanco entre cada uno
+  (doble salto de línea, "\n\n" dentro del JSON) — se ve mucho mejor en el
+  dashboard que un solo bloque de texto corrido.
 
 Devuelve el JSON en un bloque de código separado, sin texto adicional dentro
 del bloque, para que lo pueda copiar directo.
