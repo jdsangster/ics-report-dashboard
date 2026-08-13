@@ -19,6 +19,7 @@ const PAD_BOTTOM = 32;
 const PLOT_W = VIEW_W - PAD_LEFT - PAD_RIGHT;
 const PLOT_H = VIEW_H - PAD_TOP - PAD_BOTTOM;
 const TICK_COUNT = 4;
+const MAX_POINTS = 3;
 
 function niceBounds(values: number[]) {
   const min = Math.min(...values);
@@ -41,7 +42,8 @@ export default function WeeklyTrendChart({ reports }: WeeklyTrendChartProps) {
         .sort(
           (a, b) =>
             parsePeriodStart(a.metadata.periodLabel) - parsePeriodStart(b.metadata.periodLabel)
-        ),
+        )
+        .slice(-MAX_POINTS),
     [reports]
   );
 
@@ -97,7 +99,7 @@ export default function WeeklyTrendChart({ reports }: WeeklyTrendChartProps) {
         <TrendingUp size={15} className="text-accent" />
         <div>
           <h2 className="text-sm font-semibold text-foreground">Weekly Total — Company-wide Trend</h2>
-          <p className="text-xs text-muted">Total IC across all teams, by week</p>
+          <p className="text-xs text-muted">Total IC across all teams — last 3 weeks</p>
         </div>
       </div>
 
