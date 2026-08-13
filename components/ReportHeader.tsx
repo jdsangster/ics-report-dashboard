@@ -13,7 +13,7 @@ interface ReportHeaderProps {
   onSelectedIdChange: (id: string) => void;
 }
 
-const CADENCES: (Cadence | "All")[] = ["All", "Weekly", "Daily", "Weekend"];
+const CADENCE_ORDER: Cadence[] = ["Weekly", "Daily", "Weekend"];
 
 export default function ReportHeader({
   reports,
@@ -24,6 +24,12 @@ export default function ReportHeader({
 }: ReportHeaderProps) {
   const filteredReports =
     cadence === "All" ? reports : reports.filter((r) => r.metadata.cadence === cadence);
+
+  const presentCadences = CADENCE_ORDER.filter((c) =>
+    reports.some((r) => r.metadata.cadence === c)
+  );
+  const showCadenceToggle = presentCadences.length > 1;
+  const cadenceOptions: (Cadence | "All")[] = ["All", ...presentCadences];
 
   return (
     <header className="border-b border-border-subtle bg-surface/60 backdrop-blur">
@@ -49,21 +55,23 @@ export default function ReportHeader({
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <div className="flex rounded-lg border border-border-subtle bg-surface p-1">
-            {CADENCES.map((c) => (
-              <button
-                key={c}
-                onClick={() => onCadenceChange(c)}
-                className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-                  cadence === c
-                    ? "bg-accent text-white shadow-sm"
-                    : "text-muted hover:text-foreground"
-                }`}
-              >
-                {c === "All" ? "All Reports" : c}
-              </button>
-            ))}
-          </div>
+          {showCadenceToggle && (
+            <div className="flex rounded-lg border border-border-subtle bg-surface p-1">
+              {cadenceOptions.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => onCadenceChange(c)}
+                  className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                    cadence === c
+                      ? "bg-accent text-white shadow-sm"
+                      : "text-muted hover:text-foreground"
+                  }`}
+                >
+                  {c === "All" ? "All Reports" : c}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="relative">
             <select
