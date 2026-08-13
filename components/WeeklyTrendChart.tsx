@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { TrendingUp } from "lucide-react";
 import { ReportData } from "@/lib/types";
-import { formatNumber } from "@/lib/utils";
+import { formatNumber, parsePeriodStart } from "@/lib/utils";
 
 interface WeeklyTrendChartProps {
   reports: ReportData[];
@@ -38,7 +38,10 @@ export default function WeeklyTrendChart({ reports }: WeeklyTrendChartProps) {
       reports
         .filter((r) => r.metadata.cadence === "Weekly")
         .slice()
-        .reverse(),
+        .sort(
+          (a, b) =>
+            parsePeriodStart(a.metadata.periodLabel) - parsePeriodStart(b.metadata.periodLabel)
+        ),
     [reports]
   );
 

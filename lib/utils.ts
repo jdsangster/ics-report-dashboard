@@ -40,6 +40,21 @@ export function splitIntoParagraphs(text: string, sentencesPerParagraph = 2): st
   return paragraphs;
 }
 
+/**
+ * Extracts a sortable timestamp from the first date in a periodLabel
+ * (e.g. "07/27 – 08/02" -> the 07/27 date). Used to order reports
+ * chronologically regardless of the order they were published in —
+ * publish order and period order are not the same thing once reports
+ * get backfilled or republished out of sequence.
+ */
+export function parsePeriodStart(periodLabel: string): number {
+  const match = periodLabel.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?/);
+  if (!match) return 0;
+  const [, month, day, year] = match;
+  const resolvedYear = year ? parseInt(year, 10) : new Date().getFullYear();
+  return new Date(resolvedYear, parseInt(month, 10) - 1, parseInt(day, 10)).getTime();
+}
+
 export function badgeStyles(badge: Badge): string {
   switch (badge) {
     case "🔺":
