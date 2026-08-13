@@ -137,18 +137,23 @@ export default function WeeklyTrendChart({ reports }: WeeklyTrendChartProps) {
             </g>
           ))}
 
-          {points.map((p, i) => (
-            <text
-              key={`x-${i}`}
-              x={p.x}
-              y={VIEW_H - 8}
-              textAnchor="middle"
-              className="fill-muted"
-              fontSize={11}
-            >
-              {p.label}
-            </text>
-          ))}
+          {points.map((p, i) => {
+            const isFirst = i === 0;
+            const isLast = i === points.length - 1;
+            const textAnchor = isFirst ? "start" : isLast ? "end" : "middle";
+            return (
+              <text
+                key={`x-${i}`}
+                x={p.x}
+                y={VIEW_H - 8}
+                textAnchor={textAnchor}
+                className="fill-muted"
+                fontSize={11}
+              >
+                {p.label}
+              </text>
+            );
+          })}
 
           <path
             d={linePath}
