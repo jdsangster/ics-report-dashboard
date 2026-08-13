@@ -9,7 +9,8 @@ import ReportHeader from "@/components/ReportHeader";
 import KpiCard from "@/components/KpiCard";
 import PerformanceTable from "@/components/PerformanceTable";
 import OutstandingSection from "@/components/OutstandingSection";
-import ObservationsCard from "@/components/ObservationsCard";
+import HighlightsSection from "@/components/HighlightsSection";
+import ConclusionCard from "@/components/ConclusionCard";
 import OrganizationalChangesCard from "@/components/OrganizationalChangesCard";
 
 export default function Home() {
@@ -109,6 +110,7 @@ export default function Home() {
 
           <KpiCard report={activeReport} />
           <OutstandingSection performers={activeReport.outstandingPerformers} />
+          <HighlightsSection highlights={activeReport.highlights} />
           <PerformanceTable
             comparisonTable={activeReport.comparisonTable}
             teamTotals={activeReport.teamTotals}
@@ -116,10 +118,7 @@ export default function Home() {
           {activeReport.organizationalChanges && activeReport.organizationalChanges.length > 0 && (
             <OrganizationalChangesCard changes={activeReport.organizationalChanges} />
           )}
-          <ObservationsCard
-            highlights={activeReport.highlights}
-            conclusion={activeReport.conclusion}
-          />
+          <ConclusionCard conclusion={activeReport.conclusion} />
         </motion.div>
       </main>
 

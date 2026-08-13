@@ -1,16 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ClipboardList, TrendingUp, TrendingDown, MessageSquareQuote } from "lucide-react";
+import { ClipboardList, TrendingUp, TrendingDown } from "lucide-react";
 import { ReportHighlights } from "@/lib/types";
-import { splitIntoParagraphs } from "@/lib/utils";
 
-interface ObservationsCardProps {
+interface HighlightsSectionProps {
   highlights: ReportHighlights;
-  conclusion: string;
 }
 
-export default function ObservationsCard({ highlights, conclusion }: ObservationsCardProps) {
+export default function HighlightsSection({ highlights }: HighlightsSectionProps) {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <motion.div
@@ -71,25 +69,6 @@ export default function ObservationsCard({ highlights, conclusion }: Observation
             </li>
           ))}
         </ul>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, delay: 0.18 }}
-        className="rounded-xl border border-border-subtle bg-surface-elevated p-5 lg:col-span-3"
-      >
-        <div className="mb-3 flex items-center gap-2">
-          <MessageSquareQuote size={15} className="text-muted" />
-          <h3 className="text-sm font-semibold text-foreground">Executive Conclusion</h3>
-        </div>
-        <div className="space-y-3">
-          {splitIntoParagraphs(conclusion).map((paragraph, i) => (
-            <p key={i} className="text-sm leading-relaxed text-muted">
-              {paragraph}
-            </p>
-          ))}
-        </div>
       </motion.div>
     </div>
   );
