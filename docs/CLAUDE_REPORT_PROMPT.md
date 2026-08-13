@@ -1,54 +1,109 @@
-# Prompt para generar el JSON del reporte ICS
+# Prompt for generating the ICS report JSON
 
-Pega este bloque en tu chat/proyecto de Claude (donde ya subes el Excel exportado de Power BI), como instrucción permanente o justo después de pedir el reporte semanal. Claude debe generar el reporte de Word/Teams como ya lo hace, **y además** un bloque de JSON con este formato exacto, listo para pegar en `/admin` del dashboard.
+Paste the block below into the Claude chat/project where you already upload the Power BI Excel export — either as a permanent instruction for that chat/project, or right after you ask for the weekly report. Claude should keep generating the usual Word/Teams report, **and additionally** output a JSON block in the exact format the dashboard expects, ready to paste into `/admin`.
 
----
-
-## Instrucción para Claude
-
-```
-Además del reporte narrativo de siempre, genera un bloque de JSON con esta
-estructura EXACTA (no cambies nombres de campos, no agregues campos nuevos).
-Usa los mismos datos y análisis que usaste para el reporte narrativo —
-el JSON debe representar la misma información, solo en formato estructurado.
-
-Reglas:
-- "cadence" es "Weekly", "Daily", o "Weekend" según el periodo del reporte.
-- "totalLabel" cambia según cadence: "Weekly Total", "Daily Total", o "Weekend Total".
-- "status" en summary es "growth" si currentValue > previousValue, "decline" si es
-  menor, "flat" si es igual.
-- "badge" en cada fila de comparisonTable:
-  - "🔺" si diff es positivo
-  - "🔻" si diff es negativo
-  - "➖" si diff es 0.0
-  - "New" si el contribuidor no tenía prevAvg la semana anterior (prevAvg: 0)
-- "diff" es un string con signo, ej. "+4.2", "-5.2", "0.0", o "New" cuando badge es "New".
-- outstandingPerformers incluye solo contribuidores con avgDay >= 10.0.
-- organizationalChanges es OPCIONAL — solo inclúyelo si hubo promociones, renuncias,
-  o transiciones esa semana (igual que la sección "Organizational Changes &
-  Transition Report" del Word). Si no hay ninguna, omite el campo por completo.
-- highlights.mostImproved y biggestDeclines: máximo 5 cada uno, mismo formato que
-  usas en el Word ("Nombre 🔺+X.X").
-- conclusion: el mismo cierre que escribes en el reporte de Word. Si es largo,
-  sepáralo en 2-4 párrafos cortos usando una línea en blanco entre cada uno
-  (doble salto de línea, "\n\n" dentro del JSON) — se ve mucho mejor en el
-  dashboard que un solo bloque de texto corrido.
-
-Devuelve el JSON en un bloque de código separado, sin texto adicional dentro
-del bloque, para que lo pueda copiar directo.
-```
+This prompt is written to be strict on purpose — a previous attempt produced JSON with the wrong field names (`name` instead of `cdr`, a flat `period` instead of nested `metadata.periodLabel`, etc.), which the dashboard rejected. The instructions below spell out the exact keys and explicitly list the mistakes to avoid.
 
 ---
 
-## Esquema de referencia (con ejemplo real basado en Week 5)
+## Instruction to paste into your Claude chat
+
+```
+In addition to the narrative report you always generate, output a JSON block
+that matches the schema below EXACTLY. This is a strict data contract, not a
+style guide — an automated system parses this JSON and will reject it if any
+key is renamed, missing, restructured, or spelled differently. Do not "improve"
+or reword the field names, even if a different name feels more natural.
+
+SCHEMA (use these exact keys, nesting, and types):
+
+{
+  "metadata": {
+    "reportType": string,        // e.g. "Power BI ICS Report"
+    "cadence": "Weekly" | "Daily" | "Weekend",
+    "periodLabel": string        // e.g. "07/27 – 08/02"
+  },
+  "summary": {
+    "totalLabel": string,        // "Weekly Total" | "Daily Total" | "Weekend Total"
+    "currentValue": number,
+    "previousValue": number,
+    "diffText": string,          // e.g. "-258 IC (-16.7%)" — ONE combined string
+    "status": "growth" | "decline" | "flat"
+  },
+  "outstandingPerformers": [
+    { "cdr": string, "team": string, "totalIC": number, "workedDays": number, "avgDay": number }
+  ],
+  "comparisonTable": [
+    { "cdr": string, "team": string, "prevAvg": number, "currentAvg": number, "diff": string, "badge": "🔺" | "🔻" | "➖" | "New" }
+  ],
+  "teamTotals": [
+    { "team": string, "total": number }
+  ],
+  "highlights": {
+    "mostImproved": string[],    // e.g. "Marialys Ramirez 🔺+4.2"
+    "biggestDeclines": string[],
+    "observations": string[]     // REQUIRED — do not omit this array
+  },
+  "organizationalChanges": [     // OPTIONAL — omit the whole key if there were none this period
+    { "contributor": string, "icGenerated": number, "status": string }
+  ],
+  "conclusion": string           // if long, separate into 2-4 short paragraphs
+                                  // using a blank line ("\n\n") between them
+}
+
+CRITICAL — exact key names, do not substitute:
+- Person's name is always "cdr" in outstandingPerformers and comparisonTable —
+  never "name".
+- Person's name is "contributor" in organizationalChanges — never "name".
+- metadata.periodLabel — never a top-level "period" field.
+- summary.diffText is ONE string combining the diff and percentage —
+  never separate "diff" (number) and "diffPercent" fields.
+- teamTotals uses "total" — never "totalIC" or "totalCalls".
+- highlights.observations is REQUIRED. It must always be present with at
+  least 2-4 entries, even if you also write it in the narrative report.
+- Do not add a top-level "id" field — the system assigns that.
+- Do not wrap the object in extra keys like "report" or "data".
+
+RULES:
+- "cadence" is "Weekly", "Daily", or "Weekend" based on the report period.
+- "totalLabel" must match cadence: "Weekly Total", "Daily Total", or "Weekend Total".
+- summary.status is "growth" if currentValue > previousValue, "decline" if
+  lower, "flat" if equal.
+- comparisonTable[].badge:
+  - "🔺" when diff is positive
+  - "🔻" when diff is negative
+  - "➖" when diff is exactly 0.0
+  - "New" when the contributor had no prevAvg last period (prevAvg: 0)
+- comparisonTable[].diff is a signed string, e.g. "+4.2", "-5.2", "0.0", or
+  the literal string "New" when badge is "New".
+- outstandingPerformers includes only contributors with avgDay >= 10.0.
+- highlights.mostImproved / biggestDeclines: up to 5 each, formatted exactly
+  like the narrative report ("Name 🔺+X.X").
+
+Before you respond, verify your JSON against this checklist:
+[ ] Top-level keys are exactly: metadata, summary, outstandingPerformers,
+    comparisonTable, teamTotals, highlights, conclusion (+ organizationalChanges
+    if applicable) — no other top-level keys.
+[ ] metadata is a nested object with reportType, cadence, periodLabel.
+[ ] Every person in outstandingPerformers and comparisonTable uses "cdr".
+[ ] Every person in organizationalChanges uses "contributor".
+[ ] summary has a single "diffText" string, not separate diff/diffPercent.
+[ ] teamTotals items use "total".
+[ ] highlights.observations is present and non-empty.
+
+Output ONLY a single fenced JSON code block. No explanation before or after it.
+```
+
+---
+
+## Reference schema (with a real example based on Week 5)
 
 ```json
 {
   "metadata": {
     "reportType": "Power BI ICS Report",
     "cadence": "Weekly",
-    "periodLabel": "07/27 – 08/02",
-    "filename": "Power BI ICS Report (07/27 – 08/02).docx"
+    "periodLabel": "07/27 – 08/02"
   },
   "summary": {
     "totalLabel": "Weekly Total",
@@ -88,22 +143,26 @@ del bloque, para que lo pueda copiar directo.
 }
 ```
 
-**Campos y tipos:**
+**Fields and types:**
 
-| Campo | Tipo | Notas |
+| Field | Type | Notes |
 | --- | --- | --- |
-| `metadata.cadence` | `"Weekly" \| "Daily" \| "Weekend"` | Determina el título del KPI principal |
-| `metadata.periodLabel` | string | El rango de fechas tal como aparece en el reporte |
-| `summary.status` | `"growth" \| "decline" \| "flat"` | Colorea el KPI (verde/rojo/gris) |
-| `comparisonTable[].badge` | `"🔺" \| "🔻" \| "➖" \| "New"` | Colorea el badge en la tabla |
-| `organizationalChanges` | array, **opcional** | Omitir si no hubo cambios esa semana |
+| `metadata.cadence` | `"Weekly" \| "Daily" \| "Weekend"` | Drives the main KPI title |
+| `metadata.periodLabel` | string | The date range as it appears in the report |
+| `summary.status` | `"growth" \| "decline" \| "flat"` | Colors the KPI (green/red/gray) |
+| `comparisonTable[].badge` | `"🔺" \| "🔻" \| "➖" \| "New"` | Colors the badge in the table |
+| `organizationalChanges` | array, **optional** | Omit entirely if there were no changes this period |
 
-## Cómo publicarlo
+## Publishing it
 
-1. Copia el bloque de JSON completo que Claude generó.
-2. Ve a `https://tu-app.vercel.app/admin` (o `http://localhost:3000/admin` en local).
-3. Ingresa la contraseña de admin.
-4. Pega el JSON en el cuadro de texto y da clic en **Publicar reporte**.
-5. El reporte aparece de inmediato en el dashboard (`/reports/ics`).
+1. Copy the full JSON block Claude generated.
+2. Go to `https://ics-report-dashboard.vercel.app/admin` (or `http://localhost:3000/admin` locally).
+3. Log in with the admin password.
+4. Paste the JSON into the text box and click **Publicar reporte**.
+5. The report appears immediately on the dashboard (`/reports/ics`).
 
-Si el JSON no tiene el formato correcto, la página te mostrará un error explicando qué falta — no se publica nada roto al dashboard.
+If the JSON doesn't match the schema, the page shows an error explaining what's missing or wrong — nothing broken gets published to the dashboard.
+
+## If it still comes out wrong
+
+If your Claude chat keeps drifting from the schema (renaming fields, dropping `observations`, etc.), the most reliable fix is pasting the **entire instruction block above** fresh into the conversation right before asking for that week's report, rather than relying on it as a saved/background instruction — long chat histories can cause earlier instructions to get deprioritized.
