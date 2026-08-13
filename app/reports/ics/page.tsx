@@ -7,7 +7,8 @@ import { ArrowLeft } from "lucide-react";
 import { ReportData, Cadence } from "@/lib/types";
 import ReportHeader from "@/components/ReportHeader";
 import KpiCard from "@/components/KpiCard";
-import PerformanceTable from "@/components/PerformanceTable";
+import TeamTotalsCard from "@/components/TeamTotalsCard";
+import WeekOverWeekCard from "@/components/WeekOverWeekCard";
 import OutstandingSection from "@/components/OutstandingSection";
 import HighlightsSection from "@/components/HighlightsSection";
 import ConclusionCard from "@/components/ConclusionCard";
@@ -111,13 +112,13 @@ export default function Home() {
           <KpiCard report={activeReport} />
           <OutstandingSection performers={activeReport.outstandingPerformers} />
           <HighlightsSection highlights={activeReport.highlights} />
-          <PerformanceTable
-            comparisonTable={activeReport.comparisonTable}
-            teamTotals={activeReport.teamTotals}
-          />
-          {activeReport.organizationalChanges && activeReport.organizationalChanges.length > 0 && (
-            <OrganizationalChangesCard changes={activeReport.organizationalChanges} />
-          )}
+          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+            <TeamTotalsCard teamTotals={activeReport.teamTotals} />
+            {activeReport.organizationalChanges && activeReport.organizationalChanges.length > 0 && (
+              <OrganizationalChangesCard changes={activeReport.organizationalChanges} />
+            )}
+          </div>
+          <WeekOverWeekCard comparisonTable={activeReport.comparisonTable} />
           <ConclusionCard conclusion={activeReport.conclusion} />
         </motion.div>
       </main>
