@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { ReportData, Cadence } from "@/lib/types";
 import ReportHeader from "@/components/ReportHeader";
 import KpiCard from "@/components/KpiCard";
+import WeeklyTrendChart from "@/components/WeeklyTrendChart";
 import TeamTotalsCard from "@/components/TeamTotalsCard";
 import WeekOverWeekCard from "@/components/WeekOverWeekCard";
 import OutstandingSection from "@/components/OutstandingSection";
@@ -110,6 +111,7 @@ export default function Home() {
           </div>
 
           <KpiCard report={activeReport} />
+          <WeeklyTrendChart reports={reports} />
           <OutstandingSection performers={activeReport.outstandingPerformers} />
           <HighlightsSection highlights={activeReport.highlights} />
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

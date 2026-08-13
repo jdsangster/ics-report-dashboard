@@ -99,6 +99,49 @@ export const mockReports: ReportData[] = [
       "Week 4 delivered a solid recovery to 1,543 IC (+3.6%), driven primarily by Team Angelo's outstanding performers. Momentum should be reinforced heading into Week 5, with attention to Team Martin's still-low volume relative to peers.",
   },
   {
+    id: "weekly-w3",
+    metadata: {
+      reportType: "Power BI ICS Report",
+      cadence: "Weekly",
+      periodLabel: "07/13 – 07/19",
+      filename: "Power BI ICS Report (07/13 – 07/19).docx",
+    },
+    summary: {
+      totalLabel: "Weekly Total",
+      currentValue: 1489,
+      previousValue: 1402,
+      diffText: "+87 IC (+6.2%)",
+      status: "growth",
+    },
+    outstandingPerformers: [
+      { cdr: "Alejandro Portillo", team: "Team Angelo", totalIC: 50, workedDays: 5, avgDay: 10.0 },
+    ],
+    comparisonTable: [
+      { cdr: "Alejandro Portillo", team: "Team Angelo", prevAvg: 8.4, currentAvg: 10.0, diff: "+1.6", badge: "🔺" },
+      { cdr: "Salome Gutierrez", team: "Team Mairenis", prevAvg: 8.9, currentAvg: 10.2, diff: "+1.3", badge: "🔺" },
+      { cdr: "Lucia Tellez", team: "Team Angelo", prevAvg: 8.5, currentAvg: 9.0, diff: "+0.5", badge: "🔺" },
+      { cdr: "Ianis Gavriz", team: "Team Angelo", prevAvg: 7.2, currentAvg: 7.5, diff: "+0.3", badge: "🔺" },
+      { cdr: "Marialys Ramirez", team: "Team Mairenis", prevAvg: 6.3, currentAvg: 6.0, diff: "-0.3", badge: "🔻" },
+    ],
+    teamTotals: [
+      { team: "Team Angelo", total: 520 },
+      { team: "Team Ruth", total: 410 },
+      { team: "Team Mairenis", total: 400 },
+      { team: "Team Martin", total: 159 },
+    ],
+    highlights: {
+      mostImproved: ["Alejandro Portillo 🔺+1.6", "Salome Gutierrez 🔺+1.3"],
+      biggestDeclines: ["Marialys Ramirez 🔻-0.3"],
+      observations: [
+        "Company total climbed to 1,489 IC (+6.2%), the second consecutive week of growth.",
+        "Alejandro Portillo hit the Outstanding threshold for the first time this cycle (10.0 avg).",
+        "Team Martin posted its strongest week yet at 159 total IC.",
+      ],
+    },
+    conclusion:
+      "Week 3 continued the recovery with 1,489 IC (+6.2%), led by Team Angelo. Team Martin's uptick to 159 IC is encouraging after several flat weeks — worth watching whether it holds into Week 4.",
+  },
+  {
     id: "daily-0805",
     metadata: {
       reportType: "Power BI ICS Report",
