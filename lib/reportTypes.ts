@@ -38,7 +38,7 @@ export const reportTypes: ReportTypeMeta[] = [
     name: "Total Calls Report",
     description: "Aggregate call volume across all lines, teams, and channels.",
     icon: PhoneCall,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "ic-show-up-rate",

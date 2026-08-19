@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import { ChevronDown, ArrowLeft } from "lucide-react";
-import { ReportData, Cadence } from "@/lib/types";
+import { ReportListItem, Cadence } from "@/lib/types";
 import BrandLogo from "@/components/BrandLogo";
 
 interface ReportHeaderProps {
-  reports: ReportData[];
+  reports: ReportListItem[];
   cadence: Cadence | "All";
   onCadenceChange: (cadence: Cadence | "All") => void;
   selectedId: string;
   onSelectedIdChange: (id: string) => void;
+  title: string;
+  subtitle: string;
 }
 
 const CADENCE_ORDER: Cadence[] = ["Weekly", "Daily", "Weekend"];
@@ -21,6 +23,8 @@ export default function ReportHeader({
   onCadenceChange,
   selectedId,
   onSelectedIdChange,
+  title,
+  subtitle,
 }: ReportHeaderProps) {
   const filteredReports =
     cadence === "All" ? reports : reports.filter((r) => r.metadata.cadence === cadence);
@@ -47,10 +51,8 @@ export default function ReportHeader({
                 Reports Hub
               </Link>
             </div>
-            <h1 className="text-lg font-semibold tracking-tight text-foreground">
-              ICS Performance Report
-            </h1>
-            <p className="text-xs text-muted">Power BI ICS Report · Executive Summary</p>
+            <h1 className="text-lg font-semibold tracking-tight text-foreground">{title}</h1>
+            <p className="text-xs text-muted">{subtitle}</p>
           </div>
         </div>
 

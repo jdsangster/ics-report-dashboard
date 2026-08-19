@@ -1,6 +1,6 @@
 # Colombo&Hurd Reports Center
 
-Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. The first live report is **ICS Performance** (Daily / Weekend / Weekly inbound call metrics) — more report types are added the same way as they're needed.
+Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics) and **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention). More report types are added the same way as they're needed.
 
 Built with Next.js (App Router), Tailwind CSS, and Supabase, with a password-protected internal `/admin` page for publishing new reports — no SharePoint, Power Automate, or IT dependency required to ship a new report.
 
@@ -19,25 +19,26 @@ Power BI → Excel export
         ▼
 Claude chat/project (existing workflow)
   - Generates the narrative report for Teams, same as today
-  - ALSO generates a JSON block matching the schema below
-    (prompt template: docs/CLAUDE_REPORT_PROMPT.md)
+  - ALSO generates a JSON block matching that report type's schema
+    (prompt templates: docs/CLAUDE_REPORT_PROMPT.md for ICS,
+     docs/CLAUDE_TOTAL_CALLS_PROMPT.md for Total Calls)
         │
         ▼
 /admin page (password protected)
-  - Paste the JSON block, click "Publicar reporte"
-  - app/api/admin/publish/route.ts validates the shape and inserts
-    into Supabase `reports` (cadence, period_label, data JSONB)
+  - Pick the report type from the dropdown, paste the JSON, click "Publicar reporte"
+  - app/api/admin/publish/route.ts validates the shape for that report type
+    and inserts into Supabase `reports` (report_type, cadence, period_label, data JSONB)
         │
         ▼
-Supabase Postgres — `reports` table
+Supabase Postgres — `reports` table (one table, `report_type` column tells types apart)
         │
         ▼
-app/api/reports/route.ts (GET)
-  - NEXT_PUBLIC_DEMO_MODE=true  → returns lib/mockData.ts
-  - NEXT_PUBLIC_DEMO_MODE=false → queries Supabase, newest first
+app/api/reports/route.ts?type=<slug> (GET)
+  - NEXT_PUBLIC_DEMO_MODE=true  → returns that type's mock data
+  - NEXT_PUBLIC_DEMO_MODE=false → queries Supabase filtered to report_type = <slug>, newest first
         │
         ▼
-app/reports/ics/page.tsx — fetches, filters by cadence + period, renders the dashboard
+app/reports/<slug>/page.tsx — fetches, filters by cadence + period, renders that report's dashboard
 ```
 
 An `app/api/reports/webhook/route.ts` endpoint (API-key protected) also exists and inserts through the same shared logic — it's there for later, if this ever gets automated with Power Automate, Zapier, or a script instead of the manual paste-and-publish step. It is **not** required for the current workflow.
@@ -50,33 +51,38 @@ app/
   admin/page.tsx                    Password-gated report publishing page
   reports/
     ics/page.tsx                    ICS Performance dashboard (live)
+    total-calls/page.tsx            Total Calls Report dashboard (live)
     [slug]/page.tsx                 "Coming soon" placeholder for not-yet-built report types
   api/
-    reports/route.ts                GET — list reports (mock or Supabase)
-    reports/webhook/route.ts        POST — external automation ingestion (optional, future)
+    reports/route.ts                GET ?type=<slug> — list reports of that type (mock or Supabase)
+    reports/webhook/route.ts        POST — external automation ingestion, ICS only (optional, future)
     admin/login/route.ts            POST — check password, set session cookie
     admin/logout/route.ts           POST — clear session cookie
-    admin/publish/route.ts          POST — publish a report (session-cookie protected)
+    admin/publish/route.ts          POST { reportType, payload } — publish a report (session-cookie protected)
 components/
   ReportTypeCard.tsx                 Landing page report card (live / coming soon)
-  ReportHeader.tsx                   Cadence filter + period selector (ICS dashboard)
-  KpiCard.tsx                        Dynamically titled KPI tiles (Weekly/Daily/Weekend Total, etc.)
-  OutstandingSection.tsx             Gold-accented cards for performers hitting the threshold
-  PerformanceTable.tsx               Week-over-week comparison table + team totals bars
-  OrganizationalChangesCard.tsx      Promotions / resignations table (optional section)
-  ObservationsCard.tsx               Most improved / biggest declines / observations / conclusion
+  ReportHeader.tsx                   Generic header: brand, cadence filter, period selector (used by every report page)
+  BrandLogo.tsx                      ColomboHurd logo, used in every header
+  KpiCard.tsx / TeamTotalsCard.tsx / WeekOverWeekCard.tsx / OutstandingSection.tsx /
+  HighlightsSection.tsx / OrganizationalChangesCard.tsx / ConclusionCard.tsx /
+  WeeklyTrendChart.tsx               ICS report components
+  TotalCallsSummaryCard.tsx / TeamCallsCard.tsx / TopPerformersCard.tsx /
+  AttentionCard.tsx / TeamRankingCard.tsx / CallsTakeawaysSection.tsx
+                                      Total Calls report components (ConclusionCard is shared with ICS)
   admin/AdminLoginForm.tsx           Password form
-  admin/AdminPublishForm.tsx         JSON paste + publish form
+  admin/AdminPublishForm.tsx         Report-type selector + JSON paste + publish form
 lib/
-  types.ts                           Shared TypeScript types for the report schema
-  reportTypes.ts                     Registry of all report types shown on the landing page
-  reports.ts                         Shared payload validation + Supabase insert (used by webhook and admin publish)
+  types.ts                           Shared TypeScript types — one payload/data interface pair per report type
+  reportTypes.ts                     Registry of all report types shown on the landing page and the admin selector
+  reports.ts                         Per-type payload validation + Supabase insert (used by webhook and admin publish)
   mockData.ts                        Simulated multi-period ICS reports for demo mode
+  totalCallsMockData.ts              Simulated Total Calls report for demo mode
   supabaseClient.ts                  Server-only Supabase client (service role key)
   adminAuth.ts                       Password check + session cookie helpers
-  utils.ts                           Formatting + badge/status style helpers
+  utils.ts                           Formatting + badge/status style helpers + paragraph splitting
 docs/
-  CLAUDE_REPORT_PROMPT.md            Prompt template to paste into your Claude report-generation chat
+  CLAUDE_REPORT_PROMPT.md            Prompt template for the ICS report JSON
+  CLAUDE_TOTAL_CALLS_PROMPT.md       Prompt template for the Total Calls report JSON
 ```
 
 ## Report JSON schema (ICS)
@@ -121,11 +127,22 @@ This is both the `/admin` publish payload and the shape stored in Supabase's `re
 
 `cadence` is `"Daily" | "Weekend" | "Weekly"` and drives the dynamic KPI title (`summary.totalLabel`). `badge` is one of `🔺` (green, improved), `🔻` (red, declined), `➖` (neutral, unchanged), or `New` (blue, first-time contributor). `organizationalChanges` is optional — omit it on weeks with no promotions/resignations.
 
+## Report JSON schema (Total Calls)
+
+Full field-by-field reference and a real example: [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md). Top-level shape: `metadata`, `summary` (totalCalls/adjustedActiveCalls/totalICs/excludedContributors/excludedCalls), `teams` (per-team highlights + analysis), `topPerformers`, `attentionByTeam` (contributors below the daily call benchmark), `teamRanking`, `keyTakeaways` (positiveTrends/opportunities/mainAttentionPoints), and `executiveSummary`.
+
 ## Adding a new report type
 
 1. Add an entry to `lib/reportTypes.ts` (slug, name, description, icon, `status: "coming-soon"`).
 2. It immediately shows up on the landing page as a "Coming Soon" card, and `app/reports/[slug]/page.tsx` renders a placeholder for it automatically.
-3. When you're ready to build it: define its schema in `lib/types.ts`, add mock data, build the dashboard route (copy `app/reports/ics/page.tsx` as a starting point), flip its `status` to `"live"`.
+3. When you're ready to build it:
+   - Define its payload/data types in `lib/types.ts` (follow the `TotalCallsPayload`/`TotalCallsData` pattern).
+   - Add a validator (`isValidXPayload`) and wire it into `isValidReportPayloadFor` in `lib/reports.ts`, and add the slug to `ReportTypeSlug`.
+   - Add mock data in a new `lib/<name>MockData.ts` file.
+   - Build the dashboard route at `app/reports/<slug>/page.tsx` (copy `app/reports/total-calls/page.tsx` as a starting point — it fetches `/api/reports?type=<slug>` and reuses `ReportHeader`/`ConclusionCard`).
+   - Add its slug to `VALID_TYPES` in `app/api/reports/route.ts`.
+   - Flip its `status` to `"live"` in `lib/reportTypes.ts` — it then also appears in the `/admin` report-type dropdown automatically.
+   - Write a `docs/CLAUDE_<NAME>_PROMPT.md` prompt template so the Claude chat that generates that report can output matching JSON.
 
 ## Environment variables
 
@@ -141,18 +158,27 @@ Copy `.env.example` to `.env.local` and fill in your values:
 
 ## Supabase setup
 
-Create the `reports` table (SQL editor in the Supabase dashboard):
+Create the `reports` table (SQL editor in the Supabase dashboard). One table holds every report type — `report_type` tells them apart:
 
 ```sql
 create table reports (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
+  report_type text not null default 'ics',
   cadence text not null,
   period_label text not null,
   data jsonb not null
 );
 
 create index reports_created_at_idx on reports (created_at desc);
+create index reports_report_type_idx on reports (report_type);
+```
+
+**If you already created this table before `report_type` existed** (i.e. before the Total Calls report was added), run this migration instead — it's additive and safe, existing ICS rows automatically get `report_type = 'ics'` via the default:
+
+```sql
+alter table reports add column if not exists report_type text not null default 'ics';
+create index if not exists reports_report_type_idx on reports (report_type);
 ```
 
 All reads/writes go through the service role key inside API routes, so Row Level Security can stay enabled with no public policies.
@@ -160,10 +186,11 @@ All reads/writes go through the service role key inside API routes, so Row Level
 ## Publishing a report (day-to-day workflow)
 
 1. Export the data from Power BI as you already do.
-2. Run it through your Claude report chat, using the prompt in [`docs/CLAUDE_REPORT_PROMPT.md`](docs/CLAUDE_REPORT_PROMPT.md) so it outputs the JSON block alongside the usual Word report.
+2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_REPORT_PROMPT.md`](docs/CLAUDE_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls — so it outputs the JSON block alongside the usual Word report.
 3. Go to `/admin`, log in with `ADMIN_PASSWORD`.
-4. Paste the JSON block, click **Publicar reporte**.
-5. It appears immediately at `/reports/ics`.
+4. Pick the matching report type from the **Tipo de reporte** dropdown.
+5. Paste the JSON block, click **Publicar reporte**.
+6. It appears immediately at `/reports/ics` or `/reports/total-calls`.
 
 ## Local development
 

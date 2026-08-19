@@ -4,19 +4,18 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { ReportData, Cadence } from "@/lib/types";
+import { TotalCallsData, Cadence } from "@/lib/types";
 import ReportHeader from "@/components/ReportHeader";
-import KpiCard from "@/components/KpiCard";
-import WeeklyTrendChart from "@/components/WeeklyTrendChart";
-import TeamTotalsCard from "@/components/TeamTotalsCard";
-import WeekOverWeekCard from "@/components/WeekOverWeekCard";
-import OutstandingSection from "@/components/OutstandingSection";
-import HighlightsSection from "@/components/HighlightsSection";
+import TotalCallsSummaryCard from "@/components/TotalCallsSummaryCard";
+import TeamCallsCard from "@/components/TeamCallsCard";
+import TopPerformersCard from "@/components/TopPerformersCard";
+import AttentionCard from "@/components/AttentionCard";
+import TeamRankingCard from "@/components/TeamRankingCard";
+import CallsTakeawaysSection from "@/components/CallsTakeawaysSection";
 import ConclusionCard from "@/components/ConclusionCard";
-import OrganizationalChangesCard from "@/components/OrganizationalChangesCard";
 
-export default function Home() {
-  const [reports, setReports] = useState<ReportData[]>([]);
+export default function TotalCallsReportPage() {
+  const [reports, setReports] = useState<TotalCallsData[]>([]);
   const [cadence, setCadence] = useState<Cadence | "All">("All");
   const [selectedId, setSelectedId] = useState<string>("");
   const [source, setSource] = useState<"mock" | "live" | null>(null);
@@ -24,9 +23,9 @@ export default function Home() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/reports?type=ics")
+    fetch("/api/reports?type=total-calls")
       .then((res) => res.json())
-      .then((data: { source: "mock" | "live"; reports: ReportData[] }) => {
+      .then((data: { source: "mock" | "live"; reports: TotalCallsData[] }) => {
         if (cancelled) return;
         setReports(data.reports);
         setSource(data.source);
@@ -43,8 +42,7 @@ export default function Home() {
     [reports, cadence]
   );
 
-  const activeReport =
-    filteredReports.find((r) => r.id === selectedId) ?? filteredReports[0];
+  const activeReport = filteredReports.find((r) => r.id === selectedId) ?? filteredReports[0];
 
   const handleCadenceChange = (next: Cadence | "All") => {
     setCadence(next);
@@ -86,8 +84,8 @@ export default function Home() {
         onCadenceChange={handleCadenceChange}
         selectedId={selectedId}
         onSelectedIdChange={setSelectedId}
-        title="ICS Performance Report"
-        subtitle="Power BI ICS Report · Executive Summary"
+        title="Total Calls Report"
+        subtitle="Aggregate call volume · Executive Summary"
       />
 
       <main className="mx-auto w-full max-w-7xl flex-1 space-y-8 px-6 py-8">
@@ -101,9 +99,9 @@ export default function Home() {
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-xl font-semibold tracking-tight text-foreground">
-                {activeReport.metadata.cadence} Report · {activeReport.metadata.periodLabel}
+                {activeReport.metadata.cadence} Calls Report · {activeReport.metadata.periodLabel}
               </h2>
-              <p className="text-xs text-muted">{activeReport.metadata.filename}</p>
+              <p className="text-xs text-muted">{activeReport.metadata.reportType}</p>
             </div>
             {source === "mock" && (
               <span className="w-fit rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
@@ -112,18 +110,19 @@ export default function Home() {
             )}
           </div>
 
-          <KpiCard report={activeReport} />
-          <WeeklyTrendChart reports={reports} />
-          <OutstandingSection performers={activeReport.outstandingPerformers} />
-          <HighlightsSection highlights={activeReport.highlights} />
+          <TotalCallsSummaryCard report={activeReport} />
+
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <TeamTotalsCard teamTotals={activeReport.teamTotals} />
-            {activeReport.organizationalChanges && activeReport.organizationalChanges.length > 0 && (
-              <OrganizationalChangesCard changes={activeReport.organizationalChanges} />
-            )}
+            {activeReport.teams.map((team, i) => (
+              <TeamCallsCard key={team.team} team={team} index={i} />
+            ))}
           </div>
-          <WeekOverWeekCard comparisonTable={activeReport.comparisonTable} />
-          <ConclusionCard conclusion={activeReport.conclusion} />
+
+          <TopPerformersCard performers={activeReport.topPerformers} />
+          <AttentionCard attentionByTeam={activeReport.attentionByTeam} />
+          <TeamRankingCard ranking={activeReport.teamRanking} />
+          <CallsTakeawaysSection takeaways={activeReport.keyTakeaways} />
+          <ConclusionCard conclusion={activeReport.executiveSummary} title="Executive Summary" />
         </motion.div>
       </main>
 

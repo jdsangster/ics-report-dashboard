@@ -68,3 +68,96 @@ export interface ReportData extends ReportPayload {
   id: string;
   createdAt?: string;
 }
+
+/** Minimal shape shared by every report type — enough for header filtering/selection. */
+export interface ReportListItem {
+  id: string;
+  metadata: {
+    cadence: Cadence;
+    periodLabel: string;
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Total Calls Report
+// ---------------------------------------------------------------------------
+
+export interface TotalCallsMetadata {
+  reportType: string;
+  cadence: Cadence;
+  periodLabel: string;
+}
+
+export interface TotalCallsSummary {
+  totalCalls: number;
+  adjustedActiveCalls: number;
+  totalICs: number;
+  excludedContributors: string[];
+  excludedCalls: number;
+}
+
+export interface TeamCallsHighlight {
+  cdr: string;
+  calls: number;
+  ics: number;
+}
+
+export interface TeamCallsStat {
+  team: string;
+  totalCalls: number;
+  totalICs: number;
+  highlights: TeamCallsHighlight[];
+  analysis: string;
+}
+
+export interface TopPerformer {
+  rank: number;
+  cdr: string;
+  team: string;
+  calls: number;
+}
+
+export interface AttentionDay {
+  date: string;
+  calls: number;
+}
+
+export interface ContributorAttention {
+  cdr: string;
+  belowTargetDays: AttentionDay[];
+}
+
+export interface TeamAttention {
+  team: string;
+  contributors: ContributorAttention[];
+}
+
+export interface TeamRanking {
+  rank: number;
+  team: string;
+  calls: number;
+  ics: number;
+}
+
+export interface TotalCallsKeyTakeaways {
+  positiveTrends: string[];
+  opportunities: string[];
+  mainAttentionPoints: string[];
+}
+
+/** Shape stored in Supabase's `reports.data` JSONB column for the Total Calls report type. */
+export interface TotalCallsPayload {
+  metadata: TotalCallsMetadata;
+  summary: TotalCallsSummary;
+  teams: TeamCallsStat[];
+  topPerformers: TopPerformer[];
+  attentionByTeam: TeamAttention[];
+  teamRanking: TeamRanking[];
+  keyTakeaways: TotalCallsKeyTakeaways;
+  executiveSummary: string;
+}
+
+export interface TotalCallsData extends TotalCallsPayload {
+  id: string;
+  createdAt?: string;
+}

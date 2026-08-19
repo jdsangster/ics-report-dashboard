@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/adminAuth";
-import { insertReport, isValidReportPayload } from "@/lib/reports";
+import { insertReport, isValidReportPayloadFor, ReportTypeSlug } from "@/lib/reports";
+
+const VALID_TYPES: ReportTypeSlug[] = ["ics", "total-calls"];
 
 export async function POST(req: NextRequest) {
   if (!(await isAdminAuthenticated())) {
@@ -14,7 +16,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  if (!isValidReportPayload(body)) {
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  const { reportType, payload } = body as { reportType?: unknown; payload?: unknown };
+
+  if (typeof reportType !== "string" || !VALID_TYPES.includes(reportType as ReportTypeSlug)) {
+    return NextResponse.json({ error: "Missing or invalid reportType" }, { status: 400 });
+  }
+
+  if (!isValidReportPayloadFor(reportType as ReportTypeSlug, payload)) {
     return NextResponse.json(
       { error: "Payload does not match the expected report schema" },
       { status: 422 }
@@ -22,7 +34,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { id } = await insertReport(body);
+    const { id } = await insertReport(reportType as ReportTypeSlug, payload);
     return NextResponse.json({ ok: true, id }, { status: 201 });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";

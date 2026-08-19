@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { id } = await insertReport(body);
+    const { id } = await insertReport("ics", body);
     return NextResponse.json({ ok: true, id }, { status: 201 });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";

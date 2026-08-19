@@ -3,11 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, LogOut, Send, XCircle } from "lucide-react";
+import { reportTypes } from "@/lib/reportTypes";
 
 type Status = { type: "success"; id: string } | { type: "error"; message: string } | null;
 
+const liveReportTypes = reportTypes.filter((r) => r.status === "live");
+
 export default function AdminPublishForm() {
   const router = useRouter();
+  const [reportType, setReportType] = useState(liveReportTypes[0]?.slug ?? "ics");
   const [jsonText, setJsonText] = useState("");
   const [status, setStatus] = useState<Status>(null);
   const [publishing, setPublishing] = useState(false);
@@ -28,7 +32,7 @@ export default function AdminPublishForm() {
       const res = await fetch("/api/admin/publish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ reportType, payload }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -55,7 +59,7 @@ export default function AdminPublishForm() {
             Publicar nuevo reporte
           </h1>
           <p className="mt-1 text-sm text-muted">
-            Pega aquí el JSON generado por tu chat de Claude y publica el reporte al dashboard.
+            Elige el tipo de reporte y pega el JSON generado por tu chat de Claude.
           </p>
         </div>
         <button
@@ -66,6 +70,22 @@ export default function AdminPublishForm() {
           Cerrar sesión
         </button>
       </div>
+
+      <label htmlFor="report-type" className="mb-1.5 block text-xs font-medium text-muted">
+        Tipo de reporte
+      </label>
+      <select
+        id="report-type"
+        value={reportType}
+        onChange={(e) => setReportType(e.target.value)}
+        className="mb-4 w-full rounded-lg border border-border-subtle bg-surface px-3 py-2 text-sm text-foreground outline-none focus:border-accent"
+      >
+        {liveReportTypes.map((r) => (
+          <option key={r.slug} value={r.slug}>
+            {r.name}
+          </option>
+        ))}
+      </select>
 
       <textarea
         value={jsonText}

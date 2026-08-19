@@ -6,9 +6,10 @@ import { splitIntoParagraphs } from "@/lib/utils";
 
 interface ConclusionCardProps {
   conclusion: string;
+  title?: string;
 }
 
-export default function ConclusionCard({ conclusion }: ConclusionCardProps) {
+export default function ConclusionCard({ conclusion, title = "Executive Conclusion" }: ConclusionCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -18,7 +19,7 @@ export default function ConclusionCard({ conclusion }: ConclusionCardProps) {
     >
       <div className="mb-3 flex items-center gap-2">
         <MessageSquareQuote size={15} className="text-muted" />
-        <h3 className="text-sm font-semibold text-foreground">Executive Conclusion</h3>
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
       </div>
       <div className="space-y-3">
         {splitIntoParagraphs(conclusion).map((paragraph, i) => (
