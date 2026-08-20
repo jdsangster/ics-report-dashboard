@@ -2,22 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { mockReports } from "@/lib/mockData";
 import { mockTotalCallsReports } from "@/lib/totalCallsMockData";
 import { mockWeekendReports } from "@/lib/weekendMockData";
+import { mockCaseReviewReports } from "@/lib/caseReviewMockData";
 import { getSupabaseServerClient, REPORTS_TABLE } from "@/lib/supabaseClient";
-import { ReportData, TotalCallsData, WeekendData } from "@/lib/types";
-import { ReportTypeSlug } from "@/lib/reports";
+import { CaseReviewData, ReportData, TotalCallsData, WeekendData } from "@/lib/types";
+import { REPORT_TYPE_SLUGS, ReportTypeSlug } from "@/lib/reports";
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE !== "false";
-const VALID_TYPES: ReportTypeSlug[] = ["ics", "total-calls", "weekend-report"];
 
 function getMockReports(reportType: ReportTypeSlug) {
   if (reportType === "total-calls") return mockTotalCallsReports;
   if (reportType === "weekend-report") return mockWeekendReports;
+  if (reportType === "cl-case-review") return mockCaseReviewReports;
   return mockReports;
 }
 
 export async function GET(req: NextRequest) {
   const typeParam = req.nextUrl.searchParams.get("type") ?? "ics";
-  const reportType: ReportTypeSlug = VALID_TYPES.includes(typeParam as ReportTypeSlug)
+  const reportType: ReportTypeSlug = REPORT_TYPE_SLUGS.includes(typeParam as ReportTypeSlug)
     ? (typeParam as ReportTypeSlug)
     : "ics";
 
@@ -37,7 +38,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const reports: (ReportData | TotalCallsData | WeekendData)[] = (data ?? []).map((row) => ({
+  const reports: (ReportData | TotalCallsData | WeekendData | CaseReviewData)[] = (
+    data ?? []
+  ).map((row) => ({
     id: row.id,
     createdAt: row.created_at,
     ...row.data,

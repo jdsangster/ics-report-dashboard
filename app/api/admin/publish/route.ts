@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/adminAuth";
-import { insertReport, isValidReportPayloadFor, ReportTypeSlug } from "@/lib/reports";
-
-const VALID_TYPES: ReportTypeSlug[] = ["ics", "total-calls", "weekend-report"];
+import { insertReport, isValidReportPayloadFor, REPORT_TYPE_SLUGS, ReportTypeSlug } from "@/lib/reports";
 
 export async function POST(req: NextRequest) {
   if (!(await isAdminAuthenticated())) {
@@ -22,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   const { reportType, payload } = body as { reportType?: unknown; payload?: unknown };
 
-  if (typeof reportType !== "string" || !VALID_TYPES.includes(reportType as ReportTypeSlug)) {
+  if (typeof reportType !== "string" || !REPORT_TYPE_SLUGS.includes(reportType as ReportTypeSlug)) {
     return NextResponse.json({ error: "Missing or invalid reportType" }, { status: 400 });
   }
 

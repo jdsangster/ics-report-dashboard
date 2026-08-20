@@ -69,7 +69,6 @@ export const reportTypes: ReportTypeMeta[] = [
     description: "Case-level review outcomes and quality audit findings — CDR and Setter case log with filters, charts, and search.",
     icon: Gavel,
     status: "live",
-    publishable: false,
   },
   {
     slug: "weekend-report",

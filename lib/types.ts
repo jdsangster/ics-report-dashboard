@@ -243,3 +243,41 @@ export interface WeekendData extends WeekendPayload {
   id: string;
   createdAt?: string;
 }
+
+// ---------------------------------------------------------------------------
+// CL Case Review
+// ---------------------------------------------------------------------------
+
+/** One row of the CDR & Setter case log, exactly as the dashboard's JS renders it. */
+export interface CaseRecord {
+  date: string; // ISO "YYYY-MM-DD"
+  datetime: string; // "YYYY-MM-DD 00:00"
+  sender: string;
+  subject: string;
+  description: string;
+  cdr: string;
+  tl: string;
+  type: string;
+  category: string;
+  year: number;
+  month: number;
+  day: number;
+  link: string;
+}
+
+export interface CaseReviewMetadata {
+  reportType: string;
+  cadence: Cadence;
+  periodLabel: string;
+}
+
+/** Shape stored in Supabase's `reports.data` JSONB column for the CL Case Review report type. */
+export interface CaseReviewPayload {
+  metadata: CaseReviewMetadata;
+  cases: CaseRecord[];
+}
+
+export interface CaseReviewData extends CaseReviewPayload {
+  id: string;
+  createdAt?: string;
+}
