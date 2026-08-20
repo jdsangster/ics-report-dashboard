@@ -793,6 +793,8 @@ const CASES = [{"date": "2026-06-01", "datetime": "2026-06-01 00:00", "sender": 
 
   function linkify(text){
     if(!text) return '';
+    // URLs are dropped from the text itself — the "open ↗" column already
+    // links to the record, so we don't need a second inline link here.
     const urlRe = /https?:\/\/\S+/g;
     let html = '';
     let lastIndex = 0;
@@ -800,11 +802,10 @@ const CASES = [{"date": "2026-06-01", "datetime": "2026-06-01 00:00", "sender": 
     while((m = urlRe.exec(text)) !== null){
       const url = m[0].replace(/[).,\xa0]+$/, '');
       html += esc(text.slice(lastIndex, m.index));
-      html += `<a href="${esc(url)}" class="inline-link" target="_blank" rel="noopener noreferrer">view record ↗</a>`;
       lastIndex = m.index + url.length;
     }
     html += esc(text.slice(lastIndex));
-    return html;
+    return html.trim();
   }
 
   function fmtDate(d){
@@ -1193,7 +1194,7 @@ const CASES = [{"date": "2026-06-01", "datetime": "2026-06-01 00:00", "sender": 
           <td>${esc(r.tl)}</td>
           <td><span class="tag ${categoryTagClass(r.category)}">${esc(r.category)}</span></td>
           <td style="font-size:12px;">${esc(r.type)}</td>
-          <td class="desc-cell">${linkify(r.subject)}${r.subject && r.description ? ' — ' : ''}${linkify(r.description.slice(0,140))}${r.description.length>140?'…':''}</td>
+          <td class="desc-cell">${(()=>{ const subj=linkify(r.subject); const desc=linkify(r.description.slice(0,140))+(r.description.length>140?'…':''); return subj && desc ? `${subj} — ${desc}` : (subj || desc); })()}</td>
           <td class="link-cell">${r.link ? `<a href="${esc(r.link)}" target="_blank" rel="noopener noreferrer">open ↗</a>` : '<span class="none">—</span>'}</td>
         </tr>
       `).join('');
