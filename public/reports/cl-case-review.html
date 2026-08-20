@@ -910,6 +910,12 @@ let CASES = [];
 
   function renderMonthChart(){
     const el = document.getElementById('monthChart');
+
+    if(!months.length){
+      el.innerHTML = `<div style="padding:32px;text-align:center;color:var(--text-dim);font-family:'IBM Plex Mono',monospace;font-size:12px;">No case data yet.</div>`;
+      return;
+    }
+
     const counts = months.map(m => ({ m, count: CASES.filter(r=>r.month===m).length }));
     const max = Math.max(...counts.map(c=>c.count), 1);
 
@@ -1312,11 +1318,14 @@ let CASES = [];
     }
     months = Array.from(new Set(CASES.map(r=>r.month))).sort((a,b)=>a-b);
 
-    document.getElementById('footerGenerated').textContent = 'Generated from the CRM export file · ' + new Date().toLocaleDateString('en-US');
-
-    renderStamp();
-    populateSelects();
-    renderAll();
+    try {
+      document.getElementById('footerGenerated').textContent = 'Generated from the CRM export file · ' + new Date().toLocaleDateString('en-US');
+      renderStamp();
+      populateSelects();
+      renderAll();
+    } catch (e) {
+      console.error('Failed to render case data', e);
+    }
 
     const overlay = document.getElementById('loadingOverlay');
     if (overlay) overlay.remove();
