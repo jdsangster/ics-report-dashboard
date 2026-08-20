@@ -54,6 +54,7 @@ app/
     ics/page.tsx                    ICS Performance dashboard (live)
     total-calls/page.tsx            Total Calls Report dashboard (live)
     weekend-report/page.tsx         Weekend Report dashboard (live)
+    cl-case-review/page.tsx         CL Case Review — iframe embed of public/reports/cl-case-review.html (live, static)
     [slug]/page.tsx                 "Coming soon" placeholder for not-yet-built report types
   api/
     reports/route.ts                GET ?type=<slug> — list reports of that type (mock or Supabase)
@@ -141,6 +142,12 @@ Full field-by-field reference and a real example: [`docs/CLAUDE_TOTAL_CALLS_PROM
 ## Report JSON schema (Weekend)
 
 Full field-by-field reference and a real example: [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md). Top-level shape: `metadata` (includes `days`, the weekend's calendar dates — drives the attention table's column headers), `summary` (totalICs/benchmarkPerDay/leadingTeam), `teams`, `topPerformers`, `attentionByTeam` (every contributor's per-day IC count, `null` for days not worked), `teamRanking`, `keyTakeaways`, and `executiveSummary`.
+
+## CL Case Review (static embed, not JSON-published)
+
+This report doesn't follow the JSON-publish pattern above. It's a standalone, self-contained HTML dashboard (search/filter/pagination over the raw CDR & Setter case log, its own embedded data and charts) generated separately from a CRM export, saved at `public/reports/cl-case-review.html`, and embedded via `<iframe>` in `app/reports/cl-case-review/page.tsx`. `lib/reportTypes.ts` marks it `publishable: false` so it's excluded from the `/admin` report-type dropdown.
+
+**To update it with fresh data:** regenerate the HTML file from the new CRM export (ask Claude to rebuild it the same way it was built originally) and replace `public/reports/cl-case-review.html` — no Supabase or `/admin` involvement needed.
 
 ## Adding a new report type
 
