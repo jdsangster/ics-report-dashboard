@@ -112,6 +112,7 @@ export default function TotalCallsReportPage() {
 
           <TotalCallsSummaryCard report={activeReport} />
           <CallsTakeawaysSection takeaways={activeReport.keyTakeaways} />
+          <TeamRankingCard ranking={activeReport.teamRanking} />
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {activeReport.teams.map((team, i) => (
@@ -121,7 +122,6 @@ export default function TotalCallsReportPage() {
 
           <TopPerformersCard performers={activeReport.topPerformers} />
           <AttentionCard attentionByTeam={activeReport.attentionByTeam} />
-          <TeamRankingCard ranking={activeReport.teamRanking} />
           <ConclusionCard conclusion={activeReport.executiveSummary} title="Executive Summary" />
         </motion.div>
       </main>
