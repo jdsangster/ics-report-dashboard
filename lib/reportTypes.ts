@@ -16,6 +16,8 @@ export interface ReportTypeMeta {
   description: string;
   icon: LucideIcon;
   status: "live" | "coming-soon";
+  /** false for reports that aren't published via the /admin JSON flow (e.g. static embeds). Defaults to true. */
+  publishable?: boolean;
 }
 
 export const reportTypes: ReportTypeMeta[] = [
@@ -64,9 +66,10 @@ export const reportTypes: ReportTypeMeta[] = [
   {
     slug: "cl-case-review",
     name: "CL Case Review",
-    description: "Case-level review outcomes and quality audit findings.",
+    description: "Case-level review outcomes and quality audit findings — CDR and Setter case log with filters, charts, and search.",
     icon: Gavel,
-    status: "coming-soon",
+    status: "live",
+    publishable: false,
   },
   {
     slug: "weekend-report",

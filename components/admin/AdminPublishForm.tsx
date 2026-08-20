@@ -7,7 +7,7 @@ import { reportTypes } from "@/lib/reportTypes";
 
 type Status = { type: "success"; id: string } | { type: "error"; message: string } | null;
 
-const liveReportTypes = reportTypes.filter((r) => r.status === "live");
+const liveReportTypes = reportTypes.filter((r) => r.status === "live" && r.publishable !== false);
 
 export default function AdminPublishForm() {
   const router = useRouter();
