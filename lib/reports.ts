@@ -1,7 +1,9 @@
 import { getSupabaseServerClient, REPORTS_TABLE } from "./supabaseClient";
-import { ReportPayload, TotalCallsPayload } from "./types";
+import { ReportPayload, TotalCallsPayload, WeekendPayload } from "./types";
 
-export type ReportTypeSlug = "ics" | "total-calls";
+export type ReportTypeSlug = "ics" | "total-calls" | "weekend-report";
+
+type AnyReportPayload = ReportPayload | TotalCallsPayload | WeekendPayload;
 
 export function isValidReportPayload(body: unknown): body is ReportPayload {
   if (!body || typeof body !== "object") return false;
@@ -37,16 +39,37 @@ export function isValidTotalCallsPayload(body: unknown): body is TotalCallsPaylo
   );
 }
 
+export function isValidWeekendPayload(body: unknown): body is WeekendPayload {
+  if (!body || typeof body !== "object") return false;
+  const b = body as Record<string, unknown>;
+  return (
+    typeof b.metadata === "object" &&
+    b.metadata !== null &&
+    typeof (b.metadata as Record<string, unknown>).cadence === "string" &&
+    typeof (b.metadata as Record<string, unknown>).periodLabel === "string" &&
+    Array.isArray((b.metadata as Record<string, unknown>).days) &&
+    typeof b.summary === "object" &&
+    Array.isArray(b.teams) &&
+    Array.isArray(b.topPerformers) &&
+    Array.isArray(b.attentionByTeam) &&
+    Array.isArray(b.teamRanking) &&
+    typeof b.keyTakeaways === "object" &&
+    typeof b.executiveSummary === "string"
+  );
+}
+
 export function isValidReportPayloadFor(
   reportType: ReportTypeSlug,
   body: unknown
-): body is ReportPayload | TotalCallsPayload {
-  return reportType === "total-calls" ? isValidTotalCallsPayload(body) : isValidReportPayload(body);
+): body is AnyReportPayload {
+  if (reportType === "total-calls") return isValidTotalCallsPayload(body);
+  if (reportType === "weekend-report") return isValidWeekendPayload(body);
+  return isValidReportPayload(body);
 }
 
 export async function insertReport(
   reportType: ReportTypeSlug,
-  payload: ReportPayload | TotalCallsPayload
+  payload: AnyReportPayload
 ): Promise<{ id: string }> {
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase

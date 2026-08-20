@@ -71,9 +71,9 @@ export const reportTypes: ReportTypeMeta[] = [
   {
     slug: "weekend-report",
     name: "Weekend Report",
-    description: "Weekend staffing coverage and operational summary.",
+    description: "Weekend IC production by team, top performers, and coverage gaps.",
     icon: CalendarDays,
-    status: "coming-soon",
+    status: "live",
   },
 ];
 

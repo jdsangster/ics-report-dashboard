@@ -161,3 +161,85 @@ export interface TotalCallsData extends TotalCallsPayload {
   id: string;
   createdAt?: string;
 }
+
+// ---------------------------------------------------------------------------
+// Weekend Report
+// ---------------------------------------------------------------------------
+
+export interface WeekendMetadata {
+  reportType: string;
+  cadence: Cadence;
+  periodLabel: string;
+  /** The weekend's calendar dates, e.g. ["15/08", "16/08"] — used as attention-table column headers. */
+  days: string[];
+}
+
+export interface WeekendSummary {
+  totalICs: number;
+  benchmarkPerDay: number;
+  leadingTeam: string;
+}
+
+export interface WeekendTeamHighlight {
+  cdr: string;
+  ics: number;
+}
+
+export interface WeekendTeamStat {
+  team: string;
+  totalICs: number;
+  highlights: WeekendTeamHighlight[];
+  analysis: string;
+}
+
+export interface WeekendTopPerformer {
+  rank: number;
+  cdr: string;
+  team: string;
+  ics: number;
+}
+
+export interface WeekendDayValue {
+  date: string;
+  /** null when the contributor didn't work that day (rendered as "—"). */
+  ics: number | null;
+}
+
+export interface WeekendContributorAttention {
+  cdr: string;
+  days: WeekendDayValue[];
+}
+
+export interface WeekendTeamAttention {
+  team: string;
+  contributors: WeekendContributorAttention[];
+}
+
+export interface WeekendTeamRanking {
+  rank: number;
+  team: string;
+  ics: number;
+}
+
+export interface WeekendKeyTakeaways {
+  positiveTrends: string[];
+  opportunities: string[];
+  mainAttentionPoints: string[];
+}
+
+/** Shape stored in Supabase's `reports.data` JSONB column for the Weekend report type. */
+export interface WeekendPayload {
+  metadata: WeekendMetadata;
+  summary: WeekendSummary;
+  teams: WeekendTeamStat[];
+  topPerformers: WeekendTopPerformer[];
+  attentionByTeam: WeekendTeamAttention[];
+  teamRanking: WeekendTeamRanking[];
+  keyTakeaways: WeekendKeyTakeaways;
+  executiveSummary: string;
+}
+
+export interface WeekendData extends WeekendPayload {
+  id: string;
+  createdAt?: string;
+}

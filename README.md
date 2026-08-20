@@ -1,6 +1,6 @@
 # Colombo&Hurd Reports Center
 
-Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics) and **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention). More report types are added the same way as they're needed.
+Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics), **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention), and **Weekend Report** (weekend IC production, day-by-day attention matrix). More report types are added the same way as they're needed.
 
 Built with Next.js (App Router), Tailwind CSS, and Supabase, with a password-protected internal `/admin` page for publishing new reports — no SharePoint, Power Automate, or IT dependency required to ship a new report.
 
@@ -21,7 +21,8 @@ Claude chat/project (existing workflow)
   - Generates the narrative report for Teams, same as today
   - ALSO generates a JSON block matching that report type's schema
     (prompt templates: docs/CLAUDE_REPORT_PROMPT.md for ICS,
-     docs/CLAUDE_TOTAL_CALLS_PROMPT.md for Total Calls)
+     docs/CLAUDE_TOTAL_CALLS_PROMPT.md for Total Calls,
+     docs/CLAUDE_WEEKEND_REPORT_PROMPT.md for Weekend)
         │
         ▼
 /admin page (password protected)
@@ -52,6 +53,7 @@ app/
   reports/
     ics/page.tsx                    ICS Performance dashboard (live)
     total-calls/page.tsx            Total Calls Report dashboard (live)
+    weekend-report/page.tsx         Weekend Report dashboard (live)
     [slug]/page.tsx                 "Coming soon" placeholder for not-yet-built report types
   api/
     reports/route.ts                GET ?type=<slug> — list reports of that type (mock or Supabase)
@@ -68,7 +70,10 @@ components/
   WeeklyTrendChart.tsx               ICS report components
   TotalCallsSummaryCard.tsx / TeamCallsCard.tsx / TopPerformersCard.tsx /
   AttentionCard.tsx / TeamRankingCard.tsx / CallsTakeawaysSection.tsx
-                                      Total Calls report components (ConclusionCard is shared with ICS)
+                                      Total Calls report components
+  WeekendSummaryCard.tsx / TeamWeekendCard.tsx / WeekendTopPerformersCard.tsx /
+  WeekendAttentionCard.tsx / WeekendTeamRankingCard.tsx
+                                      Weekend report components (reuses CallsTakeawaysSection + ConclusionCard)
   admin/AdminLoginForm.tsx           Password form
   admin/AdminPublishForm.tsx         Report-type selector + JSON paste + publish form
 lib/
@@ -77,12 +82,14 @@ lib/
   reports.ts                         Per-type payload validation + Supabase insert (used by webhook and admin publish)
   mockData.ts                        Simulated multi-period ICS reports for demo mode
   totalCallsMockData.ts              Simulated Total Calls report for demo mode
+  weekendMockData.ts                 Simulated Weekend report for demo mode
   supabaseClient.ts                  Server-only Supabase client (service role key)
   adminAuth.ts                       Password check + session cookie helpers
   utils.ts                           Formatting + badge/status style helpers + paragraph splitting
 docs/
   CLAUDE_REPORT_PROMPT.md            Prompt template for the ICS report JSON
   CLAUDE_TOTAL_CALLS_PROMPT.md       Prompt template for the Total Calls report JSON
+  CLAUDE_WEEKEND_REPORT_PROMPT.md    Prompt template for the Weekend report JSON
 ```
 
 ## Report JSON schema (ICS)
@@ -130,6 +137,10 @@ This is both the `/admin` publish payload and the shape stored in Supabase's `re
 ## Report JSON schema (Total Calls)
 
 Full field-by-field reference and a real example: [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md). Top-level shape: `metadata`, `summary` (totalCalls/adjustedActiveCalls/totalICs/excludedContributors/excludedCalls), `teams` (per-team highlights + analysis), `topPerformers`, `attentionByTeam` (contributors below the daily call benchmark), `teamRanking`, `keyTakeaways` (positiveTrends/opportunities/mainAttentionPoints), and `executiveSummary`.
+
+## Report JSON schema (Weekend)
+
+Full field-by-field reference and a real example: [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md). Top-level shape: `metadata` (includes `days`, the weekend's calendar dates — drives the attention table's column headers), `summary` (totalICs/benchmarkPerDay/leadingTeam), `teams`, `topPerformers`, `attentionByTeam` (every contributor's per-day IC count, `null` for days not worked), `teamRanking`, `keyTakeaways`, and `executiveSummary`.
 
 ## Adding a new report type
 
@@ -186,11 +197,11 @@ All reads/writes go through the service role key inside API routes, so Row Level
 ## Publishing a report (day-to-day workflow)
 
 1. Export the data from Power BI as you already do.
-2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_REPORT_PROMPT.md`](docs/CLAUDE_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls — so it outputs the JSON block alongside the usual Word report.
+2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_REPORT_PROMPT.md`](docs/CLAUDE_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls, [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md) for Weekend — so it outputs the JSON block alongside the usual Word report.
 3. Go to `/admin`, log in with `ADMIN_PASSWORD`.
 4. Pick the matching report type from the **Tipo de reporte** dropdown.
 5. Paste the JSON block, click **Publicar reporte**.
-6. It appears immediately at `/reports/ics` or `/reports/total-calls`.
+6. It appears immediately at `/reports/ics`, `/reports/total-calls`, or `/reports/weekend-report`.
 
 ## Local development
 

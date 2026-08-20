@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/adminAuth";
 import { insertReport, isValidReportPayloadFor, ReportTypeSlug } from "@/lib/reports";
 
-const VALID_TYPES: ReportTypeSlug[] = ["ics", "total-calls"];
+const VALID_TYPES: ReportTypeSlug[] = ["ics", "total-calls", "weekend-report"];
 
 export async function POST(req: NextRequest) {
   if (!(await isAdminAuthenticated())) {
