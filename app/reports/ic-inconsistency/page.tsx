@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { ICSInconsistencyData, Cadence } from "@/lib/types";
 import ReportHeader from "@/components/ReportHeader";
-import ICSInconsistencySummaryCard from "@/components/ICSInconsistencySummaryCard";
 import ICSInconsistencyContributorCard from "@/components/ICSInconsistencyContributorCard";
 import ConclusionCard from "@/components/ConclusionCard";
 
@@ -108,8 +107,6 @@ export default function ICInconsistencyPage() {
               </span>
             )}
           </div>
-
-          <ICSInconsistencySummaryCard contributors={activeReport.contributors} />
 
           <div className="space-y-6">
             {activeReport.contributors.map((contributor) => (

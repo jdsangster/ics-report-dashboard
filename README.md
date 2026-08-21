@@ -89,7 +89,7 @@ components/
                                       SF Weekly report components
   ICSRatioSummaryCard.tsx / ICSRatioTierCard.tsx / ICSRatioSnapshotCard.tsx
                                       IC and Show Up Rate components (reuses ConclusionCard)
-  ICSInconsistencySummaryCard.tsx / ICSInconsistencyContributorCard.tsx
+  ICSInconsistencyContributorCard.tsx
                                       IC Inconsistency components (reuses ConclusionCard)
   CSSVolumeSummaryCard.tsx / CSSCategoryTable.tsx / CSSDistributionCard.tsx /
   CSSSecondaryCategoriesCard.tsx / CSSRankingCard.tsx / CSSConclusionCard.tsx
