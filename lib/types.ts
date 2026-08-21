@@ -321,3 +321,46 @@ export interface SFWeeklyData extends SFWeeklyPayload {
   id: string;
   createdAt?: string;
 }
+
+// ---------------------------------------------------------------------------
+// IC and Show Up Rate (ICS Ratio Ranking)
+// ---------------------------------------------------------------------------
+
+export type ICSRatioTierKey = "elite" | "high" | "solid" | "opportunity" | "critical";
+
+export interface ICSRatioCdr {
+  cdr: string;
+  ratio: number;
+}
+
+export interface ICSRatioTier {
+  key: ICSRatioTierKey;
+  label: string;
+  rangeLabel: string;
+  cdrs: ICSRatioCdr[];
+  note: string;
+}
+
+export interface ICSRatioSummary {
+  description: string;
+  teamSnapshot: string[];
+}
+
+export interface ICSRatioMetadata {
+  reportType: string;
+  cadence: Cadence;
+  periodLabel: string;
+}
+
+/** Shape stored in Supabase's `reports.data` JSONB column for the IC and Show Up Rate report type. */
+export interface ICSRatioPayload {
+  metadata: ICSRatioMetadata;
+  summary: ICSRatioSummary;
+  tiers: ICSRatioTier[];
+  narrative: string;
+}
+
+export interface ICSRatioData extends ICSRatioPayload {
+  id: string;
+  createdAt?: string;
+}

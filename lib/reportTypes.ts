@@ -45,9 +45,9 @@ export const reportTypes: ReportTypeMeta[] = [
   {
     slug: "ic-show-up-rate",
     name: "IC and Show Up Rate",
-    description: "Interested Call conversion and client show-up rate tracking.",
+    description: "Post-qualification conversion ranking — CDRs grouped into performance tiers from Elite to Critical Opportunity Area.",
     icon: UserCheck,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "ic-inconsistency",

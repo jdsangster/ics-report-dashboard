@@ -1,6 +1,7 @@
 import { getSupabaseServerClient, REPORTS_TABLE } from "./supabaseClient";
 import {
   CaseReviewPayload,
+  ICSRatioPayload,
   ReportPayload,
   SFWeeklyPayload,
   TotalCallsPayload,
@@ -12,7 +13,8 @@ export type ReportTypeSlug =
   | "total-calls"
   | "weekend-report"
   | "cl-case-review"
-  | "sf-weekly";
+  | "sf-weekly"
+  | "ic-show-up-rate";
 
 export const REPORT_TYPE_SLUGS: ReportTypeSlug[] = [
   "ics",
@@ -20,6 +22,7 @@ export const REPORT_TYPE_SLUGS: ReportTypeSlug[] = [
   "weekend-report",
   "cl-case-review",
   "sf-weekly",
+  "ic-show-up-rate",
 ];
 
 type AnyReportPayload =
@@ -27,7 +30,8 @@ type AnyReportPayload =
   | TotalCallsPayload
   | WeekendPayload
   | CaseReviewPayload
-  | SFWeeklyPayload;
+  | SFWeeklyPayload
+  | ICSRatioPayload;
 
 export function isValidReportPayload(body: unknown): body is ReportPayload {
   if (!body || typeof body !== "object") return false;
@@ -131,6 +135,35 @@ export function isValidSFWeeklyPayload(body: unknown): body is SFWeeklyPayload {
   );
 }
 
+export function isValidICSRatioPayload(body: unknown): body is ICSRatioPayload {
+  if (!body || typeof body !== "object") return false;
+  const b = body as Record<string, unknown>;
+  if (
+    typeof b.metadata !== "object" ||
+    b.metadata === null ||
+    typeof (b.metadata as Record<string, unknown>).cadence !== "string" ||
+    typeof (b.metadata as Record<string, unknown>).periodLabel !== "string" ||
+    typeof b.summary !== "object" ||
+    b.summary === null ||
+    !Array.isArray((b.summary as Record<string, unknown>).teamSnapshot) ||
+    typeof b.narrative !== "string" ||
+    !Array.isArray(b.tiers)
+  ) {
+    return false;
+  }
+  return (b.tiers as unknown[]).every((t) => {
+    if (!t || typeof t !== "object") return false;
+    const tier = t as Record<string, unknown>;
+    return (
+      typeof tier.key === "string" &&
+      typeof tier.label === "string" &&
+      typeof tier.rangeLabel === "string" &&
+      typeof tier.note === "string" &&
+      Array.isArray(tier.cdrs)
+    );
+  });
+}
+
 export function isValidReportPayloadFor(
   reportType: ReportTypeSlug,
   body: unknown
@@ -139,6 +172,7 @@ export function isValidReportPayloadFor(
   if (reportType === "weekend-report") return isValidWeekendPayload(body);
   if (reportType === "cl-case-review") return isValidCaseReviewPayload(body);
   if (reportType === "sf-weekly") return isValidSFWeeklyPayload(body);
+  if (reportType === "ic-show-up-rate") return isValidICSRatioPayload(body);
   return isValidReportPayload(body);
 }
 

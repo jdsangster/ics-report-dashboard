@@ -1,6 +1,6 @@
 # Colombo&Hurd Reports Center
 
-Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics), **SF Weekly Report** (Short Funnel coverage vs. target, by CDR), **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention), **CL Case Review** (searchable CDR & Setter case log), and **Weekend Report** (weekend IC production, day-by-day attention matrix). More report types are added the same way as they're needed.
+Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics), **SF Weekly Report** (Short Funnel coverage vs. target, by CDR), **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention), **CL Case Review** (searchable CDR & Setter case log), **Weekend Report** (weekend IC production, day-by-day attention matrix), and **IC and Show Up Rate** (ICS Ratio Ranking — CDRs grouped into performance tiers from Elite to Critical Opportunity Area). More report types are added the same way as they're needed.
 
 Built with Next.js (App Router), Tailwind CSS, and Supabase, with a password-protected internal `/admin` page for publishing new reports — no SharePoint, Power Automate, or IT dependency required to ship a new report.
 
@@ -25,7 +25,8 @@ Claude chat/project (existing workflow)
      docs/CLAUDE_TOTAL_CALLS_PROMPT.md for Total Calls,
      docs/CLAUDE_WEEKEND_REPORT_PROMPT.md for Weekend,
      docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md for CL Case Review — this one
-     converts a raw CSV export instead of a narrative report)
+     converts a raw CSV export instead of a narrative report,
+     docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md for IC and Show Up Rate)
         │
         ▼
 /admin page (password protected)
@@ -59,6 +60,7 @@ app/
     total-calls/page.tsx            Total Calls Report dashboard (live)
     weekend-report/page.tsx         Weekend Report dashboard (live)
     cl-case-review/page.tsx         CL Case Review — iframe embed of public/reports/cl-case-review.html, which fetches its data from the API at runtime (live)
+    ic-show-up-rate/page.tsx        IC and Show Up Rate (ICS Ratio Ranking) dashboard (live)
     [slug]/page.tsx                 "Coming soon" placeholder for not-yet-built report types
   api/
     reports/route.ts                GET ?type=<slug> — list reports of that type (mock or Supabase)
@@ -81,6 +83,8 @@ components/
                                       Weekend report components (reuses CallsTakeawaysSection + ConclusionCard)
   SFSummaryCard.tsx / SFMeetingTargetCard.tsx / SFBelowTargetCard.tsx
                                       SF Weekly report components
+  ICSRatioSummaryCard.tsx / ICSRatioTierCard.tsx / ICSRatioSnapshotCard.tsx
+                                      IC and Show Up Rate components (reuses ConclusionCard)
   admin/AdminLoginForm.tsx           Password form
   admin/AdminPublishForm.tsx         Report-type selector + JSON paste + publish form
 lib/
@@ -92,6 +96,7 @@ lib/
   weekendMockData.ts                 Simulated Weekend report for demo mode
   caseReviewMockData.ts              Simulated CL Case Review cases for demo mode
   sfWeeklyMockData.ts                Simulated SF Weekly report for demo mode
+  icsRatioMockData.ts                Simulated IC and Show Up Rate report for demo mode
   supabaseClient.ts                  Server-only Supabase client (service role key)
   adminAuth.ts                       Password check + session cookie helpers
   utils.ts                           Formatting + badge/status style helpers + paragraph splitting
@@ -101,6 +106,7 @@ docs/
   CLAUDE_WEEKEND_REPORT_PROMPT.md    Prompt template for the Weekend report JSON
   CLAUDE_SF_WEEKLY_PROMPT.md         Prompt template for the SF Weekly report JSON
   CLAUDE_CL_CASE_REVIEW_PROMPT.md    Prompt template for converting the CL Case Review CSV export to JSON
+  CLAUDE_IC_SHOW_UP_RATE_PROMPT.md   Prompt template for the IC and Show Up Rate report JSON
 ```
 
 ## Report JSON schema (ICS)
@@ -192,6 +198,34 @@ Unlike the other report types, this one is a single flat list of raw case record
 
 Full field-by-field reference and a real example: [`docs/CLAUDE_SF_WEEKLY_PROMPT.md`](docs/CLAUDE_SF_WEEKLY_PROMPT.md). Top-level shape: `metadata` (includes `benchmarkPerDay`, the Short Funnel/day target), `summary` (cdrsEvaluated/meetingCoverageTarget/belowCoverageTarget/coverageRate), and two separate CDR arrays — `meetingTarget` (includes `daysEvaluated`) and `belowTarget` (doesn't) — matching the two tables in the source report.
 
+## Report JSON schema (IC and Show Up Rate)
+
+Full field-by-field reference and a real example: [`docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md`](docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md). Top-level shape: `metadata`, `summary` (a short `description` line plus `teamSnapshot`, a bullet-point array), `tiers` (always exactly 5 fixed tiers — `elite`/`high`/`solid`/`opportunity`/`critical`, each with a `label`, `rangeLabel`, a fixed `note`, and a `cdrs` array of `{ cdr, ratio }`), and `narrative` (the closing message, paragraphs joined with `\n\n`).
+
+```json
+{
+  "metadata": {
+    "reportType": "ICS Ratio Ranking",
+    "cadence": "Weekly",
+    "periodLabel": "06/01 – 06/07"
+  },
+  "summary": {
+    "description": "This metric shows how effective you are after qualifying...",
+    "teamSnapshot": ["4 CDRs achieved Elite Level performance (90%+)."]
+  },
+  "tiers": [
+    {
+      "key": "elite",
+      "label": "Elite Level",
+      "rangeLabel": "90%+",
+      "note": "Outstanding execution...",
+      "cdrs": [{ "cdr": "Ioshua Schmitz", "ratio": 93.75 }]
+    }
+  ],
+  "narrative": "The first week of June showed excellent conversion performance...\n\nLet's build on this momentum..."
+}
+```
+
 ## Adding a new report type
 
 1. Add an entry to `lib/reportTypes.ts` (slug, name, description, icon, `status: "coming-soon"`).
@@ -247,11 +281,11 @@ All reads/writes go through the service role key inside API routes, so Row Level
 ## Publishing a report (day-to-day workflow)
 
 1. Export the data from Power BI as you already do.
-2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_ICS_REPORT_PROMPT.md`](docs/CLAUDE_ICS_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_SF_WEEKLY_PROMPT.md`](docs/CLAUDE_SF_WEEKLY_PROMPT.md) for SF Weekly, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls, [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md) for Weekend, [`docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md`](docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md) for CL Case Review (paste the CSV export instead of a narrative report) — so it outputs the JSON block.
+2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_ICS_REPORT_PROMPT.md`](docs/CLAUDE_ICS_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_SF_WEEKLY_PROMPT.md`](docs/CLAUDE_SF_WEEKLY_PROMPT.md) for SF Weekly, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls, [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md) for Weekend, [`docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md`](docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md) for CL Case Review (paste the CSV export instead of a narrative report), [`docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md`](docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md) for IC and Show Up Rate — so it outputs the JSON block.
 3. Go to `/admin`, log in with `ADMIN_PASSWORD`.
 4. Pick the matching report type from the **Tipo de reporte** dropdown.
 5. Paste the JSON block, click **Publicar reporte**.
-6. It appears immediately at `/reports/ics`, `/reports/sf-weekly`, `/reports/total-calls`, `/reports/weekend-report`, or `/reports/cl-case-review`.
+6. It appears immediately at `/reports/ics`, `/reports/sf-weekly`, `/reports/total-calls`, `/reports/weekend-report`, `/reports/cl-case-review`, or `/reports/ic-show-up-rate`.
 
 ## Local development
 
