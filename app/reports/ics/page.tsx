@@ -55,6 +55,11 @@ export default function Home() {
     }
   };
 
+  const handleSelectFromChart = (id: string) => {
+    setCadence("All");
+    setSelectedId(id);
+  };
+
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center text-sm text-muted">
@@ -113,7 +118,11 @@ export default function Home() {
           </div>
 
           <KpiCard report={activeReport} />
-          <WeeklyTrendChart reports={reports} />
+          <WeeklyTrendChart
+            reports={reports}
+            activeId={activeReport.id}
+            onSelect={handleSelectFromChart}
+          />
           <OutstandingSection performers={activeReport.outstandingPerformers} />
           <HighlightsSection highlights={activeReport.highlights} />
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

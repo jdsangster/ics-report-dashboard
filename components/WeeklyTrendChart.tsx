@@ -8,6 +8,8 @@ import { formatNumber, parsePeriodStart } from "@/lib/utils";
 
 interface WeeklyTrendChartProps {
   reports: ReportData[];
+  activeId?: string;
+  onSelect?: (id: string) => void;
 }
 
 const VIEW_W = 700;
@@ -30,7 +32,7 @@ function niceBounds(values: number[]) {
   return { niceMin, niceMax: niceMax > niceMin ? niceMax : niceMin + 100 };
 }
 
-export default function WeeklyTrendChart({ reports }: WeeklyTrendChartProps) {
+export default function WeeklyTrendChart({ reports, activeId, onSelect }: WeeklyTrendChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
@@ -61,7 +63,7 @@ export default function WeeklyTrendChart({ reports }: WeeklyTrendChartProps) {
             : PAD_LEFT + (i / (weekly.length - 1)) * PLOT_W;
         const ratio = (r.summary.currentValue - niceMin) / (niceMax - niceMin || 1);
         const y = PAD_TOP + PLOT_H - ratio * PLOT_H;
-        return { x, y, value: r.summary.currentValue, label: r.metadata.periodLabel };
+        return { x, y, value: r.summary.currentValue, label: r.metadata.periodLabel, id: r.id };
       }),
     [weekly, niceMin, niceMax]
   );
@@ -74,18 +76,25 @@ export default function WeeklyTrendChart({ reports }: WeeklyTrendChartProps) {
     return { value: Math.round(value), y };
   });
 
-  const handlePointerMove = (e: React.PointerEvent<SVGRectElement>) => {
+  const getIndexFromEvent = (e: React.PointerEvent<SVGRectElement> | React.MouseEvent<SVGRectElement>) => {
     const svg = svgRef.current;
-    if (!svg || points.length === 0) return;
+    if (!svg || points.length === 0) return null;
     const rect = svg.getBoundingClientRect();
     const scaleX = VIEW_W / rect.width;
     const xInView = (e.clientX - rect.left) * scaleX;
     const fraction = points.length > 1 ? (xInView - PAD_LEFT) / PLOT_W : 0;
-    const index = Math.min(
-      points.length - 1,
-      Math.max(0, Math.round(fraction * (points.length - 1)))
-    );
-    setHoverIndex(index);
+    return Math.min(points.length - 1, Math.max(0, Math.round(fraction * (points.length - 1))));
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<SVGRectElement>) => {
+    const index = getIndexFromEvent(e);
+    if (index !== null) setHoverIndex(index);
+  };
+
+  const handleClick = (e: React.MouseEvent<SVGRectElement>) => {
+    if (!onSelect) return;
+    const index = getIndexFromEvent(e);
+    if (index !== null) onSelect(points[index].id);
   };
 
   return (
@@ -99,7 +108,9 @@ export default function WeeklyTrendChart({ reports }: WeeklyTrendChartProps) {
         <TrendingUp size={15} className="text-accent" />
         <div>
           <h2 className="text-sm font-semibold text-foreground">Weekly Total — Company-wide Trend</h2>
-          <p className="text-xs text-muted">Total IC across all teams — last 3 weeks</p>
+          <p className="text-xs text-muted">
+            Total IC across all teams — last 3 weeks{onSelect ? ". Click a point to view that week." : ""}
+          </p>
         </div>
       </div>
 
@@ -169,18 +180,20 @@ export default function WeeklyTrendChart({ reports }: WeeklyTrendChartProps) {
           {points.map((p, i) => {
             const isLast = i === points.length - 1;
             const isHovered = hoverIndex === i;
+            const isActive = activeId !== undefined && p.id === activeId;
+            const dotColor = isActive ? "var(--gold)" : "var(--accent)";
             return (
               <g key={i}>
-                {(isLast || isHovered) && (
+                {(isLast || isHovered || isActive) && (
                   <circle cx={p.x} cy={p.y} r={7} fill="var(--surface)" />
                 )}
                 <circle
                   cx={p.x}
                   cy={p.y}
-                  r={isLast || isHovered ? 4 : 3}
-                  fill="var(--accent)"
+                  r={isLast || isHovered || isActive ? 4 : 3}
+                  fill={dotColor}
                 />
-                {isLast && (
+                {(isLast || isActive) && (
                   <text
                     x={p.x}
                     y={p.y - 14}
@@ -253,8 +266,10 @@ export default function WeeklyTrendChart({ reports }: WeeklyTrendChartProps) {
             width={PLOT_W}
             height={PLOT_H}
             fill="transparent"
+            className={onSelect ? "cursor-pointer" : undefined}
             onPointerMove={handlePointerMove}
             onPointerLeave={() => setHoverIndex(null)}
+            onClick={handleClick}
           />
         </svg>
       )}
