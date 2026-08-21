@@ -1,6 +1,7 @@
 import { getSupabaseServerClient, REPORTS_TABLE } from "./supabaseClient";
 import {
   CaseReviewPayload,
+  CSSPayload,
   ICSInconsistencyPayload,
   ICSRatioPayload,
   ReportPayload,
@@ -16,7 +17,8 @@ export type ReportTypeSlug =
   | "cl-case-review"
   | "sf-weekly"
   | "ic-show-up-rate"
-  | "ic-inconsistency";
+  | "ic-inconsistency"
+  | "operational-complaints";
 
 export const REPORT_TYPE_SLUGS: ReportTypeSlug[] = [
   "ics",
@@ -26,6 +28,7 @@ export const REPORT_TYPE_SLUGS: ReportTypeSlug[] = [
   "sf-weekly",
   "ic-show-up-rate",
   "ic-inconsistency",
+  "operational-complaints",
 ];
 
 type AnyReportPayload =
@@ -35,7 +38,8 @@ type AnyReportPayload =
   | CaseReviewPayload
   | SFWeeklyPayload
   | ICSRatioPayload
-  | ICSInconsistencyPayload;
+  | ICSInconsistencyPayload
+  | CSSPayload;
 
 export function isValidReportPayload(body: unknown): body is ReportPayload {
   if (!body || typeof body !== "object") return false;
@@ -194,6 +198,107 @@ export function isValidICSInconsistencyPayload(body: unknown): body is ICSIncons
   });
 }
 
+function isValidCategoryRow(row: unknown): boolean {
+  if (!row || typeof row !== "object") return false;
+  const r = row as Record<string, unknown>;
+  return (
+    typeof r.category === "string" &&
+    typeof r.previousShare === "number" &&
+    typeof r.currentShare === "number" &&
+    typeof r.trend === "string"
+  );
+}
+
+export function isValidCSSPayload(body: unknown): body is CSSPayload {
+  if (!body || typeof body !== "object") return false;
+  const b = body as Record<string, unknown>;
+  if (
+    typeof b.metadata !== "object" ||
+    b.metadata === null ||
+    typeof (b.metadata as Record<string, unknown>).cadence !== "string" ||
+    typeof (b.metadata as Record<string, unknown>).periodLabel !== "string"
+  ) {
+    return false;
+  }
+
+  const volumeSummary = b.volumeSummary as Record<string, unknown> | undefined;
+  if (
+    !volumeSummary ||
+    typeof volumeSummary !== "object" ||
+    typeof volumeSummary.totalComplaints !== "number" ||
+    typeof volumeSummary.avgPerDay !== "number" ||
+    typeof volumeSummary.daysInPeriod !== "number" ||
+    typeof volumeSummary.previousTotal !== "number" ||
+    typeof volumeSummary.previousAvgPerDay !== "number" ||
+    typeof volumeSummary.changePercent !== "number" ||
+    typeof volumeSummary.insight !== "string" ||
+    typeof volumeSummary.observation !== "string"
+  ) {
+    return false;
+  }
+
+  const distribution = b.distribution as Record<string, unknown> | undefined;
+  if (
+    !distribution ||
+    typeof distribution !== "object" ||
+    !Array.isArray(distribution.rows) ||
+    !distribution.rows.every(isValidCategoryRow) ||
+    typeof distribution.insight !== "string" ||
+    typeof distribution.observation !== "string"
+  ) {
+    return false;
+  }
+
+  const secondaryCategories = b.secondaryCategories as Record<string, unknown> | undefined;
+  if (
+    !secondaryCategories ||
+    typeof secondaryCategories !== "object" ||
+    !Array.isArray(secondaryCategories.rows) ||
+    !secondaryCategories.rows.every(isValidCategoryRow) ||
+    typeof secondaryCategories.insight !== "string" ||
+    typeof secondaryCategories.positiveFindings !== "string" ||
+    typeof secondaryCategories.operationalConcerns !== "string"
+  ) {
+    return false;
+  }
+
+  const ranking = b.ranking as Record<string, unknown> | undefined;
+  if (
+    !ranking ||
+    typeof ranking !== "object" ||
+    !Array.isArray(ranking.rows) ||
+    typeof ranking.note !== "string" ||
+    !ranking.rows.every((row) => {
+      if (!row || typeof row !== "object") return false;
+      const r = row as Record<string, unknown>;
+      return (
+        typeof r.rank === "number" &&
+        typeof r.cdr === "string" &&
+        typeof r.totalComplaints === "number" &&
+        typeof r.types === "string"
+      );
+    })
+  ) {
+    return false;
+  }
+
+  const conclusion = b.conclusion as Record<string, unknown> | undefined;
+  if (
+    !conclusion ||
+    typeof conclusion !== "object" ||
+    typeof conclusion.volume !== "string" ||
+    typeof conclusion.structure !== "string" ||
+    !Array.isArray(conclusion.positiveResults) ||
+    !conclusion.positiveResults.every((s) => typeof s === "string") ||
+    !Array.isArray(conclusion.operationalRisks) ||
+    !conclusion.operationalRisks.every((s) => typeof s === "string")
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 export function isValidReportPayloadFor(
   reportType: ReportTypeSlug,
   body: unknown
@@ -204,6 +309,7 @@ export function isValidReportPayloadFor(
   if (reportType === "sf-weekly") return isValidSFWeeklyPayload(body);
   if (reportType === "ic-show-up-rate") return isValidICSRatioPayload(body);
   if (reportType === "ic-inconsistency") return isValidICSInconsistencyPayload(body);
+  if (reportType === "operational-complaints") return isValidCSSPayload(body);
   return isValidReportPayload(body);
 }
 

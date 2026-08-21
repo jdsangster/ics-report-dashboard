@@ -393,3 +393,78 @@ export interface ICSInconsistencyData extends ICSInconsistencyPayload {
   id: string;
   createdAt?: string;
 }
+
+// ---------------------------------------------------------------------------
+// CSS Analysis Report (Operational Complaint Analysis)
+// ---------------------------------------------------------------------------
+
+export interface CSSMetadata {
+  reportType: string;
+  cadence: Cadence;
+  periodLabel: string;
+}
+
+export interface CSSVolumeSummary {
+  totalComplaints: number;
+  avgPerDay: number;
+  daysInPeriod: number;
+  previousTotal: number;
+  previousAvgPerDay: number;
+  changePercent: number;
+  insight: string;
+  observation: string;
+}
+
+export interface CSSCategoryRow {
+  category: string;
+  previousShare: number;
+  currentShare: number;
+  trend: string;
+}
+
+export interface CSSDistribution {
+  rows: CSSCategoryRow[];
+  insight: string;
+  observation: string;
+}
+
+export interface CSSSecondaryCategories {
+  rows: CSSCategoryRow[];
+  insight: string;
+  positiveFindings: string;
+  operationalConcerns: string;
+}
+
+export interface CSSCdrRank {
+  rank: number;
+  cdr: string;
+  totalComplaints: number;
+  types: string;
+}
+
+export interface CSSRanking {
+  rows: CSSCdrRank[];
+  note: string;
+}
+
+export interface CSSConclusion {
+  volume: string;
+  structure: string;
+  positiveResults: string[];
+  operationalRisks: string[];
+}
+
+/** Shape stored in Supabase's `reports.data` JSONB column for the CSS Analysis report type. */
+export interface CSSPayload {
+  metadata: CSSMetadata;
+  volumeSummary: CSSVolumeSummary;
+  distribution: CSSDistribution;
+  secondaryCategories: CSSSecondaryCategories;
+  ranking: CSSRanking;
+  conclusion: CSSConclusion;
+}
+
+export interface CSSData extends CSSPayload {
+  id: string;
+  createdAt?: string;
+}

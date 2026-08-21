@@ -59,9 +59,9 @@ export const reportTypes: ReportTypeMeta[] = [
   {
     slug: "operational-complaints",
     name: "Operational Complaint Analysis (CSS)",
-    description: "Customer service complaint trends and root-cause breakdown.",
+    description: "Weekly complaint volume, category distribution, and CDR ranking — root-cause breakdown for the CDR team.",
     icon: MessageSquareWarning,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "cl-case-review",

@@ -1,6 +1,6 @@
 # Colombo&Hurd Reports Center
 
-Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics), **SF Weekly Report** (Short Funnel coverage vs. target, by CDR), **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention), **CL Case Review** (searchable CDR & Setter case log), **Weekend Report** (weekend IC production, day-by-day attention matrix), **IC and Show Up Rate** (ICS Ratio Ranking — CDRs grouped into performance tiers from Elite to Critical Opportunity Area), and **IC Inconsistency** (BI vs. Excel IC count mismatches and the disposition errors behind them). More report types are added the same way as they're needed.
+Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics), **SF Weekly Report** (Short Funnel coverage vs. target, by CDR), **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention), **CL Case Review** (searchable CDR & Setter case log), **Weekend Report** (weekend IC production, day-by-day attention matrix), **IC and Show Up Rate** (ICS Ratio Ranking — CDRs grouped into performance tiers from Elite to Critical Opportunity Area), **IC Inconsistency** (BI vs. Excel IC count mismatches and the disposition errors behind them), and **Operational Complaint Analysis (CSS)** (weekly complaint volume, category distribution, and CDR ranking). More report types are added the same way as they're needed.
 
 Built with Next.js (App Router), Tailwind CSS, and Supabase, with a password-protected internal `/admin` page for publishing new reports — no SharePoint, Power Automate, or IT dependency required to ship a new report.
 
@@ -27,7 +27,8 @@ Claude chat/project (existing workflow)
      docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md for CL Case Review — this one
      converts a raw CSV export instead of a narrative report,
      docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md for IC and Show Up Rate,
-     docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md for IC Inconsistency)
+     docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md for IC Inconsistency,
+     docs/CLAUDE_CSS_ANALYSIS_PROMPT.md for Operational Complaint Analysis)
         │
         ▼
 /admin page (password protected)
@@ -63,6 +64,7 @@ app/
     cl-case-review/page.tsx         CL Case Review — iframe embed of public/reports/cl-case-review.html, which fetches its data from the API at runtime (live)
     ic-show-up-rate/page.tsx        IC and Show Up Rate (ICS Ratio Ranking) dashboard (live)
     ic-inconsistency/page.tsx       IC Inconsistency (BI vs. Excel mismatches) dashboard (live)
+    operational-complaints/page.tsx CSS Analysis Report (complaint volume, distribution, CDR ranking) dashboard (live)
     [slug]/page.tsx                 "Coming soon" placeholder for not-yet-built report types
   api/
     reports/route.ts                GET ?type=<slug> — list reports of that type (mock or Supabase)
@@ -89,6 +91,9 @@ components/
                                       IC and Show Up Rate components (reuses ConclusionCard)
   ICSInconsistencySummaryCard.tsx / ICSInconsistencyContributorCard.tsx
                                       IC Inconsistency components (reuses ConclusionCard)
+  CSSVolumeSummaryCard.tsx / CSSCategoryTable.tsx / CSSDistributionCard.tsx /
+  CSSSecondaryCategoriesCard.tsx / CSSRankingCard.tsx / CSSConclusionCard.tsx
+                                      CSS Analysis Report components
   admin/AdminLoginForm.tsx           Password form
   admin/AdminPublishForm.tsx         Report-type selector + JSON paste + publish form
 lib/
@@ -102,6 +107,7 @@ lib/
   sfWeeklyMockData.ts                Simulated SF Weekly report for demo mode
   icsRatioMockData.ts                Simulated IC and Show Up Rate report for demo mode
   icsInconsistencyMockData.ts        Simulated IC Inconsistency report for demo mode
+  cssMockData.ts                     Simulated CSS Analysis Report for demo mode
   supabaseClient.ts                  Server-only Supabase client (service role key)
   adminAuth.ts                       Password check + session cookie helpers
   utils.ts                           Formatting + badge/status style helpers + paragraph splitting
@@ -113,6 +119,7 @@ docs/
   CLAUDE_CL_CASE_REVIEW_PROMPT.md    Prompt template for converting the CL Case Review CSV export to JSON
   CLAUDE_IC_SHOW_UP_RATE_PROMPT.md   Prompt template for the IC and Show Up Rate report JSON
   CLAUDE_IC_INCONSISTENCY_PROMPT.md  Prompt template for the IC Inconsistency report JSON
+  CLAUDE_CSS_ANALYSIS_PROMPT.md      Prompt template for the CSS Analysis Report JSON
 ```
 
 ## Report JSON schema (ICS)
@@ -258,6 +265,51 @@ Full field-by-field reference and a real example: [`docs/CLAUDE_IC_INCONSISTENCY
 }
 ```
 
+## Report JSON schema (CSS Analysis / Operational Complaint Analysis)
+
+Full field-by-field reference and a real example: [`docs/CLAUDE_CSS_ANALYSIS_PROMPT.md`](docs/CLAUDE_CSS_ANALYSIS_PROMPT.md). Top-level shape: `metadata`, `volumeSummary` (total/avg complaints vs. the previous period plus insight/observation), `distribution` and `secondaryCategories` (each a `rows` array of `{ category, previousShare, currentShare, trend }` — share values are plain percent numbers, `trend` keeps its leading arrow/dash symbol which drives the UI color), `ranking` (a `rows` array of `{ rank, cdr, totalComplaints, types }`, `types` being the full "Types of Complaints" cell as one string, plus a `note` explaining tie-break rules), and `conclusion` (`volume`/`structure` paragraphs plus `positiveResults`/`operationalRisks` string arrays).
+
+```json
+{
+  "metadata": {
+    "reportType": "CSS Analysis Report (CDR Team)",
+    "cadence": "Weekly",
+    "periodLabel": "August 6 – August 12"
+  },
+  "volumeSummary": {
+    "totalComplaints": 41,
+    "avgPerDay": 5.9,
+    "daysInPeriod": 7,
+    "previousTotal": 21,
+    "previousAvgPerDay": 3.0,
+    "changePercent": 95.2,
+    "insight": "Previous week total: 21 complaints...",
+    "observation": "Complaint volume nearly doubled this week..."
+  },
+  "distribution": {
+    "rows": [{ "category": "WA Call Requested", "previousShare": 48, "currentShare": 49, "trend": "— Stable (share), but absolute count doubled" }],
+    "insight": "WA Call Requested held its share...",
+    "observation": "While several operational categories improved..."
+  },
+  "secondaryCategories": {
+    "rows": [{ "category": "Unq PC - Nurturing", "previousShare": 5, "currentShare": 15, "trend": "⬆ Significant increase" }],
+    "insight": "Unq PC - Nurturing tripled its share...",
+    "positiveFindings": "No Correct Information or Bad Review Social Media cases were reported...",
+    "operationalConcerns": "The Unq PC - Nurturing increase is spread across multiple CDRs..."
+  },
+  "ranking": {
+    "rows": [{ "rank": 1, "cdr": "Laura Bracalenti", "totalComplaints": 4, "types": "1 General Complaint, 1 WA Call Requested, 1 Late Call / Early Call, 1 Unq PC - Unq Nurturing" }],
+    "note": "Within the 4-complaint tier, Laura Bracalenti ranks first due to..."
+  },
+  "conclusion": {
+    "volume": "Complaint volume increased sharply...",
+    "structure": "WA Call Requested remained the dominant category...",
+    "positiveResults": ["Assistance requests fully eliminated (14% → 0%)."],
+    "operationalRisks": ["Overall complaint volume nearly doubled, the primary concern this week."]
+  }
+}
+```
+
 ## Adding a new report type
 
 1. Add an entry to `lib/reportTypes.ts` (slug, name, description, icon, `status: "coming-soon"`).
@@ -313,11 +365,11 @@ All reads/writes go through the service role key inside API routes, so Row Level
 ## Publishing a report (day-to-day workflow)
 
 1. Export the data from Power BI as you already do.
-2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_ICS_REPORT_PROMPT.md`](docs/CLAUDE_ICS_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_SF_WEEKLY_PROMPT.md`](docs/CLAUDE_SF_WEEKLY_PROMPT.md) for SF Weekly, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls, [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md) for Weekend, [`docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md`](docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md) for CL Case Review (paste the CSV export instead of a narrative report), [`docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md`](docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md) for IC and Show Up Rate, [`docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md`](docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md) for IC Inconsistency — so it outputs the JSON block.
+2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_ICS_REPORT_PROMPT.md`](docs/CLAUDE_ICS_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_SF_WEEKLY_PROMPT.md`](docs/CLAUDE_SF_WEEKLY_PROMPT.md) for SF Weekly, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls, [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md) for Weekend, [`docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md`](docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md) for CL Case Review (paste the CSV export instead of a narrative report), [`docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md`](docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md) for IC and Show Up Rate, [`docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md`](docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md) for IC Inconsistency, [`docs/CLAUDE_CSS_ANALYSIS_PROMPT.md`](docs/CLAUDE_CSS_ANALYSIS_PROMPT.md) for Operational Complaint Analysis (CSS) — so it outputs the JSON block.
 3. Go to `/admin`, log in with `ADMIN_PASSWORD`.
 4. Pick the matching report type from the **Tipo de reporte** dropdown.
 5. Paste the JSON block, click **Publicar reporte**.
-6. It appears immediately at `/reports/ics`, `/reports/sf-weekly`, `/reports/total-calls`, `/reports/weekend-report`, `/reports/cl-case-review`, `/reports/ic-show-up-rate`, or `/reports/ic-inconsistency`.
+6. It appears immediately at `/reports/ics`, `/reports/sf-weekly`, `/reports/total-calls`, `/reports/weekend-report`, `/reports/cl-case-review`, `/reports/ic-show-up-rate`, `/reports/ic-inconsistency`, or `/reports/operational-complaints`.
 
 ## Local development
 
