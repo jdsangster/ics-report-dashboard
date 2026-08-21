@@ -120,6 +120,7 @@ docs/
   CLAUDE_IC_SHOW_UP_RATE_PROMPT.md   Prompt template for the IC and Show Up Rate report JSON
   CLAUDE_IC_INCONSISTENCY_PROMPT.md  Prompt template for the IC Inconsistency report JSON
   CLAUDE_CSS_ANALYSIS_PROMPT.md      Prompt template for the CSS Analysis Report JSON
+  ALL_REPORT_PROMPTS.md              All eight prompt templates above combined into one file
 ```
 
 ## Report JSON schema (ICS)
