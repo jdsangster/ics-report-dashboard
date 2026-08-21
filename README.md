@@ -91,9 +91,12 @@ components/
                                       IC and Show Up Rate components (reuses ConclusionCard)
   ICSInconsistencyContributorCard.tsx
                                       IC Inconsistency components (reuses ConclusionCard)
-  CSSVolumeSummaryCard.tsx / CSSCategoryTable.tsx / CSSDistributionCard.tsx /
-  CSSSecondaryCategoriesCard.tsx / CSSRankingCard.tsx / CSSConclusionCard.tsx
-                                      CSS Analysis Report components
+  CSSTrendChart.tsx / CSSVolumeSummaryCard.tsx / CSSCategoryTable.tsx /
+  CSSDistributionCard.tsx / CSSSecondaryCategoriesCard.tsx / CSSRankingCard.tsx /
+  CSSConclusionCard.tsx              CSS Analysis Report components — CSSTrendChart plots total
+                                      complaints across every published week (SVG line chart in the
+                                      style of public/reports/cl-case-review.html's month chart);
+                                      clicking a point selects that week for the rest of the page
   admin/AdminLoginForm.tsx           Password form
   admin/AdminPublishForm.tsx         Report-type selector + JSON paste + publish form
 lib/

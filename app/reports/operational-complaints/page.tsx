@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { CSSData, Cadence } from "@/lib/types";
 import ReportHeader from "@/components/ReportHeader";
+import CSSTrendChart from "@/components/CSSTrendChart";
 import CSSVolumeSummaryCard from "@/components/CSSVolumeSummaryCard";
 import CSSDistributionCard from "@/components/CSSDistributionCard";
 import CSSSecondaryCategoriesCard from "@/components/CSSSecondaryCategoriesCard";
@@ -49,6 +50,11 @@ export default function OperationalComplaintsPage() {
     if (nextFiltered.length > 0 && !nextFiltered.some((r) => r.id === selectedId)) {
       setSelectedId(nextFiltered[0].id);
     }
+  };
+
+  const handleSelectFromChart = (id: string) => {
+    setCadence("All");
+    setSelectedId(id);
   };
 
   if (loading) {
@@ -109,6 +115,12 @@ export default function OperationalComplaintsPage() {
               </span>
             )}
           </div>
+
+          <CSSTrendChart
+            reports={reports}
+            activeId={activeReport.id}
+            onSelect={handleSelectFromChart}
+          />
 
           <CSSVolumeSummaryCard summary={activeReport.volumeSummary} />
           <CSSDistributionCard distribution={activeReport.distribution} />
