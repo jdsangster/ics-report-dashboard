@@ -20,10 +20,12 @@ Power BI → Excel export
 Claude chat/project (existing workflow)
   - Generates the narrative report for Teams, same as today
   - ALSO generates a JSON block matching that report type's schema
-    (prompt templates: docs/CLAUDE_REPORT_PROMPT.md for ICS,
+    (prompt templates: docs/CLAUDE_ICS_REPORT_PROMPT.md for ICS,
      docs/CLAUDE_SF_WEEKLY_PROMPT.md for SF Weekly,
      docs/CLAUDE_TOTAL_CALLS_PROMPT.md for Total Calls,
-     docs/CLAUDE_WEEKEND_REPORT_PROMPT.md for Weekend)
+     docs/CLAUDE_WEEKEND_REPORT_PROMPT.md for Weekend,
+     docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md for CL Case Review — this one
+     converts a raw CSV export instead of a narrative report)
         │
         ▼
 /admin page (password protected)
@@ -94,15 +96,16 @@ lib/
   adminAuth.ts                       Password check + session cookie helpers
   utils.ts                           Formatting + badge/status style helpers + paragraph splitting
 docs/
-  CLAUDE_REPORT_PROMPT.md            Prompt template for the ICS report JSON
+  CLAUDE_ICS_REPORT_PROMPT.md        Prompt template for the ICS report JSON
   CLAUDE_TOTAL_CALLS_PROMPT.md       Prompt template for the Total Calls report JSON
   CLAUDE_WEEKEND_REPORT_PROMPT.md    Prompt template for the Weekend report JSON
   CLAUDE_SF_WEEKLY_PROMPT.md         Prompt template for the SF Weekly report JSON
+  CLAUDE_CL_CASE_REVIEW_PROMPT.md    Prompt template for converting the CL Case Review CSV export to JSON
 ```
 
 ## Report JSON schema (ICS)
 
-This is both the `/admin` publish payload and the shape stored in Supabase's `reports.data` JSONB column. Full field-by-field reference and a real example: [`docs/CLAUDE_REPORT_PROMPT.md`](docs/CLAUDE_REPORT_PROMPT.md).
+This is both the `/admin` publish payload and the shape stored in Supabase's `reports.data` JSONB column. Full field-by-field reference and a real example: [`docs/CLAUDE_ICS_REPORT_PROMPT.md`](docs/CLAUDE_ICS_REPORT_PROMPT.md).
 
 ```json
 {
@@ -152,7 +155,7 @@ Full field-by-field reference and a real example: [`docs/CLAUDE_WEEKEND_REPORT_P
 
 ## Report JSON schema (CL Case Review)
 
-Unlike the other three report types, this one is a single flat list of raw case records (no per-team breakdown, takeaways, etc.) — it powers a standalone interactive dashboard (`public/reports/cl-case-review.html`, embedded via `<iframe>` in `app/reports/cl-case-review/page.tsx`) with its own search/filter/pagination/charts. That HTML fetches its data at runtime from `GET /api/reports?type=cl-case-review` — same demo/live branching as every other report type, nothing baked in statically anymore.
+Unlike the other report types, this one is a single flat list of raw case records (no per-team breakdown, takeaways, etc.) — it powers a standalone interactive dashboard (`public/reports/cl-case-review.html`, embedded via `<iframe>` in `app/reports/cl-case-review/page.tsx`) with its own search/filter/pagination/charts. That HTML fetches its data at runtime from `GET /api/reports?type=cl-case-review` — same demo/live branching as every other report type, nothing baked in statically anymore.
 
 ```json
 {
@@ -183,7 +186,7 @@ Unlike the other three report types, this one is a single flat list of raw case 
 
 `cadence` is a required-but-unused placeholder (this report has no real cadence concept — the field only exists because every report shares the same `reports` table schema). `link` is extracted from free text in `subject`/`description` — prefer a `pipedrive.com` URL when the text contains more than one link (e.g. alongside a Teams attachment URL), since that's the actually-useful record link.
 
-**Publishing an update:** since the source Excel export doesn't have a stable per-row ID, each publish sends the **full current case list**, not just new rows — the newest publish simply replaces what the dashboard shows (same "latest row wins" pattern as every other report type here). Ask Claude to regenerate this JSON from a fresh CSV export whenever you have new cases, then paste it into `/admin` → **CL Case Review** → **Publicar reporte**, same flow as the other three report types.
+**Publishing an update:** since the source Excel export doesn't have a stable per-row ID, each publish sends the **full current case list**, not just new rows — the newest publish simply replaces what the dashboard shows (same "latest row wins" pattern as every other report type here). Use [`docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md`](docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md) to convert a fresh CSV export into this JSON whenever you have new cases, then paste it into `/admin` → **CL Case Review** → **Publicar reporte**, same flow as the other report types.
 
 ## Report JSON schema (SF Weekly)
 
@@ -244,7 +247,7 @@ All reads/writes go through the service role key inside API routes, so Row Level
 ## Publishing a report (day-to-day workflow)
 
 1. Export the data from Power BI as you already do.
-2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_REPORT_PROMPT.md`](docs/CLAUDE_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_SF_WEEKLY_PROMPT.md`](docs/CLAUDE_SF_WEEKLY_PROMPT.md) for SF Weekly, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls, [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md) for Weekend — so it outputs the JSON block alongside the usual Word report.
+2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_ICS_REPORT_PROMPT.md`](docs/CLAUDE_ICS_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_SF_WEEKLY_PROMPT.md`](docs/CLAUDE_SF_WEEKLY_PROMPT.md) for SF Weekly, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls, [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md) for Weekend, [`docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md`](docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md) for CL Case Review (paste the CSV export instead of a narrative report) — so it outputs the JSON block.
 3. Go to `/admin`, log in with `ADMIN_PASSWORD`.
 4. Pick the matching report type from the **Tipo de reporte** dropdown.
 5. Paste the JSON block, click **Publicar reporte**.
