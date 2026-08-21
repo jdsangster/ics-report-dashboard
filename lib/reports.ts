@@ -1,16 +1,33 @@
 import { getSupabaseServerClient, REPORTS_TABLE } from "./supabaseClient";
-import { CaseReviewPayload, ReportPayload, TotalCallsPayload, WeekendPayload } from "./types";
+import {
+  CaseReviewPayload,
+  ReportPayload,
+  SFWeeklyPayload,
+  TotalCallsPayload,
+  WeekendPayload,
+} from "./types";
 
-export type ReportTypeSlug = "ics" | "total-calls" | "weekend-report" | "cl-case-review";
+export type ReportTypeSlug =
+  | "ics"
+  | "total-calls"
+  | "weekend-report"
+  | "cl-case-review"
+  | "sf-weekly";
 
 export const REPORT_TYPE_SLUGS: ReportTypeSlug[] = [
   "ics",
   "total-calls",
   "weekend-report",
   "cl-case-review",
+  "sf-weekly",
 ];
 
-type AnyReportPayload = ReportPayload | TotalCallsPayload | WeekendPayload | CaseReviewPayload;
+type AnyReportPayload =
+  | ReportPayload
+  | TotalCallsPayload
+  | WeekendPayload
+  | CaseReviewPayload
+  | SFWeeklyPayload;
 
 export function isValidReportPayload(body: unknown): body is ReportPayload {
   if (!body || typeof body !== "object") return false;
@@ -100,6 +117,20 @@ export function isValidCaseReviewPayload(body: unknown): body is CaseReviewPaylo
   });
 }
 
+export function isValidSFWeeklyPayload(body: unknown): body is SFWeeklyPayload {
+  if (!body || typeof body !== "object") return false;
+  const b = body as Record<string, unknown>;
+  return (
+    typeof b.metadata === "object" &&
+    b.metadata !== null &&
+    typeof (b.metadata as Record<string, unknown>).cadence === "string" &&
+    typeof (b.metadata as Record<string, unknown>).periodLabel === "string" &&
+    typeof b.summary === "object" &&
+    Array.isArray(b.meetingTarget) &&
+    Array.isArray(b.belowTarget)
+  );
+}
+
 export function isValidReportPayloadFor(
   reportType: ReportTypeSlug,
   body: unknown
@@ -107,6 +138,7 @@ export function isValidReportPayloadFor(
   if (reportType === "total-calls") return isValidTotalCallsPayload(body);
   if (reportType === "weekend-report") return isValidWeekendPayload(body);
   if (reportType === "cl-case-review") return isValidCaseReviewPayload(body);
+  if (reportType === "sf-weekly") return isValidSFWeeklyPayload(body);
   return isValidReportPayload(body);
 }
 

@@ -1,6 +1,6 @@
 # Colombo&Hurd Reports Center
 
-Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics), **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention), and **Weekend Report** (weekend IC production, day-by-day attention matrix). More report types are added the same way as they're needed.
+Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics), **SF Weekly Report** (Short Funnel coverage vs. target, by CDR), **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention), **CL Case Review** (searchable CDR & Setter case log), and **Weekend Report** (weekend IC production, day-by-day attention matrix). More report types are added the same way as they're needed.
 
 Built with Next.js (App Router), Tailwind CSS, and Supabase, with a password-protected internal `/admin` page for publishing new reports — no SharePoint, Power Automate, or IT dependency required to ship a new report.
 
@@ -21,6 +21,7 @@ Claude chat/project (existing workflow)
   - Generates the narrative report for Teams, same as today
   - ALSO generates a JSON block matching that report type's schema
     (prompt templates: docs/CLAUDE_REPORT_PROMPT.md for ICS,
+     docs/CLAUDE_SF_WEEKLY_PROMPT.md for SF Weekly,
      docs/CLAUDE_TOTAL_CALLS_PROMPT.md for Total Calls,
      docs/CLAUDE_WEEKEND_REPORT_PROMPT.md for Weekend)
         │
@@ -52,6 +53,7 @@ app/
   admin/page.tsx                    Password-gated report publishing page
   reports/
     ics/page.tsx                    ICS Performance dashboard (live)
+    sf-weekly/page.tsx              SF Weekly Report dashboard (live)
     total-calls/page.tsx            Total Calls Report dashboard (live)
     weekend-report/page.tsx         Weekend Report dashboard (live)
     cl-case-review/page.tsx         CL Case Review — iframe embed of public/reports/cl-case-review.html, which fetches its data from the API at runtime (live)
@@ -75,6 +77,8 @@ components/
   WeekendSummaryCard.tsx / TeamWeekendCard.tsx / WeekendTopPerformersCard.tsx /
   WeekendAttentionCard.tsx / WeekendTeamRankingCard.tsx
                                       Weekend report components (reuses CallsTakeawaysSection + ConclusionCard)
+  SFSummaryCard.tsx / SFMeetingTargetCard.tsx / SFBelowTargetCard.tsx
+                                      SF Weekly report components
   admin/AdminLoginForm.tsx           Password form
   admin/AdminPublishForm.tsx         Report-type selector + JSON paste + publish form
 lib/
@@ -85,6 +89,7 @@ lib/
   totalCallsMockData.ts              Simulated Total Calls report for demo mode
   weekendMockData.ts                 Simulated Weekend report for demo mode
   caseReviewMockData.ts              Simulated CL Case Review cases for demo mode
+  sfWeeklyMockData.ts                Simulated SF Weekly report for demo mode
   supabaseClient.ts                  Server-only Supabase client (service role key)
   adminAuth.ts                       Password check + session cookie helpers
   utils.ts                           Formatting + badge/status style helpers + paragraph splitting
@@ -92,6 +97,7 @@ docs/
   CLAUDE_REPORT_PROMPT.md            Prompt template for the ICS report JSON
   CLAUDE_TOTAL_CALLS_PROMPT.md       Prompt template for the Total Calls report JSON
   CLAUDE_WEEKEND_REPORT_PROMPT.md    Prompt template for the Weekend report JSON
+  CLAUDE_SF_WEEKLY_PROMPT.md         Prompt template for the SF Weekly report JSON
 ```
 
 ## Report JSON schema (ICS)
@@ -179,6 +185,10 @@ Unlike the other three report types, this one is a single flat list of raw case 
 
 **Publishing an update:** since the source Excel export doesn't have a stable per-row ID, each publish sends the **full current case list**, not just new rows — the newest publish simply replaces what the dashboard shows (same "latest row wins" pattern as every other report type here). Ask Claude to regenerate this JSON from a fresh CSV export whenever you have new cases, then paste it into `/admin` → **CL Case Review** → **Publicar reporte**, same flow as the other three report types.
 
+## Report JSON schema (SF Weekly)
+
+Full field-by-field reference and a real example: [`docs/CLAUDE_SF_WEEKLY_PROMPT.md`](docs/CLAUDE_SF_WEEKLY_PROMPT.md). Top-level shape: `metadata` (includes `benchmarkPerDay`, the Short Funnel/day target), `summary` (cdrsEvaluated/meetingCoverageTarget/belowCoverageTarget/coverageRate), and two separate CDR arrays — `meetingTarget` (includes `daysEvaluated`) and `belowTarget` (doesn't) — matching the two tables in the source report.
+
 ## Adding a new report type
 
 1. Add an entry to `lib/reportTypes.ts` (slug, name, description, icon, `status: "coming-soon"`).
@@ -234,11 +244,11 @@ All reads/writes go through the service role key inside API routes, so Row Level
 ## Publishing a report (day-to-day workflow)
 
 1. Export the data from Power BI as you already do.
-2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_REPORT_PROMPT.md`](docs/CLAUDE_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls, [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md) for Weekend — so it outputs the JSON block alongside the usual Word report.
+2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_REPORT_PROMPT.md`](docs/CLAUDE_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_SF_WEEKLY_PROMPT.md`](docs/CLAUDE_SF_WEEKLY_PROMPT.md) for SF Weekly, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls, [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md) for Weekend — so it outputs the JSON block alongside the usual Word report.
 3. Go to `/admin`, log in with `ADMIN_PASSWORD`.
 4. Pick the matching report type from the **Tipo de reporte** dropdown.
 5. Paste the JSON block, click **Publicar reporte**.
-6. It appears immediately at `/reports/ics`, `/reports/total-calls`, or `/reports/weekend-report`.
+6. It appears immediately at `/reports/ics`, `/reports/sf-weekly`, `/reports/total-calls`, `/reports/weekend-report`, or `/reports/cl-case-review`.
 
 ## Local development
 

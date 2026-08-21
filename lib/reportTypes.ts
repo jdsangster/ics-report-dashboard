@@ -31,9 +31,9 @@ export const reportTypes: ReportTypeMeta[] = [
   {
     slug: "sf-weekly",
     name: "SF Weekly Report",
-    description: "Weekly Salesforce pipeline and activity summary by rep and team.",
+    description: "Short Funnel coverage vs. the daily target, by CDR — who's meeting it and who isn't.",
     icon: Users,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "total-calls",

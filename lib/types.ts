@@ -281,3 +281,43 @@ export interface CaseReviewData extends CaseReviewPayload {
   id: string;
   createdAt?: string;
 }
+
+// ---------------------------------------------------------------------------
+// SF Weekly Report (Short Funnel coverage)
+// ---------------------------------------------------------------------------
+
+export interface SFCdrStat {
+  cdr: string;
+  team: string;
+  avgSfPerDay: number;
+  daysBelowTarget: number;
+  /** Only reported for CDRs meeting the target in the source report. */
+  daysEvaluated?: number;
+}
+
+export interface SFWeeklySummary {
+  cdrsEvaluated: number;
+  meetingCoverageTarget: number;
+  belowCoverageTarget: number;
+  coverageRate: string;
+}
+
+export interface SFWeeklyMetadata {
+  reportType: string;
+  cadence: Cadence;
+  periodLabel: string;
+  benchmarkPerDay: number;
+}
+
+/** Shape stored in Supabase's `reports.data` JSONB column for the SF Weekly report type. */
+export interface SFWeeklyPayload {
+  metadata: SFWeeklyMetadata;
+  summary: SFWeeklySummary;
+  meetingTarget: SFCdrStat[];
+  belowTarget: SFCdrStat[];
+}
+
+export interface SFWeeklyData extends SFWeeklyPayload {
+  id: string;
+  createdAt?: string;
+}

@@ -3,8 +3,9 @@ import { mockReports } from "@/lib/mockData";
 import { mockTotalCallsReports } from "@/lib/totalCallsMockData";
 import { mockWeekendReports } from "@/lib/weekendMockData";
 import { mockCaseReviewReports } from "@/lib/caseReviewMockData";
+import { mockSFWeeklyReports } from "@/lib/sfWeeklyMockData";
 import { getSupabaseServerClient, REPORTS_TABLE } from "@/lib/supabaseClient";
-import { CaseReviewData, ReportData, TotalCallsData, WeekendData } from "@/lib/types";
+import { CaseReviewData, ReportData, SFWeeklyData, TotalCallsData, WeekendData } from "@/lib/types";
 import { REPORT_TYPE_SLUGS, ReportTypeSlug } from "@/lib/reports";
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE !== "false";
@@ -13,6 +14,7 @@ function getMockReports(reportType: ReportTypeSlug) {
   if (reportType === "total-calls") return mockTotalCallsReports;
   if (reportType === "weekend-report") return mockWeekendReports;
   if (reportType === "cl-case-review") return mockCaseReviewReports;
+  if (reportType === "sf-weekly") return mockSFWeeklyReports;
   return mockReports;
 }
 
@@ -38,7 +40,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const reports: (ReportData | TotalCallsData | WeekendData | CaseReviewData)[] = (
+  const reports: (ReportData | TotalCallsData | WeekendData | CaseReviewData | SFWeeklyData)[] = (
     data ?? []
   ).map((row) => ({
     id: row.id,
