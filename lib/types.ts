@@ -364,3 +364,32 @@ export interface ICSRatioData extends ICSRatioPayload {
   id: string;
   createdAt?: string;
 }
+
+// ---------------------------------------------------------------------------
+// IC Inconsistency
+// ---------------------------------------------------------------------------
+
+export interface ICSInconsistencyMetadata {
+  reportType: string;
+  cadence: Cadence;
+  periodLabel: string;
+}
+
+export interface ICSInconsistencyContributor {
+  cdr: string;
+  biCount: number;
+  excelCount: number;
+  issues: string[];
+}
+
+/** Shape stored in Supabase's `reports.data` JSONB column for the IC Inconsistency report type. */
+export interface ICSInconsistencyPayload {
+  metadata: ICSInconsistencyMetadata;
+  contributors: ICSInconsistencyContributor[];
+  narrative?: string;
+}
+
+export interface ICSInconsistencyData extends ICSInconsistencyPayload {
+  id: string;
+  createdAt?: string;
+}

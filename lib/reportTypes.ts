@@ -52,9 +52,9 @@ export const reportTypes: ReportTypeMeta[] = [
   {
     slug: "ic-inconsistency",
     name: "IC Inconsistency",
-    description: "Flags contributors with erratic day-to-day IC performance.",
+    description: "Flags mismatches between BI-reported and Excel-logged IC counts, and the disposition errors behind them.",
     icon: AlertTriangle,
-    status: "coming-soon",
+    status: "live",
   },
   {
     slug: "operational-complaints",
