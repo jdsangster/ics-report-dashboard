@@ -4,6 +4,15 @@ This is a single combined reference containing every `docs/CLAUDE_*_PROMPT.md` f
 
 Each report type still has its own standalone file in `docs/` (linked below) — this file just puts them all in one place for quick reference. If you only need one report type's prompt, the standalone file is lighter to work with; use this one when you want the full picture or need to hand the whole set to someone else.
 
+> **⚠️ If you're pasting this whole file into a chat** (rather than copying just the one section
+> you need), the assistant now has all 8 schemas in front of it at once — nothing here tells it
+> which one applies. **Say explicitly which report type you're generating** (e.g. "generate the
+> JSON for the Weekend Report, section 8 — use only that schema, ignore the other seven") before
+> it writes anything. Skipping this has caused a chat to build JSON against the wrong schema
+> (e.g. the ICS Performance Report shape instead of the Weekend Report one), which the dashboard
+> then rejects on publish. When possible, copying only the relevant section below avoids the
+> problem entirely.
+
 ## Contents
 
 1. [ICS Performance Report](#1-ics-performance-report) — [`docs/CLAUDE_ICS_REPORT_PROMPT.md`](CLAUDE_ICS_REPORT_PROMPT.md)
