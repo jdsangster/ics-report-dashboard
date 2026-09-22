@@ -24,7 +24,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
   "cdrs": [
     {
       "cdr": "Rodrigo Cohen",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 14,
       "icsOverall": 14,
       "overallPct": 100.0,
@@ -66,7 +66,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Monica Solon",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 52,
       "icsOverall": 49,
       "overallPct": 94.23,
@@ -94,7 +94,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Diego Brandan",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 50,
       "icsOverall": 45,
       "overallPct": 90.0,
@@ -108,7 +108,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Marcio Oliveira",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 52,
       "icsOverall": 46,
       "overallPct": 88.46,
@@ -136,7 +136,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Valentina Franco",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 21,
       "icsOverall": 18,
       "overallPct": 85.71,
@@ -150,7 +150,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Stephania Arcila Puerto",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 30,
       "icsOverall": 25,
       "overallPct": 83.33,
@@ -178,7 +178,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Paula Brunati",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 64,
       "icsOverall": 52,
       "overallPct": 81.25,
@@ -192,7 +192,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Alicia Romano",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 56,
       "icsOverall": 45,
       "overallPct": 80.36,
@@ -234,7 +234,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Camila Aput",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 20,
       "icsOverall": 15,
       "overallPct": 75.0,
@@ -248,7 +248,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Luis Ramirez",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 8,
       "icsOverall": 6,
       "overallPct": 75.0,
@@ -276,7 +276,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Tomas Vega",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 48,
       "icsOverall": 35,
       "overallPct": 72.92,
@@ -290,7 +290,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Alan Castellano",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 14,
       "icsOverall": 10,
       "overallPct": 71.43,
@@ -304,7 +304,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Pedro Moreno",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 49,
       "icsOverall": 35,
       "overallPct": 71.43,
@@ -332,7 +332,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Joao Miguel Campos",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 41,
       "icsOverall": 29,
       "overallPct": 70.73,
@@ -346,7 +346,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Stefania Ramundo",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 45,
       "icsOverall": 31,
       "overallPct": 68.89,
@@ -360,7 +360,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Mariana Ricaurte",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 22,
       "icsOverall": 15,
       "overallPct": 68.18,
@@ -388,7 +388,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Jesus Castillo",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 18,
       "icsOverall": 12,
       "overallPct": 66.67,
@@ -416,7 +416,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Laura Bracalenti",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 63,
       "icsOverall": 40,
       "overallPct": 63.49,
@@ -430,7 +430,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Fernanda Fernandez",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 43,
       "icsOverall": 27,
       "overallPct": 62.79,
@@ -444,7 +444,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Ayelen Mannucci",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 51,
       "icsOverall": 32,
       "overallPct": 62.75,
@@ -458,7 +458,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Lucas DaSilva",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 18,
       "icsOverall": 11,
       "overallPct": 61.11,
@@ -472,7 +472,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Loraine Castillo",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 36,
       "icsOverall": 22,
       "overallPct": 61.11,
@@ -486,7 +486,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Marcos Villa",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 40,
       "icsOverall": 24,
       "overallPct": 60.0,
@@ -514,7 +514,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Maria Camba",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 29,
       "icsOverall": 17,
       "overallPct": 58.62,
@@ -570,7 +570,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Stefanny Navarro",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 61,
       "icsOverall": 31,
       "overallPct": 50.82,
@@ -598,7 +598,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Katheryn Parada",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 25,
       "icsOverall": 11,
       "overallPct": 44.0,
@@ -640,7 +640,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Javier Garcia",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 25,
       "icsOverall": 10,
       "overallPct": 40.0,
@@ -654,7 +654,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Araceli Pinget",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 71,
       "icsOverall": 26,
       "overallPct": 36.62,
@@ -696,7 +696,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Ximena Lopez",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 31,
       "icsOverall": 11,
       "overallPct": 35.48,
@@ -738,7 +738,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "George Tzaferi",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 52,
       "icsOverall": 17,
       "overallPct": 32.69,
@@ -766,7 +766,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Renee Castillo",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 25,
       "icsOverall": 7,
       "overallPct": 28.0,
@@ -780,7 +780,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Oriana Tuttobene",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 33,
       "icsOverall": 9,
       "overallPct": 27.27,
@@ -808,7 +808,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Kevin Perez",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
       "qualifiedPCsOverall": 35,
       "icsOverall": 9,
       "overallPct": 25.71,
@@ -850,7 +850,7 @@ export const mockConversionTrackerReports: ConversionTrackerData[] = [
     },
     {
       "cdr": "Aldemara Barbosa",
-      "team": "The Booking Machines",
+      "team": "Lightyear",
       "qualifiedPCsOverall": 0,
       "icsOverall": 0,
       "overallPct": 0.0,
