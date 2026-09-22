@@ -527,3 +527,38 @@ export interface ConversionTrackerData extends ConversionTrackerPayload {
   id: string;
   createdAt?: string;
 }
+
+// ---------------------------------------------------------------------------
+// CDR Turnover Report
+// ---------------------------------------------------------------------------
+
+export type TurnoverOutcome = "Offboarded" | "Quit" | "Promoted to CL";
+
+export interface TurnoverEvent {
+  cdr: string;
+  team: string;
+  outcome: TurnoverOutcome;
+  /** ISO "YYYY-MM-DD" — the date the outcome took effect. */
+  date: string;
+  /** ISO "YYYY-MM-DD", optional — when the CDR started, if known. */
+  startDate?: string;
+  /** Optional free-text reason/context. */
+  note?: string;
+}
+
+export interface TurnoverMetadata {
+  reportType: string;
+  cadence: Cadence;
+  periodLabel: string;
+}
+
+/** Shape stored in Supabase's `reports.data` JSONB column for the CDR Turnover report type. */
+export interface TurnoverPayload {
+  metadata: TurnoverMetadata;
+  events: TurnoverEvent[];
+}
+
+export interface TurnoverData extends TurnoverPayload {
+  id: string;
+  createdAt?: string;
+}

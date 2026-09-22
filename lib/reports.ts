@@ -8,6 +8,7 @@ import {
   ReportPayload,
   SFWeeklyPayload,
   TotalCallsPayload,
+  TurnoverPayload,
   WeekendPayload,
 } from "./types";
 
@@ -20,7 +21,8 @@ export type ReportTypeSlug =
   | "ic-show-up-rate"
   | "ic-inconsistency"
   | "operational-complaints"
-  | "conversion-tracker";
+  | "conversion-tracker"
+  | "cdr-turnover";
 
 export const REPORT_TYPE_SLUGS: ReportTypeSlug[] = [
   "ics",
@@ -32,6 +34,7 @@ export const REPORT_TYPE_SLUGS: ReportTypeSlug[] = [
   "ic-inconsistency",
   "operational-complaints",
   "conversion-tracker",
+  "cdr-turnover",
 ];
 
 type AnyReportPayload =
@@ -43,7 +46,8 @@ type AnyReportPayload =
   | ICSRatioPayload
   | ICSInconsistencyPayload
   | CSSPayload
-  | ConversionTrackerPayload;
+  | ConversionTrackerPayload
+  | TurnoverPayload;
 
 export function isValidReportPayload(body: unknown): body is ReportPayload {
   if (!body || typeof body !== "object") return false;
@@ -370,6 +374,35 @@ export function isValidConversionTrackerPayload(body: unknown): body is Conversi
   });
 }
 
+const TURNOVER_OUTCOMES = new Set(["Offboarded", "Quit", "Promoted to CL"]);
+
+export function isValidTurnoverPayload(body: unknown): body is TurnoverPayload {
+  if (!body || typeof body !== "object") return false;
+  const b = body as Record<string, unknown>;
+  if (
+    typeof b.metadata !== "object" ||
+    b.metadata === null ||
+    typeof (b.metadata as Record<string, unknown>).cadence !== "string" ||
+    typeof (b.metadata as Record<string, unknown>).periodLabel !== "string"
+  ) {
+    return false;
+  }
+  if (!Array.isArray(b.events)) return false;
+  return b.events.every((e) => {
+    if (!e || typeof e !== "object") return false;
+    const ev = e as Record<string, unknown>;
+    return (
+      typeof ev.cdr === "string" &&
+      typeof ev.team === "string" &&
+      typeof ev.outcome === "string" &&
+      TURNOVER_OUTCOMES.has(ev.outcome as string) &&
+      typeof ev.date === "string" &&
+      (ev.startDate === undefined || typeof ev.startDate === "string") &&
+      (ev.note === undefined || typeof ev.note === "string")
+    );
+  });
+}
+
 export function isValidReportPayloadFor(
   reportType: ReportTypeSlug,
   body: unknown
@@ -382,6 +415,7 @@ export function isValidReportPayloadFor(
   if (reportType === "ic-inconsistency") return isValidICSInconsistencyPayload(body);
   if (reportType === "operational-complaints") return isValidCSSPayload(body);
   if (reportType === "conversion-tracker") return isValidConversionTrackerPayload(body);
+  if (reportType === "cdr-turnover") return isValidTurnoverPayload(body);
   return isValidReportPayload(body);
 }
 

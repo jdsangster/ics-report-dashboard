@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   CalendarDays,
   Gavel,
+  LogOut,
   MessageSquareWarning,
   PhoneCall,
   Trophy,
@@ -83,6 +84,13 @@ export const reportTypes: ReportTypeMeta[] = [
     name: "CDR Conversion Tracker",
     description: "Weekly ICs-over-Qualified-PCs conversion ranking, filtered to a reliable volume in both Short Funnel and Campaigns — \"The 70% Club\".",
     icon: Trophy,
+    status: "live",
+  },
+  {
+    slug: "cdr-turnover",
+    name: "CDR Turnover Report",
+    description: "Log of CDR offboardings, resignations, and promotions to CL, by team and date.",
+    icon: LogOut,
     status: "live",
   },
 ];
