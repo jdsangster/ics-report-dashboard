@@ -5,6 +5,7 @@ import {
   Gavel,
   MessageSquareWarning,
   PhoneCall,
+  Trophy,
   UserCheck,
   Users,
   type LucideIcon,
@@ -75,6 +76,13 @@ export const reportTypes: ReportTypeMeta[] = [
     name: "Weekend Report",
     description: "Weekend IC production by team, top performers, and coverage gaps.",
     icon: CalendarDays,
+    status: "live",
+  },
+  {
+    slug: "conversion-tracker",
+    name: "CDR Conversion Tracker",
+    description: "Weekly ICs-over-Qualified-PCs conversion ranking, filtered to a reliable volume in both Short Funnel and Campaigns — \"The 70% Club\".",
+    icon: Trophy,
     status: "live",
   },
 ];

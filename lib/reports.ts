@@ -1,6 +1,7 @@
 import { getSupabaseServerClient, REPORTS_TABLE } from "./supabaseClient";
 import {
   CaseReviewPayload,
+  ConversionTrackerPayload,
   CSSPayload,
   ICSInconsistencyPayload,
   ICSRatioPayload,
@@ -18,7 +19,8 @@ export type ReportTypeSlug =
   | "sf-weekly"
   | "ic-show-up-rate"
   | "ic-inconsistency"
-  | "operational-complaints";
+  | "operational-complaints"
+  | "conversion-tracker";
 
 export const REPORT_TYPE_SLUGS: ReportTypeSlug[] = [
   "ics",
@@ -29,6 +31,7 @@ export const REPORT_TYPE_SLUGS: ReportTypeSlug[] = [
   "ic-show-up-rate",
   "ic-inconsistency",
   "operational-complaints",
+  "conversion-tracker",
 ];
 
 type AnyReportPayload =
@@ -39,7 +42,8 @@ type AnyReportPayload =
   | SFWeeklyPayload
   | ICSRatioPayload
   | ICSInconsistencyPayload
-  | CSSPayload;
+  | CSSPayload
+  | ConversionTrackerPayload;
 
 export function isValidReportPayload(body: unknown): body is ReportPayload {
   if (!body || typeof body !== "object") return false;
@@ -299,6 +303,73 @@ export function isValidCSSPayload(body: unknown): body is CSSPayload {
   return true;
 }
 
+export function isValidConversionTrackerPayload(body: unknown): body is ConversionTrackerPayload {
+  if (!body || typeof body !== "object") return false;
+  const b = body as Record<string, unknown>;
+  if (
+    typeof b.metadata !== "object" ||
+    b.metadata === null ||
+    typeof (b.metadata as Record<string, unknown>).cadence !== "string" ||
+    typeof (b.metadata as Record<string, unknown>).periodLabel !== "string"
+  ) {
+    return false;
+  }
+
+  const methodology = b.methodology as Record<string, unknown> | undefined;
+  if (
+    !methodology ||
+    typeof methodology !== "object" ||
+    typeof methodology.sfThreshold !== "number" ||
+    typeof methodology.campThreshold !== "number" ||
+    typeof methodology.sfThresholdBasis !== "string" ||
+    typeof methodology.campThresholdBasis !== "string" ||
+    typeof methodology.note !== "string"
+  ) {
+    return false;
+  }
+
+  const summary = b.summary as Record<string, unknown> | undefined;
+  if (
+    !summary ||
+    typeof summary !== "object" ||
+    typeof summary.totalEvaluated !== "number" ||
+    typeof summary.clubCount !== "number" ||
+    typeof summary.eligibleCount !== "number" ||
+    typeof summary.belowThresholdCount !== "number"
+  ) {
+    return false;
+  }
+
+  if (
+    !Array.isArray(b.observations) ||
+    !b.observations.every((o) => typeof o === "string")
+  ) {
+    return false;
+  }
+
+  if (!Array.isArray(b.cdrs)) return false;
+  const validStatuses = new Set(["70club", "eligible", "below-threshold"]);
+  return b.cdrs.every((c) => {
+    if (!c || typeof c !== "object") return false;
+    const r = c as Record<string, unknown>;
+    return (
+      typeof r.cdr === "string" &&
+      typeof r.team === "string" &&
+      typeof r.qualifiedPCsOverall === "number" &&
+      typeof r.icsOverall === "number" &&
+      typeof r.overallPct === "number" &&
+      typeof r.qualifiedPCsSF === "number" &&
+      typeof r.icsSF === "number" &&
+      typeof r.sfPct === "number" &&
+      typeof r.qualifiedPCsCamp === "number" &&
+      typeof r.icsCamp === "number" &&
+      typeof r.campPct === "number" &&
+      typeof r.status === "string" &&
+      validStatuses.has(r.status as string)
+    );
+  });
+}
+
 export function isValidReportPayloadFor(
   reportType: ReportTypeSlug,
   body: unknown
@@ -310,6 +381,7 @@ export function isValidReportPayloadFor(
   if (reportType === "ic-show-up-rate") return isValidICSRatioPayload(body);
   if (reportType === "ic-inconsistency") return isValidICSInconsistencyPayload(body);
   if (reportType === "operational-complaints") return isValidCSSPayload(body);
+  if (reportType === "conversion-tracker") return isValidConversionTrackerPayload(body);
   return isValidReportPayload(body);
 }
 

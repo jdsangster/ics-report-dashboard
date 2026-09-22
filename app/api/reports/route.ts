@@ -7,9 +7,11 @@ import { mockSFWeeklyReports } from "@/lib/sfWeeklyMockData";
 import { mockICSRatioReports } from "@/lib/icsRatioMockData";
 import { mockICSInconsistencyReports } from "@/lib/icsInconsistencyMockData";
 import { mockCSSReports } from "@/lib/cssMockData";
+import { mockConversionTrackerReports } from "@/lib/conversionTrackerMockData";
 import { getSupabaseServerClient, REPORTS_TABLE } from "@/lib/supabaseClient";
 import {
   CaseReviewData,
+  ConversionTrackerData,
   CSSData,
   ICSRatioData,
   ICSInconsistencyData,
@@ -30,6 +32,7 @@ function getMockReports(reportType: ReportTypeSlug) {
   if (reportType === "ic-show-up-rate") return mockICSRatioReports;
   if (reportType === "ic-inconsistency") return mockICSInconsistencyReports;
   if (reportType === "operational-complaints") return mockCSSReports;
+  if (reportType === "conversion-tracker") return mockConversionTrackerReports;
   return mockReports;
 }
 
@@ -64,6 +67,7 @@ export async function GET(req: NextRequest) {
     | ICSRatioData
     | ICSInconsistencyData
     | CSSData
+    | ConversionTrackerData
   )[] = (data ?? []).map((row) => ({
     id: row.id,
     createdAt: row.created_at,

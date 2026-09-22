@@ -1,6 +1,6 @@
 # Colombo&Hurd Reports Center
 
-Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics), **SF Weekly Report** (Short Funnel coverage vs. target, by CDR), **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention), **CL Case Review** (searchable CDR & Setter case log), **Weekend Report** (weekend IC production, day-by-day attention matrix), **IC and Show Up Rate** (ICS Ratio Ranking — CDRs grouped into performance tiers from Elite to Critical Opportunity Area), **IC Inconsistency** (BI vs. Excel IC count mismatches and the disposition errors behind them), and **Operational Complaint Analysis (CSS)** (weekly complaint volume, category distribution, and CDR ranking). More report types are added the same way as they're needed.
+Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics), **SF Weekly Report** (Short Funnel coverage vs. target, by CDR), **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention), **CL Case Review** (searchable CDR & Setter case log), **Weekend Report** (weekend IC production, day-by-day attention matrix), **IC and Show Up Rate** (ICS Ratio Ranking — CDRs grouped into performance tiers from Elite to Critical Opportunity Area), **IC Inconsistency** (BI vs. Excel IC count mismatches and the disposition errors behind them), **Operational Complaint Analysis (CSS)** (weekly complaint volume, category distribution, and CDR ranking), and **CDR Conversion Tracker** ("The 70% Club" — ICs-over-Qualified-PCs conversion ranking, filtered to a reliable volume in both Short Funnel and Campaigns). More report types are added the same way as they're needed.
 
 Built with Next.js (App Router), Tailwind CSS, and Supabase, with a password-protected internal `/admin` page for publishing new reports — no SharePoint, Power Automate, or IT dependency required to ship a new report.
 
@@ -28,6 +28,9 @@ Claude chat/project (existing workflow)
      converts a raw CSV export instead of a narrative report,
      docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md for IC and Show Up Rate,
      docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md for IC Inconsistency,
+     docs/CLAUDE_CDR_CONVERSION_TRACKER_PROMPT.md for the CDR Conversion Tracker — this one
+     converts three raw Power BI exports (Full Data, Short Funnel, Campaigns) instead of a
+     narrative report,
      docs/CLAUDE_CSS_ANALYSIS_PROMPT.md for Operational Complaint Analysis)
         │
         ▼
@@ -65,6 +68,7 @@ app/
     ic-show-up-rate/page.tsx        IC and Show Up Rate (ICS Ratio Ranking) dashboard (live)
     ic-inconsistency/page.tsx       IC Inconsistency (BI vs. Excel mismatches) dashboard (live)
     operational-complaints/page.tsx CSS Analysis Report (complaint volume, distribution, CDR ranking) dashboard (live)
+    conversion-tracker/page.tsx     CDR Conversion Tracker ("The 70% Club") dashboard (live)
     [slug]/page.tsx                 "Coming soon" placeholder for not-yet-built report types
   api/
     reports/route.ts                GET ?type=<slug> — list reports of that type (mock or Supabase)
@@ -97,6 +101,11 @@ components/
                                       complaints across every published week (SVG line chart in the
                                       style of public/reports/cl-case-review.html's month chart);
                                       clicking a point selects that week for the rest of the page
+  ConversionSummaryCard.tsx / ConversionMethodologyCard.tsx / ConversionRankingTable.tsx /
+  ConversionObservationsCard.tsx     CDR Conversion Tracker components — the ranking table computes
+                                      each CDR's week-over-week trend client-side, by matching CDR
+                                      name against the previous published report (no prevWeek data
+                                      needed in the JSON itself)
   admin/AdminLoginForm.tsx           Password form
   admin/AdminPublishForm.tsx         Report-type selector + JSON paste + publish form
 lib/
@@ -111,6 +120,7 @@ lib/
   icsRatioMockData.ts                Simulated IC and Show Up Rate report for demo mode
   icsInconsistencyMockData.ts        Simulated IC Inconsistency report for demo mode
   cssMockData.ts                     Simulated CSS Analysis Report for demo mode
+  conversionTrackerMockData.ts       Simulated CDR Conversion Tracker report for demo mode
   supabaseClient.ts                  Server-only Supabase client (service role key)
   adminAuth.ts                       Password check + session cookie helpers
   utils.ts                           Formatting + badge/status style helpers + paragraph splitting
@@ -123,7 +133,11 @@ docs/
   CLAUDE_IC_SHOW_UP_RATE_PROMPT.md   Prompt template for the IC and Show Up Rate report JSON
   CLAUDE_IC_INCONSISTENCY_PROMPT.md  Prompt template for the IC Inconsistency report JSON
   CLAUDE_CSS_ANALYSIS_PROMPT.md      Prompt template for the CSS Analysis Report JSON
-  ALL_REPORT_PROMPTS.md              All eight prompt templates above combined into one file
+  CLAUDE_CDR_CONVERSION_TRACKER_PROMPT.md
+                                      Prompt template for converting the three raw Power BI
+                                      exports (Full Data, Short Funnel, Campaigns) into the CDR
+                                      Conversion Tracker JSON
+  ALL_REPORT_PROMPTS.md              All nine prompt templates above combined into one file
 ```
 
 ## Report JSON schema (ICS)
@@ -314,6 +328,34 @@ Full field-by-field reference and a real example: [`docs/CLAUDE_CSS_ANALYSIS_PRO
 }
 ```
 
+## Report JSON schema (CDR Conversion Tracker)
+
+Full field-by-field reference, calculation rules, and a real example: [`docs/CLAUDE_CDR_CONVERSION_TRACKER_PROMPT.md`](docs/CLAUDE_CDR_CONVERSION_TRACKER_PROMPT.md). Built from three raw Power BI exports (Full Data, Short Funnel, Campaigns) for the same week, not a narrative report — top-level shape: `metadata`, `methodology` (`sfThreshold`/`campThreshold` — the minimum Qualified PCs a CDR needs in *each* funnel to be eligible, computed as the average Qualified PCs among CDRs with real activity in that funnel, zero-activity CDRs excluded), `summary` (counts by status), `cdrs` (every CDR evaluated, not just qualifiers — each with Overall/SF/Campaigns Qualified PCs, ICs, and conversion %, plus a `status` of `"70club"` \| `"eligible"` \| `"below-threshold"`), and `observations`.
+
+```json
+{
+  "metadata": {
+    "reportType": "CDR Conversion Tracker",
+    "cadence": "Weekly",
+    "periodLabel": "09/14 – 09/20"
+  },
+  "methodology": {
+    "sfThreshold": 33.1,
+    "campThreshold": 11.4,
+    "sfThresholdBasis": "Average Qualified PCs among CDRs with Short Funnel activity this week (zero-activity CDRs excluded).",
+    "campThresholdBasis": "Average Qualified PCs among CDRs with Campaigns activity this week (zero-activity CDRs excluded).",
+    "note": "A CDR only qualifies for the ranking if their Qualified PCs meet or exceed both thresholds — Short Funnel AND Campaigns — regardless of how high their conversion rate is."
+  },
+  "summary": { "totalEvaluated": 60, "clubCount": 1, "eligibleCount": 2, "belowThresholdCount": 57 },
+  "cdrs": [
+    { "cdr": "Nicolas Soto", "team": "Titans", "qualifiedPCsOverall": 94, "icsOverall": 72, "overallPct": 76.6, "qualifiedPCsSF": 76, "icsSF": 62, "sfPct": 81.58, "qualifiedPCsCamp": 18, "icsCamp": 10, "campPct": 55.56, "status": "70club" }
+  ],
+  "observations": ["Only Nicolas Soto (Titans) cleared both volume thresholds and reached 70%+ overall this week — the sole member of The 70% Club."]
+}
+```
+
+Week-over-week trend is **not** stored in the JSON — the dashboard computes it client-side by matching each CDR's name against the immediately prior published report, so spell names consistently week to week.
+
 ## Adding a new report type
 
 1. Add an entry to `lib/reportTypes.ts` (slug, name, description, icon, `status: "coming-soon"`).
@@ -369,11 +411,11 @@ All reads/writes go through the service role key inside API routes, so Row Level
 ## Publishing a report (day-to-day workflow)
 
 1. Export the data from Power BI as you already do.
-2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_ICS_REPORT_PROMPT.md`](docs/CLAUDE_ICS_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_SF_WEEKLY_PROMPT.md`](docs/CLAUDE_SF_WEEKLY_PROMPT.md) for SF Weekly, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls, [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md) for Weekend, [`docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md`](docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md) for CL Case Review (paste the CSV export instead of a narrative report), [`docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md`](docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md) for IC and Show Up Rate, [`docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md`](docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md) for IC Inconsistency, [`docs/CLAUDE_CSS_ANALYSIS_PROMPT.md`](docs/CLAUDE_CSS_ANALYSIS_PROMPT.md) for Operational Complaint Analysis (CSS) — so it outputs the JSON block.
+2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_ICS_REPORT_PROMPT.md`](docs/CLAUDE_ICS_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_SF_WEEKLY_PROMPT.md`](docs/CLAUDE_SF_WEEKLY_PROMPT.md) for SF Weekly, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls, [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md) for Weekend, [`docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md`](docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md) for CL Case Review (paste the CSV export instead of a narrative report), [`docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md`](docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md) for IC and Show Up Rate, [`docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md`](docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md) for IC Inconsistency, [`docs/CLAUDE_CSS_ANALYSIS_PROMPT.md`](docs/CLAUDE_CSS_ANALYSIS_PROMPT.md) for Operational Complaint Analysis (CSS), [`docs/CLAUDE_CDR_CONVERSION_TRACKER_PROMPT.md`](docs/CLAUDE_CDR_CONVERSION_TRACKER_PROMPT.md) for the CDR Conversion Tracker (paste the three raw Power BI exports instead of a narrative report) — so it outputs the JSON block.
 3. Go to `/admin`, log in with `ADMIN_PASSWORD`.
 4. Pick the matching report type from the **Tipo de reporte** dropdown.
 5. Paste the JSON block, click **Publicar reporte**.
-6. It appears immediately at `/reports/ics`, `/reports/sf-weekly`, `/reports/total-calls`, `/reports/weekend-report`, `/reports/cl-case-review`, `/reports/ic-show-up-rate`, `/reports/ic-inconsistency`, or `/reports/operational-complaints`.
+6. It appears immediately at `/reports/ics`, `/reports/sf-weekly`, `/reports/total-calls`, `/reports/weekend-report`, `/reports/cl-case-review`, `/reports/ic-show-up-rate`, `/reports/ic-inconsistency`, `/reports/operational-complaints`, or `/reports/conversion-tracker`.
 
 ## Local development
 

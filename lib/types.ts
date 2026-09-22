@@ -468,3 +468,62 @@ export interface CSSData extends CSSPayload {
   id: string;
   createdAt?: string;
 }
+
+// ---------------------------------------------------------------------------
+// CDR Conversion Tracker ("The 70% Club")
+// ---------------------------------------------------------------------------
+
+export type ConversionStatus = "70club" | "eligible" | "below-threshold";
+
+export interface ConversionTrackerMetadata {
+  reportType: string;
+  cadence: Cadence;
+  periodLabel: string;
+}
+
+export interface ConversionTrackerMethodology {
+  /** Minimum Qualified PCs (Short Funnel) a CDR needs to be eligible for the ranking. */
+  sfThreshold: number;
+  /** Minimum Qualified PCs (Campaigns) a CDR needs to be eligible for the ranking. */
+  campThreshold: number;
+  /** How each threshold was derived, e.g. "Average Qualified PCs among CDRs with Short Funnel activity this week". */
+  sfThresholdBasis: string;
+  campThresholdBasis: string;
+  note: string;
+}
+
+export interface ConversionTrackerSummary {
+  totalEvaluated: number;
+  clubCount: number;
+  eligibleCount: number;
+  belowThresholdCount: number;
+}
+
+export interface ConversionTrackerCdr {
+  cdr: string;
+  team: string;
+  qualifiedPCsOverall: number;
+  icsOverall: number;
+  overallPct: number;
+  qualifiedPCsSF: number;
+  icsSF: number;
+  sfPct: number;
+  qualifiedPCsCamp: number;
+  icsCamp: number;
+  campPct: number;
+  status: ConversionStatus;
+}
+
+/** Shape stored in Supabase's `reports.data` JSONB column for the CDR Conversion Tracker report type. */
+export interface ConversionTrackerPayload {
+  metadata: ConversionTrackerMetadata;
+  methodology: ConversionTrackerMethodology;
+  summary: ConversionTrackerSummary;
+  cdrs: ConversionTrackerCdr[];
+  observations: string[];
+}
+
+export interface ConversionTrackerData extends ConversionTrackerPayload {
+  id: string;
+  createdAt?: string;
+}
