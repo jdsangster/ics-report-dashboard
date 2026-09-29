@@ -104,11 +104,12 @@ components/
                                       complaints across every published week (SVG line chart in the
                                       style of public/reports/cl-case-review.html's month chart);
                                       clicking a point selects that week for the rest of the page
-  ConversionSummaryCard.tsx / ConversionMethodologyCard.tsx / ConversionRankingTable.tsx /
-  ConversionObservationsCard.tsx     CDR Conversion Tracker components — the ranking table computes
-                                      each CDR's week-over-week trend client-side, by matching CDR
-                                      name against the previous published report (no prevWeek data
-                                      needed in the JSON itself)
+  ConversionSummaryCard.tsx / ConversionMethodologyCard.tsx / ConversionObservationsCard.tsx /
+  ConversionRankingTable.tsx         CDR Conversion Tracker components, rendered in that order
+                                      (summary tiles → methodology → observations → ranking table);
+                                      the ranking table computes each CDR's week-over-week trend
+                                      client-side, by matching CDR name against the previous
+                                      published report (no prevWeek data needed in the JSON itself)
   TurnoverSummaryCard.tsx / TurnoverMonthlyTable.tsx / TurnoverLogTable.tsx
                                       CDR Turnover Report components — a neutral log of outcomes
                                       (Offboarded/Quit/Promoted to CL) with a monthly breakdown for
