@@ -148,9 +148,9 @@ export default function ConversionTrackerPage() {
 
           <ConversionMethodologyCard methodology={activeReport.methodology} />
 
-          <ConversionRankingTable cdrs={activeReport.cdrs} trends={trends} />
-
           <ConversionObservationsCard observations={activeReport.observations} />
+
+          <ConversionRankingTable cdrs={activeReport.cdrs} trends={trends} />
         </motion.div>
       </main>
 
