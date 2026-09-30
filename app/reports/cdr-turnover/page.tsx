@@ -4,16 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { TurnoverData, Cadence } from "@/lib/types";
-import ReportHeader from "@/components/ReportHeader";
+import { TurnoverData } from "@/lib/types";
+import BrandLogo from "@/components/BrandLogo";
 import TurnoverSummaryCard from "@/components/TurnoverSummaryCard";
 import TurnoverMonthlyTable from "@/components/TurnoverMonthlyTable";
 import TurnoverLogTable from "@/components/TurnoverLogTable";
 
 export default function CdrTurnoverPage() {
   const [reports, setReports] = useState<TurnoverData[]>([]);
-  const [cadence, setCadence] = useState<Cadence | "All">("All");
-  const [selectedId, setSelectedId] = useState<string>("");
   const [source, setSource] = useState<"mock" | "live" | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -25,7 +23,6 @@ export default function CdrTurnoverPage() {
         if (cancelled) return;
         setReports(data.reports);
         setSource(data.source);
-        if (data.reports.length > 0) setSelectedId(data.reports[0].id);
       })
       .finally(() => !cancelled && setLoading(false));
     return () => {
@@ -33,11 +30,10 @@ export default function CdrTurnoverPage() {
     };
   }, []);
 
-  const activeReport = reports.find((r) => r.id === selectedId) ?? reports[0];
-
-  const handleCadenceChange = (next: Cadence | "All") => {
-    setCadence(next);
-  };
+  // This report is a running log, not per-period snapshots — every publish is the full
+  // current state, so only the most recent one (already sorted first by the API) is ever
+  // shown. Older rows are superseded history, not alternate views to pick between.
+  const activeReport = reports[0];
 
   if (loading) {
     return (
@@ -62,17 +58,44 @@ export default function CdrTurnoverPage() {
     );
   }
 
+  const lastUpdated = activeReport.createdAt
+    ? new Date(activeReport.createdAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : null;
+
   return (
     <div className="flex flex-1 flex-col">
-      <ReportHeader
-        reports={reports}
-        cadence={cadence}
-        onCadenceChange={handleCadenceChange}
-        selectedId={selectedId}
-        onSelectedIdChange={setSelectedId}
-        title="CDR Turnover Report"
-        subtitle="Offboardings · Resignations · Promotions to CL"
-      />
+      <header className="border-b border-border-subtle bg-surface/60 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <BrandLogo />
+            <div className="h-8 w-px bg-border-subtle" />
+            <div>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/"
+                  className="flex items-center gap-1 text-xs text-muted transition-colors hover:text-foreground"
+                >
+                  <ArrowLeft size={12} />
+                  Reports Hub
+                </Link>
+              </div>
+              <h1 className="text-lg font-semibold tracking-tight text-foreground">
+                CDR Turnover Report
+              </h1>
+              <p className="text-xs text-muted">Offboardings · Resignations · Promotions to CL</p>
+            </div>
+          </div>
+          {lastUpdated && (
+            <span className="w-fit rounded-lg border border-border-subtle bg-surface px-3 py-2 text-xs font-medium text-muted">
+              Last updated {lastUpdated}
+            </span>
+          )}
+        </div>
+      </header>
 
       <main className="mx-auto w-full max-w-7xl flex-1 space-y-8 px-6 py-8">
         <motion.div
