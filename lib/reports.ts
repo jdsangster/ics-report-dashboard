@@ -359,12 +359,15 @@ export function isValidConversionTrackerPayload(body: unknown): body is Conversi
     return (
       typeof r.cdr === "string" &&
       typeof r.team === "string" &&
+      typeof r.totalCallsOverall === "number" &&
       typeof r.qualifiedPCsOverall === "number" &&
       typeof r.icsOverall === "number" &&
       typeof r.overallPct === "number" &&
+      typeof r.totalCallsSF === "number" &&
       typeof r.qualifiedPCsSF === "number" &&
       typeof r.icsSF === "number" &&
       typeof r.sfPct === "number" &&
+      typeof r.totalCallsCamp === "number" &&
       typeof r.qualifiedPCsCamp === "number" &&
       typeof r.icsCamp === "number" &&
       typeof r.campPct === "number" &&

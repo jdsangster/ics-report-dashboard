@@ -341,7 +341,7 @@ Full field-by-field reference and a real example: [`docs/CLAUDE_CSS_ANALYSIS_PRO
 
 ## Report JSON schema (CDR Conversion Tracker)
 
-Full field-by-field reference, calculation rules, and a real example: [`docs/CLAUDE_CDR_CONVERSION_TRACKER_PROMPT.md`](docs/CLAUDE_CDR_CONVERSION_TRACKER_PROMPT.md). Built from three raw Power BI exports (Full Data, Short Funnel, Campaigns) for the same week, not a narrative report — top-level shape: `metadata`, `methodology` (`sfThreshold`/`campThreshold` — the minimum Qualified PCs a CDR needs in *each* funnel to be eligible, computed as the average Qualified PCs among CDRs with real activity in that funnel, zero-activity CDRs excluded), `summary` (counts by status), `cdrs` (every CDR evaluated, not just qualifiers — each with Overall/SF/Campaigns Qualified PCs, ICs, and conversion %, plus a `status` of `"70club"` \| `"eligible"` \| `"below-threshold"`), and `observations`.
+Full field-by-field reference, calculation rules, and a real example: [`docs/CLAUDE_CDR_CONVERSION_TRACKER_PROMPT.md`](docs/CLAUDE_CDR_CONVERSION_TRACKER_PROMPT.md). Built from three raw Power BI exports (Full Data, Short Funnel, Campaigns) for the same week, not a narrative report — top-level shape: `metadata`, `methodology` (`sfThreshold`/`campThreshold` — the minimum Qualified PCs a CDR needs in *each* funnel to be eligible, computed as the average Qualified PCs among CDRs with real activity in that funnel, zero-activity CDRs excluded), `summary` (counts by status), `cdrs` (every CDR evaluated, not just qualifiers — each with Overall/SF/Campaigns raw Total Calls, Qualified PCs, ICs, and conversion %, plus a `status` of `"70club"` \| `"eligible"` \| `"below-threshold"`), and `observations`. Total Calls is raw call-volume context shown next to each percentage — not used in any calculation — so a 100% conversion on a handful of calls doesn't read the same as 100% on a large, sustained volume.
 
 ```json
 {
@@ -359,7 +359,7 @@ Full field-by-field reference, calculation rules, and a real example: [`docs/CLA
   },
   "summary": { "totalEvaluated": 60, "clubCount": 1, "eligibleCount": 2, "belowThresholdCount": 57 },
   "cdrs": [
-    { "cdr": "Nicolas Soto", "team": "Titans", "qualifiedPCsOverall": 94, "icsOverall": 72, "overallPct": 76.6, "qualifiedPCsSF": 76, "icsSF": 62, "sfPct": 81.58, "qualifiedPCsCamp": 18, "icsCamp": 10, "campPct": 55.56, "status": "70club" }
+    { "cdr": "Nicolas Soto", "team": "Titans", "totalCallsOverall": 752, "qualifiedPCsOverall": 94, "icsOverall": 72, "overallPct": 76.6, "totalCallsSF": 382, "qualifiedPCsSF": 76, "icsSF": 62, "sfPct": 81.58, "totalCallsCamp": 370, "qualifiedPCsCamp": 18, "icsCamp": 10, "campPct": 55.56, "status": "70club" }
   ],
   "observations": ["Only Nicolas Soto (Titans) cleared both volume thresholds and reached 70%+ overall this week — the sole member of The 70% Club."]
 }

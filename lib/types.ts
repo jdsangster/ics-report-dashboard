@@ -502,12 +502,15 @@ export interface ConversionTrackerSummary {
 export interface ConversionTrackerCdr {
   cdr: string;
   team: string;
+  totalCallsOverall: number;
   qualifiedPCsOverall: number;
   icsOverall: number;
   overallPct: number;
+  totalCallsSF: number;
   qualifiedPCsSF: number;
   icsSF: number;
   sfPct: number;
+  totalCallsCamp: number;
   qualifiedPCsCamp: number;
   icsCamp: number;
   campPct: number;

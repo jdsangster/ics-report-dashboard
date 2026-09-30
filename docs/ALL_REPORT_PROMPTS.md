@@ -1100,10 +1100,13 @@ teammate.
 
 CALCULATION RULES (apply in this exact order):
 
-1. For every CDR that appears in the Full Data export, look up their Qualified PCs and ICS Code
-   in that same export (this gives "Overall"), then look them up again in the Short Funnel export
-   (gives "SF") and the Campaigns export (gives "Camp"). If a CDR has no row in the SF or Campaigns
-   file, their Qualified PCs and ICS Code for that funnel are 0.
+1. For every CDR that appears in the Full Data export, look up their Total Calls, Qualified PCs,
+   and ICS Code in that same export (this gives "Overall"), then look them up again in the Short
+   Funnel export (gives "SF") and the Campaigns export (gives "Camp"). If a CDR has no row in the
+   SF or Campaigns file, their Total Calls, Qualified PCs, and ICS Code for that funnel are 0.
+   Total Calls is the raw call-volume context (calls made before any qualification) — it isn't
+   used in any calculation below, it's shown alongside each percentage so a 100% conversion on a
+   handful of calls doesn't read the same as 100% on a large, sustained volume.
 2. Compute each of the three conversion percentages as ICS Code ÷ Qualified PCs × 100, rounded to
    2 decimals. If Qualified PCs is 0, the percentage is 0.
 3. sfThreshold = the average Qualified PCs (Short Funnel) across CDRs who have Qualified PCs > 0
@@ -1149,12 +1152,15 @@ SCHEMA (use these exact keys, nesting, and types):
     {
       "cdr": string,
       "team": string,
+      "totalCallsOverall": number,
       "qualifiedPCsOverall": number,
       "icsOverall": number,
       "overallPct": number,
+      "totalCallsSF": number,
       "qualifiedPCsSF": number,
       "icsSF": number,
       "sfPct": number,
+      "totalCallsCamp": number,
       "qualifiedPCsCamp": number,
       "icsCamp": number,
       "campPct": number,
@@ -1179,6 +1185,8 @@ Before you respond, verify your JSON against this checklist:
 [ ] sfThreshold/campThreshold were computed excluding zero-Qualified-PCs CDRs from the average.
 [ ] Every CDR from the Full Data export appears in cdrs, sorted descending by overallPct.
 [ ] status is set purely by the eligibility + 70% rule above — not by eyeballing the percentage.
+[ ] Every CDR has all three totalCalls* fields (Overall/SF/Camp) — this is raw "Total Calls" from
+    each export's own column, not derived from Qualified PCs or ICs.
 
 Output ONLY a single fenced JSON code block. No explanation before or after it.
 ```
@@ -1208,13 +1216,16 @@ Output ONLY a single fenced JSON code block. No explanation before or after it.
   "cdrs": [
     {
       "cdr": "Rodrigo Cohen",
-      "team": "Lightyear",
+      "team": "The Booking Machines",
+      "totalCallsOverall": 554,
       "qualifiedPCsOverall": 14,
       "icsOverall": 14,
       "overallPct": 100.0,
+      "totalCallsSF": 71,
       "qualifiedPCsSF": 14,
       "icsSF": 14,
       "sfPct": 100.0,
+      "totalCallsCamp": 483,
       "qualifiedPCsCamp": 0,
       "icsCamp": 0,
       "campPct": 0.0,
@@ -1223,12 +1234,15 @@ Output ONLY a single fenced JSON code block. No explanation before or after it.
     {
       "cdr": "Nicolas Soto",
       "team": "Titans",
+      "totalCallsOverall": 752,
       "qualifiedPCsOverall": 94,
       "icsOverall": 72,
       "overallPct": 76.6,
+      "totalCallsSF": 382,
       "qualifiedPCsSF": 76,
       "icsSF": 62,
       "sfPct": 81.58,
+      "totalCallsCamp": 370,
       "qualifiedPCsCamp": 18,
       "icsCamp": 10,
       "campPct": 55.56,

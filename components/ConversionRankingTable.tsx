@@ -127,19 +127,19 @@ export default function ConversionRankingTable({ cdrs, trends }: ConversionRanki
                   <td className="px-5 py-2.5 text-right">
                     <div className="font-semibold text-foreground">{row.overallPct.toFixed(1)}%</div>
                     <div className="text-xs text-muted">
-                      {row.icsOverall}/{row.qualifiedPCsOverall}
+                      {row.icsOverall}/{row.qualifiedPCsOverall} IC · {row.totalCallsOverall} calls
                     </div>
                   </td>
                   <td className="px-5 py-2.5 text-right">
                     <div className="text-foreground">{row.sfPct.toFixed(1)}%</div>
                     <div className="text-xs text-muted">
-                      {row.icsSF}/{row.qualifiedPCsSF}
+                      {row.icsSF}/{row.qualifiedPCsSF} IC · {row.totalCallsSF} calls
                     </div>
                   </td>
                   <td className="px-5 py-2.5 text-right">
                     <div className="text-foreground">{row.campPct.toFixed(1)}%</div>
                     <div className="text-xs text-muted">
-                      {row.icsCamp}/{row.qualifiedPCsCamp}
+                      {row.icsCamp}/{row.qualifiedPCsCamp} IC · {row.totalCallsCamp} calls
                     </div>
                   </td>
                   <td className="px-5 py-2.5 text-right">
