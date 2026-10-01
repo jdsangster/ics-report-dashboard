@@ -19,13 +19,18 @@ function monthLabel(key: string): string {
 
 export default function TurnoverMonthlyTable({ events }: TurnoverMonthlyTableProps) {
   const rows = useMemo(() => {
-    const byMonth = new Map<string, { offboarded: number; quit: number; promoted: number }>();
+    const byMonth = new Map<
+      string,
+      { offboarded: number; quit: number; promoted: number; promotedSupport: number }
+    >();
     for (const e of events) {
       const key = e.date.slice(0, 7);
-      const entry = byMonth.get(key) ?? { offboarded: 0, quit: 0, promoted: 0 };
+      const entry =
+        byMonth.get(key) ?? { offboarded: 0, quit: 0, promoted: 0, promotedSupport: 0 };
       if (e.outcome === "Offboarded") entry.offboarded += 1;
       else if (e.outcome === "Quit") entry.quit += 1;
-      else entry.promoted += 1;
+      else if (e.outcome === "Promoted to CL") entry.promoted += 1;
+      else entry.promotedSupport += 1;
       byMonth.set(key, entry);
     }
     return Array.from(byMonth.entries())
@@ -57,6 +62,7 @@ export default function TurnoverMonthlyTable({ events }: TurnoverMonthlyTablePro
               <th className="px-5 py-3 font-medium text-right">Offboarded</th>
               <th className="px-5 py-3 font-medium text-right">Quit</th>
               <th className="px-5 py-3 font-medium text-right">Promoted to CL</th>
+              <th className="px-5 py-3 font-medium text-right">Promoted to Support Specialist</th>
               <th className="px-5 py-3 font-medium text-right">Total</th>
             </tr>
           </thead>
@@ -70,8 +76,9 @@ export default function TurnoverMonthlyTable({ events }: TurnoverMonthlyTablePro
                 <td className="px-5 py-2.5 text-right text-danger">{row.offboarded}</td>
                 <td className="px-5 py-2.5 text-right text-gold">{row.quit}</td>
                 <td className="px-5 py-2.5 text-right text-success">{row.promoted}</td>
+                <td className="px-5 py-2.5 text-right text-accent">{row.promotedSupport}</td>
                 <td className="px-5 py-2.5 text-right font-medium text-foreground">
-                  {row.offboarded + row.quit + row.promoted}
+                  {row.offboarded + row.quit + row.promoted + row.promotedSupport}
                 </td>
               </tr>
             ))}

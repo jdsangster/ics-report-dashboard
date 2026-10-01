@@ -11,9 +11,15 @@ export const mockTurnoverReports: TurnoverData[] = [
     metadata: {
       reportType: "CDR Turnover Report",
       cadence: "Daily",
-      periodLabel: "09/18 – 09/18",
+      periodLabel: "09/18 – 10/01",
     },
     events: [
+      {
+        cdr: "Katheryn Parada",
+        team: "Lightyear",
+        outcome: "Promoted to Support Specialist",
+        date: "2026-10-01",
+      },
       {
         cdr: "Noraly Camargo",
         team: "Titans",

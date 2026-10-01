@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ListOrdered, ChevronDown, UserX, LogOut, TrendingUp } from "lucide-react";
+import { ListOrdered, ChevronDown, UserX, LogOut, TrendingUp, Award } from "lucide-react";
 import { TurnoverEvent, TurnoverOutcome } from "@/lib/types";
 
 interface TurnoverLogTableProps {
@@ -15,6 +15,10 @@ const OUTCOME_STYLES: Record<TurnoverOutcome, { className: string; icon: typeof 
   Offboarded: { className: "border-danger/30 bg-danger/10 text-danger", icon: UserX },
   Quit: { className: "border-gold/30 bg-gold/10 text-gold", icon: LogOut },
   "Promoted to CL": { className: "border-success/30 bg-success/10 text-success", icon: TrendingUp },
+  "Promoted to Support Specialist": {
+    className: "border-accent/30 bg-accent/10 text-accent",
+    icon: Award,
+  },
 };
 
 export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {

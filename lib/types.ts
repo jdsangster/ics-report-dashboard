@@ -535,7 +535,7 @@ export interface ConversionTrackerData extends ConversionTrackerPayload {
 // CDR Turnover Report
 // ---------------------------------------------------------------------------
 
-export type TurnoverOutcome = "Offboarded" | "Quit" | "Promoted to CL";
+export type TurnoverOutcome = "Offboarded" | "Quit" | "Promoted to CL" | "Promoted to Support Specialist";
 
 export interface TurnoverEvent {
   cdr: string;

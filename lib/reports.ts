@@ -377,7 +377,12 @@ export function isValidConversionTrackerPayload(body: unknown): body is Conversi
   });
 }
 
-const TURNOVER_OUTCOMES = new Set(["Offboarded", "Quit", "Promoted to CL"]);
+const TURNOVER_OUTCOMES = new Set([
+  "Offboarded",
+  "Quit",
+  "Promoted to CL",
+  "Promoted to Support Specialist",
+]);
 
 export function isValidTurnoverPayload(body: unknown): body is TurnoverPayload {
   if (!body || typeof body !== "object") return false;

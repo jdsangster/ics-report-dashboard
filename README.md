@@ -1,6 +1,6 @@
 # Colombo&Hurd Reports Center
 
-Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics), **SF Weekly Report** (Short Funnel coverage vs. target, by CDR), **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention), **CL Case Review** (searchable CDR & Setter case log), **Weekend Report** (weekend IC production, day-by-day attention matrix), **IC and Show Up Rate** (ICS Ratio Ranking — CDRs grouped into performance tiers from Elite to Critical Opportunity Area), **IC Inconsistency** (BI vs. Excel IC count mismatches and the disposition errors behind them), **Operational Complaint Analysis (CSS)** (weekly complaint volume, category distribution, and CDR ranking), **CDR Conversion Tracker** ("The 70% Club" — ICs-over-Qualified-PCs conversion ranking, filtered to a reliable volume in both Short Funnel and Campaigns), and **CDR Turnover Report** (a running log of offboardings, resignations, and promotions to CL). More report types are added the same way as they're needed.
+Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics), **SF Weekly Report** (Short Funnel coverage vs. target, by CDR), **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention), **CL Case Review** (searchable CDR & Setter case log), **Weekend Report** (weekend IC production, day-by-day attention matrix), **IC and Show Up Rate** (ICS Ratio Ranking — CDRs grouped into performance tiers from Elite to Critical Opportunity Area), **IC Inconsistency** (BI vs. Excel IC count mismatches and the disposition errors behind them), **Operational Complaint Analysis (CSS)** (weekly complaint volume, category distribution, and CDR ranking), **CDR Conversion Tracker** ("The 70% Club" — ICs-over-Qualified-PCs conversion ranking, filtered to a reliable volume in both Short Funnel and Campaigns), and **CDR Turnover Report** (a running log of offboardings, resignations, and promotions). More report types are added the same way as they're needed.
 
 Built with Next.js (App Router), Tailwind CSS, and Supabase, with a password-protected internal `/admin` page for publishing new reports — no SharePoint, Power Automate, or IT dependency required to ship a new report.
 
@@ -112,8 +112,9 @@ components/
                                       published report (no prevWeek data needed in the JSON itself)
   TurnoverSummaryCard.tsx / TurnoverMonthlyTable.tsx / TurnoverLogTable.tsx
                                       CDR Turnover Report components — a neutral log of outcomes
-                                      (Offboarded/Quit/Promoted to CL) with a monthly breakdown for
-                                      context; deliberately has no "quota" or target framing
+                                      (Offboarded/Quit/Promoted to CL/Promoted to Support
+                                      Specialist) with a monthly breakdown for context; deliberately
+                                      has no "quota" or target framing
   admin/AdminLoginForm.tsx           Password form
   admin/AdminPublishForm.tsx         Report-type selector + JSON paste + publish form
 lib/
@@ -369,12 +370,13 @@ Week-over-week trend is **not** stored in the JSON — the dashboard computes it
 
 ## Report JSON schema (CDR Turnover Report)
 
-Full field-by-field reference and a real example: [`docs/CLAUDE_CDR_TURNOVER_PROMPT.md`](docs/CLAUDE_CDR_TURNOVER_PROMPT.md). Unlike the scheduled reports, this one is a running log you update as changes happen — same "send the full current list" pattern as CL Case Review, not a per-period publish. Top-level shape: `metadata` and `events` (every CDR change ever logged, each with `cdr`, `team`, `outcome` — `"Offboarded" | "Quit" | "Promoted to CL"` — `date`, and optional `startDate`/`note`).
+Full field-by-field reference and a real example: [`docs/CLAUDE_CDR_TURNOVER_PROMPT.md`](docs/CLAUDE_CDR_TURNOVER_PROMPT.md). Unlike the scheduled reports, this one is a running log you update as changes happen — same "send the full current list" pattern as CL Case Review, not a per-period publish. Top-level shape: `metadata` and `events` (every CDR change ever logged, each with `cdr`, `team`, `outcome` — `"Offboarded" | "Quit" | "Promoted to CL" | "Promoted to Support Specialist"` — `date`, and optional `startDate`/`note`).
 
 ```json
 {
-  "metadata": { "reportType": "CDR Turnover Report", "cadence": "Daily", "periodLabel": "09/18 – 09/18" },
+  "metadata": { "reportType": "CDR Turnover Report", "cadence": "Daily", "periodLabel": "09/18 – 10/01" },
   "events": [
+    { "cdr": "Katheryn Parada", "team": "Lightyear", "outcome": "Promoted to Support Specialist", "date": "2026-10-01" },
     { "cdr": "Noraly Camargo", "team": "Titans", "outcome": "Offboarded", "date": "2026-09-18", "startDate": "2026-06-09" },
     { "cdr": "Marcio Oliveira", "team": "Lightyear", "outcome": "Promoted to CL", "date": "2026-09-18", "startDate": "2026-05-27" }
   ]

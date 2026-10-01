@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { LogOut, UserX, TrendingUp } from "lucide-react";
+import { LogOut, UserX, TrendingUp, Award } from "lucide-react";
 import { TurnoverEvent } from "@/lib/types";
 import { formatNumber } from "@/lib/utils";
 
@@ -16,9 +16,16 @@ function monthLabel(dateStr: string): string {
 }
 
 export default function TurnoverSummaryCard({ events }: TurnoverSummaryCardProps) {
-  const { currentMonthLabel, offboarded, quit, promoted, total } = useMemo(() => {
+  const { currentMonthLabel, offboarded, quit, promoted, promotedSupport, total } = useMemo(() => {
     if (events.length === 0) {
-      return { currentMonthLabel: "", offboarded: 0, quit: 0, promoted: 0, total: 0 };
+      return {
+        currentMonthLabel: "",
+        offboarded: 0,
+        quit: 0,
+        promoted: 0,
+        promotedSupport: 0,
+        total: 0,
+      };
     }
     const sorted = [...events].sort((a, b) => (a.date < b.date ? 1 : -1));
     const latestMonth = sorted[0].date.slice(0, 7); // "YYYY-MM"
@@ -28,6 +35,8 @@ export default function TurnoverSummaryCard({ events }: TurnoverSummaryCardProps
       offboarded: monthEvents.filter((e) => e.outcome === "Offboarded").length,
       quit: monthEvents.filter((e) => e.outcome === "Quit").length,
       promoted: monthEvents.filter((e) => e.outcome === "Promoted to CL").length,
+      promotedSupport: monthEvents.filter((e) => e.outcome === "Promoted to Support Specialist")
+        .length,
       total: monthEvents.length,
     };
   }, [events]);
@@ -61,10 +70,17 @@ export default function TurnoverSummaryCard({ events }: TurnoverSummaryCardProps
       icon: TrendingUp,
       accent: "text-success",
     },
+    {
+      label: "Promoted to Support Specialist",
+      value: formatNumber(promotedSupport),
+      sub: "This month",
+      icon: Award,
+      accent: "text-accent",
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
       {cards.map((card, i) => (
         <motion.div
           key={card.label}
