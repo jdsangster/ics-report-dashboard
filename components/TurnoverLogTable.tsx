@@ -57,8 +57,26 @@ function sortValue(e: TurnoverEvent, key: SortKey): string {
   return e[key];
 }
 
-const selectClass =
-  "rounded-lg border border-border-subtle bg-surface-elevated px-3 py-2 text-xs font-medium text-foreground outline-none focus:border-accent";
+function SelectField({
+  className = "",
+  children,
+  ...props
+}: React.SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <div className="relative">
+      <select
+        {...props}
+        className={`appearance-none rounded-lg border border-border-subtle bg-surface-elevated py-2 pl-3 pr-9 text-xs font-medium text-foreground outline-none focus:border-accent ${className}`}
+      >
+        {children}
+      </select>
+      <ChevronDown
+        size={14}
+        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted"
+      />
+    </div>
+  );
+}
 
 export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
   const [expanded, setExpanded] = useState(false);
@@ -181,11 +199,10 @@ export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
             className="w-48 rounded-lg border border-border-subtle bg-surface-elevated py-2 pl-8 pr-3 text-xs text-foreground outline-none placeholder:text-muted focus:border-accent"
           />
         </div>
-        <select
+        <SelectField
           value={month}
           onChange={(e) => setMonth(e.target.value)}
           aria-label="Filter by month"
-          className={selectClass}
         >
           <option value={ALL}>All months</option>
           {months.map((m) => (
@@ -193,12 +210,11 @@ export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
               {monthLabel(m)}
             </option>
           ))}
-        </select>
-        <select
+        </SelectField>
+        <SelectField
           value={outcome}
           onChange={(e) => setOutcome(e.target.value)}
           aria-label="Filter by outcome"
-          className={selectClass}
         >
           <option value={ALL}>All outcomes</option>
           {outcomes.map((o) => (
@@ -206,13 +222,13 @@ export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
               {o}
             </option>
           ))}
-        </select>
+        </SelectField>
         {reasons.length > 0 && (
-          <select
+          <SelectField
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             aria-label="Filter by reason"
-            className={`${selectClass} max-w-[16rem] truncate`}
+            className="max-w-[16rem] truncate"
           >
             <option value={ALL}>All reasons</option>
             {reasons.map((r) => (
@@ -220,7 +236,7 @@ export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
                 {r.length > 60 ? `${r.slice(0, 57)}…` : r}
               </option>
             ))}
-          </select>
+          </SelectField>
         )}
         {filtersActive && (
           <button
