@@ -1,8 +1,8 @@
 # Prompt for generating the CDR Turnover Report JSON
 
 Unlike the weekly/weekly-cadence reports, this one isn't published on a schedule — it's a running
-log you update **as CDR changes happen** (an offboarding, a resignation, a promotion to CL, or a
-promotion to Support Specialist), one or a few at a time. There's no source export to convert;
+log you update **as CDR changes happen** (an offboarding, a resignation, or a promotion to any
+role), one or a few at a time, along with the reason behind each exit. There's no source export to convert;
 you give Claude (or whoever
 generates the JSON) the new event(s), plus the full list of everything logged so far, and it
 outputs the updated full JSON — same "send the whole current state" pattern as
@@ -43,19 +43,24 @@ SCHEMA (use these exact keys, nesting, and types):
     {
       "cdr": string,
       "team": string,                // Titans | Lightyear | The Booking Machines | Academia
-      "outcome": "Offboarded" | "Quit" | "Promoted to CL" | "Promoted to Support Specialist",
+      "outcome": string,              // "Offboarded" | "Quit" | "Promoted to <role>"
+                                      // e.g. "Promoted to CL", "Promoted to TL"
       "date": string,                 // ISO "YYYY-MM-DD" — when the outcome took effect
       "startDate": string,            // OPTIONAL, ISO "YYYY-MM-DD" — when the CDR started, if known
-      "note": string                  // OPTIONAL — free-text context/reason
+      "note": string                  // OPTIONAL but strongly encouraged for "Offboarded" and
+                                      // "Quit": a concise reason (e.g. "Bad performance",
+                                      // "Found a better job opportunity", "Studies")
     }
   ]
 }
 
 CRITICAL — exact key names, do not substitute:
-- "outcome" is one of exactly four literal strings: "Offboarded", "Quit", "Promoted to CL",
-  "Promoted to Support Specialist" — use "Offboarded" for involuntary exits (including "Fired"),
-  "Quit" for voluntary resignations, and the two "Promoted to..." strings for the specific role the
-  CDR moved into (do not use "Promoted to CL" for a promotion to a different role).
+- "outcome" is "Offboarded" (involuntary exits, including fired for bad performance), "Quit"
+  (voluntary resignations), or "Promoted to <role>" with the exact destination role spelled out
+  ("Promoted to CL", "Promoted to TL", "Promoted to Operations", "Promoted to Support
+  Specialist", ...). Never use "Promoted to CL" for a promotion to a different role.
+- For every "Offboarded" and "Quit" event, include a short "note" with the reason when it is known
+  (keep it to one or two sentences; no names of other people, no dates already in "date").
 - "cadence" is always the literal string "Daily" for this report.
 - Every event from prior publishes must be preserved — this isn't additive on the server side,
   the JSON you send is the full replacement.
@@ -65,7 +70,8 @@ CRITICAL — exact key names, do not substitute:
 Before you respond, verify your JSON against this checklist:
 [ ] Top-level keys are exactly: metadata, events.
 [ ] "events" includes every previously-logged change plus the new one(s) — nothing dropped.
-[ ] Every event's "outcome" is exactly one of the four literal strings above.
+[ ] Every event's "outcome" is "Offboarded", "Quit", or "Promoted to <role>".
+[ ] Every "Offboarded" and "Quit" event has a "note" with the reason, if the reason is known.
 [ ] periodLabel spans the earliest to latest date actually present in "events".
 
 Output ONLY a single fenced JSON code block. No explanation before or after it.
@@ -80,16 +86,15 @@ Output ONLY a single fenced JSON code block. No explanation before or after it.
   "metadata": {
     "reportType": "CDR Turnover Report",
     "cadence": "Daily",
-    "periodLabel": "09/18 – 10/01"
+    "periodLabel": "08/24 – 10/01"
   },
   "events": [
-    { "cdr": "Katheryn Parada", "team": "Lightyear", "outcome": "Promoted to Support Specialist", "date": "2026-10-01" },
-    { "cdr": "Camila Abran", "team": "Academia", "outcome": "Quit", "date": "2026-09-30" },
-    { "cdr": "Cameron Moorcraft", "team": "Academia", "outcome": "Quit", "date": "2026-09-28" },
-    { "cdr": "Stephania Arcila Puerto", "team": "Lightyear", "outcome": "Promoted to CL", "date": "2026-09-26" },
-    { "cdr": "Noraly Camargo", "team": "Titans", "outcome": "Offboarded", "date": "2026-09-18", "startDate": "2026-06-09" },
+    { "cdr": "Katheryn Parada", "team": "Lightyear", "outcome": "Promoted to Support Specialist", "date": "2026-10-01", "startDate": "2026-05-05" },
+    { "cdr": "Camila Abran", "team": "Academia", "outcome": "Quit", "date": "2026-09-30", "startDate": "2026-08-31", "note": "Personal family issues" },
+    { "cdr": "Cameron Moorcraft", "team": "Titans", "outcome": "Quit", "date": "2026-09-28", "startDate": "2026-08-17", "note": "Found a better job opportunity" },
     { "cdr": "Marcio Oliveira", "team": "Lightyear", "outcome": "Promoted to CL", "date": "2026-09-18", "startDate": "2026-05-27" },
-    { "cdr": "Valentina Franco", "team": "Lightyear", "outcome": "Promoted to CL", "date": "2026-09-18", "startDate": "2026-06-16" }
+    { "cdr": "Noraly Camargo", "team": "Titans", "outcome": "Offboarded", "date": "2026-09-18", "startDate": "2026-06-09", "note": "Bad performance" },
+    { "cdr": "Valentina Mantegazza", "team": "The Booking Machines", "outcome": "Promoted to TL", "date": "2026-08-24" }
   ]
 }
 ```

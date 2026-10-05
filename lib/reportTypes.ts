@@ -89,7 +89,7 @@ export const reportTypes: ReportTypeMeta[] = [
   {
     slug: "cdr-turnover",
     name: "CDR Turnover Report",
-    description: "Log of CDR offboardings, resignations, and promotions to CL, by team and date.",
+    description: "Log of CDR offboardings, resignations, and promotions, with the reason behind each exit, by team and date.",
     icon: LogOut,
     status: "live",
   },

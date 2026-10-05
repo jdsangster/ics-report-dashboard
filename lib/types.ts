@@ -535,7 +535,11 @@ export interface ConversionTrackerData extends ConversionTrackerPayload {
 // CDR Turnover Report
 // ---------------------------------------------------------------------------
 
-export type TurnoverOutcome = "Offboarded" | "Quit" | "Promoted to CL" | "Promoted to Support Specialist";
+export type TurnoverOutcome = "Offboarded" | "Quit" | `Promoted to ${string}`;
+
+export function isPromotion(outcome: TurnoverOutcome): boolean {
+  return outcome.startsWith("Promoted to ");
+}
 
 export interface TurnoverEvent {
   cdr: string;

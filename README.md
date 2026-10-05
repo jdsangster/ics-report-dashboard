@@ -112,8 +112,8 @@ components/
                                       published report (no prevWeek data needed in the JSON itself)
   TurnoverSummaryCard.tsx / TurnoverMonthlyTable.tsx / TurnoverLogTable.tsx
                                       CDR Turnover Report components — a neutral log of outcomes
-                                      (Offboarded/Quit/Promoted to CL/Promoted to Support
-                                      Specialist) with a monthly breakdown for context; deliberately
+                                      (Offboarded/Quit/Promoted to any role, each exit with
+                                      its reason) with a monthly breakdown for context; deliberately
                                       has no "quota" or target framing
   admin/AdminLoginForm.tsx           Password form
   admin/AdminPublishForm.tsx         Report-type selector + JSON paste + publish form
@@ -370,14 +370,14 @@ Week-over-week trend is **not** stored in the JSON — the dashboard computes it
 
 ## Report JSON schema (CDR Turnover Report)
 
-Full field-by-field reference and a real example: [`docs/CLAUDE_CDR_TURNOVER_PROMPT.md`](docs/CLAUDE_CDR_TURNOVER_PROMPT.md). Unlike the scheduled reports, this one is a running log you update as changes happen — same "send the full current list" pattern as CL Case Review, not a per-period publish. Top-level shape: `metadata` and `events` (every CDR change ever logged, each with `cdr`, `team`, `outcome` — `"Offboarded" | "Quit" | "Promoted to CL" | "Promoted to Support Specialist"` — `date`, and optional `startDate`/`note`).
+Full field-by-field reference and a real example: [`docs/CLAUDE_CDR_TURNOVER_PROMPT.md`](docs/CLAUDE_CDR_TURNOVER_PROMPT.md). Unlike the scheduled reports, this one is a running log you update as changes happen — same "send the full current list" pattern as CL Case Review, not a per-period publish. Top-level shape: `metadata` and `events` (every CDR change ever logged, each with `cdr`, `team`, `outcome` — `"Offboarded" | "Quit" | "Promoted to <role>"`, e.g. "Promoted to CL" / "Promoted to TL" — `date`, and optional `startDate`/`note`; `note` carries the concise reason for an exit, e.g. "Found a better job opportunity" or "Bad performance").
 
 ```json
 {
   "metadata": { "reportType": "CDR Turnover Report", "cadence": "Daily", "periodLabel": "09/18 – 10/01" },
   "events": [
     { "cdr": "Katheryn Parada", "team": "Lightyear", "outcome": "Promoted to Support Specialist", "date": "2026-10-01" },
-    { "cdr": "Noraly Camargo", "team": "Titans", "outcome": "Offboarded", "date": "2026-09-18", "startDate": "2026-06-09" },
+    { "cdr": "Noraly Camargo", "team": "Titans", "outcome": "Offboarded", "date": "2026-09-18", "startDate": "2026-06-09", "note": "Bad performance" },
     { "cdr": "Marcio Oliveira", "team": "Lightyear", "outcome": "Promoted to CL", "date": "2026-09-18", "startDate": "2026-05-27" }
   ]
 }

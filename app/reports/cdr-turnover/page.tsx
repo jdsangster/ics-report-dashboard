@@ -86,7 +86,7 @@ export default function CdrTurnoverPage() {
               <h1 className="text-lg font-semibold tracking-tight text-foreground">
                 CDR Turnover Report
               </h1>
-              <p className="text-xs text-muted">Offboardings · Resignations · Promotions to CL</p>
+              <p className="text-xs text-muted">Offboardings · Resignations · Promotions</p>
             </div>
           </div>
           {lastUpdated && (
@@ -111,7 +111,7 @@ export default function CdrTurnoverPage() {
                 CDR Turnover Log
               </h2>
               <p className="text-xs text-muted">
-                Every tracked offboarding, resignation, and promotion to CL, logged as it happens.
+                Every tracked offboarding, resignation, and promotion, with the reason behind each exit, logged as it happens.
               </p>
             </div>
             {source === "mock" && (

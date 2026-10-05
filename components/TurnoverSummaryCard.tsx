@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { LogOut, UserX, TrendingUp, Award } from "lucide-react";
-import { TurnoverEvent } from "@/lib/types";
+import { TurnoverEvent, isPromotion } from "@/lib/types";
 import { formatNumber } from "@/lib/utils";
 
 interface TurnoverSummaryCardProps {
@@ -16,30 +16,38 @@ function monthLabel(dateStr: string): string {
 }
 
 export default function TurnoverSummaryCard({ events }: TurnoverSummaryCardProps) {
-  const { currentMonthLabel, offboarded, quit, promoted, promotedSupport, total } = useMemo(() => {
-    if (events.length === 0) {
+  const { currentMonthLabel, offboarded, quit, promoted, promotedBreakdown, total } =
+    useMemo(() => {
+      if (events.length === 0) {
+        return {
+          currentMonthLabel: "",
+          offboarded: 0,
+          quit: 0,
+          promoted: 0,
+          promotedBreakdown: "",
+          total: 0,
+        };
+      }
+      const sorted = [...events].sort((a, b) => (a.date < b.date ? 1 : -1));
+      const latestMonth = sorted[0].date.slice(0, 7); // "YYYY-MM"
+      const monthEvents = events.filter((e) => e.date.slice(0, 7) === latestMonth);
+      const promotions = monthEvents.filter((e) => isPromotion(e.outcome));
+      const byRole = new Map<string, number>();
+      for (const e of promotions) {
+        const role = e.outcome.replace("Promoted to ", "");
+        byRole.set(role, (byRole.get(role) ?? 0) + 1);
+      }
       return {
-        currentMonthLabel: "",
-        offboarded: 0,
-        quit: 0,
-        promoted: 0,
-        promotedSupport: 0,
-        total: 0,
+        currentMonthLabel: monthLabel(sorted[0].date),
+        offboarded: monthEvents.filter((e) => e.outcome === "Offboarded").length,
+        quit: monthEvents.filter((e) => e.outcome === "Quit").length,
+        promoted: promotions.length,
+        promotedBreakdown: Array.from(byRole.entries())
+          .map(([role, n]) => `${n} ${role}`)
+          .join(" · "),
+        total: monthEvents.length,
       };
-    }
-    const sorted = [...events].sort((a, b) => (a.date < b.date ? 1 : -1));
-    const latestMonth = sorted[0].date.slice(0, 7); // "YYYY-MM"
-    const monthEvents = events.filter((e) => e.date.slice(0, 7) === latestMonth);
-    return {
-      currentMonthLabel: monthLabel(sorted[0].date),
-      offboarded: monthEvents.filter((e) => e.outcome === "Offboarded").length,
-      quit: monthEvents.filter((e) => e.outcome === "Quit").length,
-      promoted: monthEvents.filter((e) => e.outcome === "Promoted to CL").length,
-      promotedSupport: monthEvents.filter((e) => e.outcome === "Promoted to Support Specialist")
-        .length,
-      total: monthEvents.length,
-    };
-  }, [events]);
+    }, [events]);
 
   const cards = [
     {
@@ -64,23 +72,16 @@ export default function TurnoverSummaryCard({ events }: TurnoverSummaryCardProps
       accent: "text-gold",
     },
     {
-      label: "Promoted to CL",
+      label: "Promoted",
       value: formatNumber(promoted),
-      sub: "This month",
-      icon: TrendingUp,
-      accent: "text-success",
-    },
-    {
-      label: "Promoted to Support Specialist",
-      value: formatNumber(promotedSupport),
-      sub: "This month",
+      sub: promotedBreakdown || "This month",
       icon: Award,
-      accent: "text-accent",
+      accent: "text-success",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {cards.map((card, i) => (
         <motion.div
           key={card.label}

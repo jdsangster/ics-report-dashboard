@@ -11,7 +11,7 @@ export const mockTurnoverReports: TurnoverData[] = [
     metadata: {
       reportType: "CDR Turnover Report",
       cadence: "Daily",
-      periodLabel: "09/18 – 10/01",
+      periodLabel: "08/24 – 10/01",
     },
     events: [
       {
@@ -19,6 +19,21 @@ export const mockTurnoverReports: TurnoverData[] = [
         team: "Lightyear",
         outcome: "Promoted to Support Specialist",
         date: "2026-10-01",
+        startDate: "2026-05-05",
+      },
+      {
+        cdr: "Camila Abran",
+        team: "Academia",
+        outcome: "Quit",
+        date: "2026-09-30",
+        startDate: "2026-08-31",
+        note: "Personal family issues",
+      },
+      {
+        cdr: "Valentina Mantegazza",
+        team: "The Booking Machines",
+        outcome: "Promoted to TL",
+        date: "2026-08-24",
       },
       {
         cdr: "Noraly Camargo",
@@ -26,6 +41,7 @@ export const mockTurnoverReports: TurnoverData[] = [
         outcome: "Offboarded",
         date: "2026-09-18",
         startDate: "2026-06-09",
+        note: "Bad performance",
       },
       {
         cdr: "Marcio Oliveira",
@@ -33,13 +49,6 @@ export const mockTurnoverReports: TurnoverData[] = [
         outcome: "Promoted to CL",
         date: "2026-09-18",
         startDate: "2026-05-27",
-      },
-      {
-        cdr: "Valentina Franco",
-        team: "Lightyear",
-        outcome: "Promoted to CL",
-        date: "2026-09-18",
-        startDate: "2026-06-16",
       },
     ],
   },

@@ -377,12 +377,13 @@ export function isValidConversionTrackerPayload(body: unknown): body is Conversi
   });
 }
 
-const TURNOVER_OUTCOMES = new Set([
-  "Offboarded",
-  "Quit",
-  "Promoted to CL",
-  "Promoted to Support Specialist",
-]);
+function isValidTurnoverOutcome(outcome: string): boolean {
+  return (
+    outcome === "Offboarded" ||
+    outcome === "Quit" ||
+    (outcome.startsWith("Promoted to ") && outcome.length > "Promoted to ".length)
+  );
+}
 
 export function isValidTurnoverPayload(body: unknown): body is TurnoverPayload {
   if (!body || typeof body !== "object") return false;
@@ -403,7 +404,7 @@ export function isValidTurnoverPayload(body: unknown): body is TurnoverPayload {
       typeof ev.cdr === "string" &&
       typeof ev.team === "string" &&
       typeof ev.outcome === "string" &&
-      TURNOVER_OUTCOMES.has(ev.outcome as string) &&
+      isValidTurnoverOutcome(ev.outcome) &&
       typeof ev.date === "string" &&
       (ev.startDate === undefined || typeof ev.startDate === "string") &&
       (ev.note === undefined || typeof ev.note === "string")

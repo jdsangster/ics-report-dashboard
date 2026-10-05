@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ListOrdered, ChevronDown, UserX, LogOut, TrendingUp, Award } from "lucide-react";
+import { ListOrdered, ChevronDown, UserX, LogOut, TrendingUp } from "lucide-react";
 import { TurnoverEvent, TurnoverOutcome } from "@/lib/types";
 
 interface TurnoverLogTableProps {
@@ -11,15 +11,15 @@ interface TurnoverLogTableProps {
 
 const VISIBLE_COUNT = 10;
 
-const OUTCOME_STYLES: Record<TurnoverOutcome, { className: string; icon: typeof UserX }> = {
-  Offboarded: { className: "border-danger/30 bg-danger/10 text-danger", icon: UserX },
-  Quit: { className: "border-gold/30 bg-gold/10 text-gold", icon: LogOut },
-  "Promoted to CL": { className: "border-success/30 bg-success/10 text-success", icon: TrendingUp },
-  "Promoted to Support Specialist": {
-    className: "border-accent/30 bg-accent/10 text-accent",
-    icon: Award,
-  },
-};
+function outcomeStyle(outcome: TurnoverOutcome): { className: string; icon: typeof UserX } {
+  if (outcome === "Offboarded") {
+    return { className: "border-danger/30 bg-danger/10 text-danger", icon: UserX };
+  }
+  if (outcome === "Quit") {
+    return { className: "border-gold/30 bg-gold/10 text-gold", icon: LogOut };
+  }
+  return { className: "border-success/30 bg-success/10 text-success", icon: TrendingUp };
+}
 
 export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
   const [expanded, setExpanded] = useState(false);
@@ -69,7 +69,7 @@ export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
           </thead>
           <tbody>
             {visibleRows.map((row, i) => {
-              const style = OUTCOME_STYLES[row.outcome];
+              const style = outcomeStyle(row.outcome);
               return (
                 <tr
                   key={`${row.cdr}-${row.date}-${i}`}
@@ -86,7 +86,7 @@ export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
                       {row.outcome}
                     </span>
                   </td>
-                  <td className="px-5 py-2.5 text-xs text-muted">{row.note ?? "—"}</td>
+                  <td className="min-w-[18rem] max-w-md px-5 py-2.5 text-xs text-muted">{row.note ?? "—"}</td>
                 </tr>
               );
             })}
