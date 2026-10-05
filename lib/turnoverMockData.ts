@@ -28,6 +28,7 @@ export const mockTurnoverReports: TurnoverData[] = [
         date: "2026-09-30",
         startDate: "2026-08-31",
         note: "Personal family issues",
+        reasonCategory: "Personal family issues",
       },
       {
         cdr: "Valentina Mantegazza",
@@ -42,6 +43,7 @@ export const mockTurnoverReports: TurnoverData[] = [
         date: "2026-09-18",
         startDate: "2026-06-09",
         note: "Bad performance",
+        reasonCategory: "Bad performance",
       },
       {
         cdr: "Marcio Oliveira",

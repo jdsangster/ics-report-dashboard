@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { TurnoverData } from "@/lib/types";
 import BrandLogo from "@/components/BrandLogo";
 import TurnoverSummaryCard from "@/components/TurnoverSummaryCard";
+import TurnoverQuarterlySummary from "@/components/TurnoverQuarterlySummary";
 import TurnoverMonthlyTable from "@/components/TurnoverMonthlyTable";
 import TurnoverLogTable from "@/components/TurnoverLogTable";
 
@@ -122,6 +123,7 @@ export default function CdrTurnoverPage() {
           </div>
 
           <TurnoverSummaryCard events={activeReport.events} />
+          <TurnoverQuarterlySummary events={activeReport.events} />
           <TurnoverMonthlyTable events={activeReport.events} />
           <TurnoverLogTable events={activeReport.events} />
         </motion.div>

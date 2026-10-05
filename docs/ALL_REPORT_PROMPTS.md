@@ -1328,6 +1328,11 @@ SCHEMA (use these exact keys, nesting, and types):
       "note": string                  // OPTIONAL but strongly encouraged for "Offboarded" and
                                       // "Quit": a concise reason (e.g. "Bad performance",
                                       // "Found a better job opportunity", "Studies")
+      "reasonCategory": string        // OPTIONAL but strongly encouraged for "Offboarded" and
+                                      // "Quit": a SHORT label used to group reasons in the
+                                      // quarterly summary, e.g. "Better job opportunity",
+                                      // "Studies", "Personal family issues", "Bad performance".
+                                      // Reuse the exact same label for the same kind of reason.
     }
   ]
 }
@@ -1339,6 +1344,8 @@ CRITICAL — exact key names, do not substitute:
   Specialist", ...). Never use "Promoted to CL" for a promotion to a different role.
 - For every "Offboarded" and "Quit" event, include a short "note" with the reason when it is known
   (keep it to one or two sentences; no names of other people, no dates already in "date").
+- "reasonCategory" is a short, consistent label (same wording every time for the same reason) —
+  the quarterly summary counts exits by this label, falling back to "note" when it is missing.
 - "cadence" is always the literal string "Daily" for this report.
 - Every event from prior publishes must be preserved — this isn't additive on the server side,
   the JSON you send is the full replacement.
@@ -1350,6 +1357,7 @@ Before you respond, verify your JSON against this checklist:
 [ ] "events" includes every previously-logged change plus the new one(s) — nothing dropped.
 [ ] Every event's "outcome" is "Offboarded", "Quit", or "Promoted to <role>".
 [ ] Every "Offboarded" and "Quit" event has a "note" with the reason, if the reason is known.
+[ ] Every "Offboarded" and "Quit" event also has a short "reasonCategory", worded consistently.
 [ ] periodLabel spans the earliest to latest date actually present in "events".
 
 Output ONLY a single fenced JSON code block. No explanation before or after it.
@@ -1366,10 +1374,10 @@ Output ONLY a single fenced JSON code block. No explanation before or after it.
   },
   "events": [
     { "cdr": "Katheryn Parada", "team": "Lightyear", "outcome": "Promoted to Support Specialist", "date": "2026-10-01", "startDate": "2026-05-05" },
-    { "cdr": "Camila Abran", "team": "Academia", "outcome": "Quit", "date": "2026-09-30", "startDate": "2026-08-31", "note": "Personal family issues" },
-    { "cdr": "Cameron Moorcraft", "team": "Titans", "outcome": "Quit", "date": "2026-09-28", "startDate": "2026-08-17", "note": "Found a better job opportunity" },
+    { "cdr": "Camila Abran", "team": "Academia", "outcome": "Quit", "date": "2026-09-30", "startDate": "2026-08-31", "note": "Personal family issues", "reasonCategory": "Personal family issues" },
+    { "cdr": "Cameron Moorcraft", "team": "Titans", "outcome": "Quit", "date": "2026-09-28", "startDate": "2026-08-17", "note": "Found a better job opportunity", "reasonCategory": "Better job opportunity" },
     { "cdr": "Marcio Oliveira", "team": "Lightyear", "outcome": "Promoted to CL", "date": "2026-09-18", "startDate": "2026-05-27" },
-    { "cdr": "Noraly Camargo", "team": "Titans", "outcome": "Offboarded", "date": "2026-09-18", "startDate": "2026-06-09", "note": "Bad performance" },
+    { "cdr": "Noraly Camargo", "team": "Titans", "outcome": "Offboarded", "date": "2026-09-18", "startDate": "2026-06-09", "note": "Bad performance", "reasonCategory": "Bad performance" },
     { "cdr": "Valentina Mantegazza", "team": "The Booking Machines", "outcome": "Promoted to TL", "date": "2026-08-24" }
   ]
 }

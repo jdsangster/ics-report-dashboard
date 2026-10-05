@@ -551,6 +551,8 @@ export interface TurnoverEvent {
   startDate?: string;
   /** Optional free-text reason/context. */
   note?: string;
+  /** Optional short label (e.g. "Studies") used to group exit reasons in the quarterly summary. */
+  reasonCategory?: string;
 }
 
 export interface TurnoverMetadata {

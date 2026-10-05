@@ -407,7 +407,8 @@ export function isValidTurnoverPayload(body: unknown): body is TurnoverPayload {
       isValidTurnoverOutcome(ev.outcome) &&
       typeof ev.date === "string" &&
       (ev.startDate === undefined || typeof ev.startDate === "string") &&
-      (ev.note === undefined || typeof ev.note === "string")
+      (ev.note === undefined || typeof ev.note === "string") &&
+      (ev.reasonCategory === undefined || typeof ev.reasonCategory === "string")
     );
   });
 }

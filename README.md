@@ -110,11 +110,13 @@ components/
                                       the ranking table computes each CDR's week-over-week trend
                                       client-side, by matching CDR name against the previous
                                       published report (no prevWeek data needed in the JSON itself)
-  TurnoverSummaryCard.tsx / TurnoverMonthlyTable.tsx / TurnoverLogTable.tsx
+  TurnoverSummaryCard.tsx / TurnoverQuarterlySummary.tsx / TurnoverMonthlyTable.tsx / TurnoverLogTable.tsx
                                       CDR Turnover Report components — a neutral log of outcomes
                                       (Offboarded/Quit/Promoted to any role, each exit with
-                                      its reason) with a monthly breakdown for context; deliberately
-                                      has no "quota" or target framing
+                                      its reason) with a calendar-quarter summary (by team, exit
+                                      reasons, promotions by role) and a monthly breakdown; the
+                                      event log filters by quarter/month/outcome/reason/name and
+                                      sorts by column; deliberately has no "quota" or target framing
   admin/AdminLoginForm.tsx           Password form
   admin/AdminPublishForm.tsx         Report-type selector + JSON paste + publish form
 lib/
@@ -370,14 +372,14 @@ Week-over-week trend is **not** stored in the JSON — the dashboard computes it
 
 ## Report JSON schema (CDR Turnover Report)
 
-Full field-by-field reference and a real example: [`docs/CLAUDE_CDR_TURNOVER_PROMPT.md`](docs/CLAUDE_CDR_TURNOVER_PROMPT.md). Unlike the scheduled reports, this one is a running log you update as changes happen — same "send the full current list" pattern as CL Case Review, not a per-period publish. Top-level shape: `metadata` and `events` (every CDR change ever logged, each with `cdr`, `team`, `outcome` — `"Offboarded" | "Quit" | "Promoted to <role>"`, e.g. "Promoted to CL" / "Promoted to TL" — `date`, and optional `startDate`/`note`; `note` carries the concise reason for an exit, e.g. "Found a better job opportunity" or "Bad performance").
+Full field-by-field reference and a real example: [`docs/CLAUDE_CDR_TURNOVER_PROMPT.md`](docs/CLAUDE_CDR_TURNOVER_PROMPT.md). Unlike the scheduled reports, this one is a running log you update as changes happen — same "send the full current list" pattern as CL Case Review, not a per-period publish. Top-level shape: `metadata` and `events` (every CDR change ever logged, each with `cdr`, `team`, `outcome` — `"Offboarded" | "Quit" | "Promoted to <role>"`, e.g. "Promoted to CL" / "Promoted to TL" — `date`, and optional `startDate`/`note`; `note` carries the concise reason for an exit, e.g. "Found a better job opportunity" or "Bad performance"; `reasonCategory` is a short consistent label for it, e.g. "Better job opportunity", that the quarterly summary groups by).
 
 ```json
 {
   "metadata": { "reportType": "CDR Turnover Report", "cadence": "Daily", "periodLabel": "09/18 – 10/01" },
   "events": [
     { "cdr": "Katheryn Parada", "team": "Lightyear", "outcome": "Promoted to Support Specialist", "date": "2026-10-01" },
-    { "cdr": "Noraly Camargo", "team": "Titans", "outcome": "Offboarded", "date": "2026-09-18", "startDate": "2026-06-09", "note": "Bad performance" },
+    { "cdr": "Noraly Camargo", "team": "Titans", "outcome": "Offboarded", "date": "2026-09-18", "startDate": "2026-06-09", "note": "Bad performance", "reasonCategory": "Bad performance" },
     { "cdr": "Marcio Oliveira", "team": "Lightyear", "outcome": "Promoted to CL", "date": "2026-09-18", "startDate": "2026-05-27" }
   ]
 }

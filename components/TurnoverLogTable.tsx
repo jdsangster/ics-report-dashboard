@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { TurnoverEvent, TurnoverOutcome } from "@/lib/types";
+import { quarterKey, quarterLabel, reasonOf } from "@/lib/turnoverUtils";
 
 interface TurnoverLogTableProps {
   events: TurnoverEvent[];
@@ -80,6 +81,7 @@ function SelectField({
 
 export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
   const [expanded, setExpanded] = useState(false);
+  const [quarter, setQuarter] = useState(ALL);
   const [month, setMonth] = useState(ALL);
   const [outcome, setOutcome] = useState(ALL);
   const [reason, setReason] = useState(ALL);
@@ -87,9 +89,22 @@ export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
-  const months = useMemo(
-    () => Array.from(new Set(events.map((e) => e.date.slice(0, 7)))).sort().reverse(),
+  const quarters = useMemo(
+    () => Array.from(new Set(events.map((e) => quarterKey(e.date)))).sort().reverse(),
     [events]
+  );
+  const months = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          events
+            .filter((e) => quarter === ALL || quarterKey(e.date) === quarter)
+            .map((e) => e.date.slice(0, 7))
+        )
+      )
+        .sort()
+        .reverse(),
+    [events, quarter]
   );
   const outcomes = useMemo(
     () => Array.from(new Set(events.map((e) => e.outcome))).sort(),
@@ -98,21 +113,22 @@ export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
   const reasons = useMemo(
     () =>
       Array.from(
-        new Set(events.map((e) => e.note).filter((n): n is string => Boolean(n)))
+        new Set(events.map((e) => reasonOf(e)).filter((n): n is string => Boolean(n)))
       ).sort(),
     [events]
   );
 
   const filtersActive =
-    month !== ALL || outcome !== ALL || reason !== ALL || query.trim() !== "";
+    quarter !== ALL || month !== ALL || outcome !== ALL || reason !== ALL || query.trim() !== "";
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
     const filtered = events.filter(
       (e) =>
+        (quarter === ALL || quarterKey(e.date) === quarter) &&
         (month === ALL || e.date.slice(0, 7) === month) &&
         (outcome === ALL || e.outcome === outcome) &&
-        (reason === ALL || e.note === reason) &&
+        (reason === ALL || reasonOf(e) === reason) &&
         (q === "" || e.cdr.toLowerCase().includes(q))
     );
     const dir = sortDir === "asc" ? 1 : -1;
@@ -124,7 +140,7 @@ export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
       if (cmp !== 0) return cmp * dir;
       return a.date === b.date ? a.cdr.localeCompare(b.cdr) : b.date.localeCompare(a.date);
     });
-  }, [events, month, outcome, reason, query, sortKey, sortDir]);
+  }, [events, quarter, month, outcome, reason, query, sortKey, sortDir]);
 
   const visibleRows = expanded || filtersActive ? rows : rows.slice(0, VISIBLE_COUNT);
 
@@ -138,6 +154,7 @@ export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
   };
 
   const clearFilters = () => {
+    setQuarter(ALL);
     setMonth(ALL);
     setOutcome(ALL);
     setReason(ALL);
@@ -199,6 +216,21 @@ export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
             className="w-48 rounded-lg border border-border-subtle bg-surface-elevated py-2 pl-8 pr-3 text-xs text-foreground outline-none placeholder:text-muted focus:border-accent"
           />
         </div>
+        <SelectField
+          value={quarter}
+          onChange={(e) => {
+            setQuarter(e.target.value);
+            setMonth(ALL);
+          }}
+          aria-label="Filter by quarter"
+        >
+          <option value={ALL}>All quarters</option>
+          {quarters.map((q) => (
+            <option key={q} value={q}>
+              {quarterLabel(q)}
+            </option>
+          ))}
+        </SelectField>
         <SelectField
           value={month}
           onChange={(e) => setMonth(e.target.value)}
