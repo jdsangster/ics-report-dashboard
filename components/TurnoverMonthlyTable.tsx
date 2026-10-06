@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { CalendarDays } from "lucide-react";
 import { TurnoverEvent, isPromotion } from "@/lib/types";
+import { MONTHLY_GOALS } from "@/lib/turnoverUtils";
 
 interface TurnoverMonthlyTableProps {
   events: TurnoverEvent[];
@@ -58,6 +59,7 @@ export default function TurnoverMonthlyTable({ events }: TurnoverMonthlyTablePro
               <th className="px-5 py-3 font-medium text-right">Quit</th>
               <th className="px-5 py-3 font-medium text-right">Promoted</th>
               <th className="px-5 py-3 font-medium text-right">Total</th>
+              <th className="px-5 py-3 font-medium text-right">vs. Goal</th>
             </tr>
           </thead>
           <tbody>
@@ -72,6 +74,11 @@ export default function TurnoverMonthlyTable({ events }: TurnoverMonthlyTablePro
                 <td className="px-5 py-2.5 text-right text-success">{row.promoted}</td>
                 <td className="px-5 py-2.5 text-right font-medium text-foreground">
                   {row.offboarded + row.quit + row.promoted}
+                </td>
+                <td className="whitespace-nowrap px-5 py-2.5 text-right text-xs text-muted">
+                  {row.key >= MONTHLY_GOALS.effectiveFrom
+                    ? `Promos ${row.promoted}/${MONTHLY_GOALS.promotions} · Exits ${row.offboarded + row.quit}/${MONTHLY_GOALS.exits}`
+                    : "—"}
                 </td>
               </tr>
             ))}

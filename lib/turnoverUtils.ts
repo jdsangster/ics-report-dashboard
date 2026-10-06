@@ -24,3 +24,35 @@ export function quarterRange(key: string): string {
 export function reasonOf(e: TurnoverEvent): string | undefined {
   return e.reasonCategory ?? e.note;
 }
+
+/** Monthly goals set by leadership, applied from `effectiveFrom` ("YYYY-MM") onward. Exits = Offboarded + Quit. */
+export const MONTHLY_GOALS = { promotions: 6, exits: 3, effectiveFrom: "2026-10" } as const;
+
+export function currentMonthKey(now: Date = new Date()): string {
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+export function monthCounts(events: TurnoverEvent[], monthKey: string): { promotions: number; exits: number } {
+  let promotions = 0;
+  let exits = 0;
+  for (const e of events) {
+    if (e.date.slice(0, 7) !== monthKey) continue;
+    if (e.outcome === "Offboarded" || e.outcome === "Quit") exits += 1;
+    else if (e.outcome.startsWith("Promoted to ")) promotions += 1;
+  }
+  return { promotions, exits };
+}
+
+/** Months of a quarter ("2026-Q4") that count toward the goals, up to `uptoMonth` ("YYYY-MM"). */
+export function goalMonthsInQuarter(key: string, uptoMonth: string): string[] {
+  const [year, q] = key.split("-");
+  const first = (Number(q.slice(1)) - 1) * 3 + 1;
+  return [0, 1, 2]
+    .map((i) => `${year}-${String(first + i).padStart(2, "0")}`)
+    .filter((m) => m >= MONTHLY_GOALS.effectiveFrom && m <= uptoMonth);
+}
+
+export function monthName(key: string): string {
+  const [y, m] = key.split("-").map(Number);
+  return new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}

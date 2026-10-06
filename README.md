@@ -110,13 +110,13 @@ components/
                                       the ranking table computes each CDR's week-over-week trend
                                       client-side, by matching CDR name against the previous
                                       published report (no prevWeek data needed in the JSON itself)
-  TurnoverSummaryCard.tsx / TurnoverQuarterlySummary.tsx / TurnoverMonthlyTable.tsx / TurnoverLogTable.tsx
+  TurnoverSummaryCard.tsx / TurnoverGoalsCard.tsx / TurnoverQuarterlySummary.tsx / TurnoverMonthlyTable.tsx / TurnoverLogTable.tsx
                                       CDR Turnover Report components — a neutral log of outcomes
                                       (Offboarded/Quit/Promoted to any role, each exit with
                                       its reason) with a calendar-quarter summary (by team, exit
                                       reasons, promotions by role) and a monthly breakdown; the
                                       event log filters by quarter/month/outcome/reason/name and
-                                      sorts by column; deliberately has no "quota" or target framing
+                                      sorts by column; a Monthly Goals card, a "vs. Goal" column and a quarterly goal line show progress against leadership's monthly goals
   admin/AdminLoginForm.tsx           Password form
   admin/AdminPublishForm.tsx         Report-type selector + JSON paste + publish form
 lib/
@@ -385,7 +385,7 @@ Full field-by-field reference and a real example: [`docs/CLAUDE_CDR_TURNOVER_PRO
 }
 ```
 
-This report deliberately shows outcome counts (including a monthly breakdown table) as neutral information only — it does not track progress toward, or display, any kind of minimum/target quota. If a policy target exists, that's a leadership/HR conversation, not something baked into the dashboard.
+Leadership's monthly goals (6 promotions and 3 exits — offboarded + quit — per month, effective October 2026) are defined in `MONTHLY_GOALS` in `lib/turnoverUtils.ts` (change the numbers or `effectiveFrom` there) and shown as "N of goal" on the Monthly Goals card, the Monthly Breakdown's "vs. Goal" column and the quarterly summary. They are not part of the published JSON.
 
 ## Adding a new report type
 

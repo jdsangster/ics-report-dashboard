@@ -8,10 +8,10 @@ generates the JSON) the new event(s), plus the full list of everything logged so
 outputs the updated full JSON — same "send the whole current state" pattern as
 [`CLAUDE_CL_CASE_REVIEW_PROMPT.md`](CLAUDE_CL_CASE_REVIEW_PROMPT.md).
 
-This report tracks **what happened**, neutrally — it is not a target or quota tracker. It does
-not compute or display "how many more to hit a monthly number." If your team has a monthly target
-tied to this data, that's a conversation for leadership/HR to have directly — this report just
-keeps an accurate, dated record of outcomes.
+This report keeps an accurate, dated record of **what happened** and why. Leadership's monthly
+goals (6 promotions and 3 exits — offboarded + quit — per month, from October 2026) are shown on
+the dashboard next to the counts as "N of goal"; they live in `lib/turnoverUtils.ts`
+(`MONTHLY_GOALS`), not in this JSON, so the JSON you generate never needs to include them.
 
 ---
 

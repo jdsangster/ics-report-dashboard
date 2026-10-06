@@ -4,7 +4,16 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { CalendarRange } from "lucide-react";
 import { TurnoverEvent, isPromotion } from "@/lib/types";
-import { quarterKey, quarterLabel, quarterRange, reasonOf } from "@/lib/turnoverUtils";
+import {
+  MONTHLY_GOALS,
+  currentMonthKey,
+  goalMonthsInQuarter,
+  monthName,
+  quarterKey,
+  quarterLabel,
+  quarterRange,
+  reasonOf,
+} from "@/lib/turnoverUtils";
 
 interface TurnoverQuarterlySummaryProps {
   events: TurnoverEvent[];
@@ -93,6 +102,7 @@ export default function TurnoverQuarterlySummary({ events }: TurnoverQuarterlySu
       exits: exits.length,
       reasons: tally(exits.map((e) => reasonOf(e) ?? NO_REASON)),
       destinations: tally(promotions.map((e) => e.outcome.replace("Promoted to ", ""))),
+      goalMonths: goalMonthsInQuarter(active, currentMonthKey()),
     };
   }, [events, active]);
 
@@ -149,6 +159,15 @@ export default function TurnoverQuarterlySummary({ events }: TurnoverQuarterlySu
           </div>
         ))}
       </div>
+
+      {data.goalMonths.length > 0 && (
+        <p className="border-t border-border-subtle px-5 py-3 text-xs text-muted">
+          <span className="font-medium text-foreground">Vs. monthly goals</span> (
+          {data.goalMonths.map((m) => monthName(m).split(" ")[0]).join(", ")}):{" "}
+          {data.promoted} of {MONTHLY_GOALS.promotions * data.goalMonths.length} promotions ·{" "}
+          {data.offboarded + data.quit} of {MONTHLY_GOALS.exits * data.goalMonths.length} exits
+        </p>
+      )}
 
       <div className="grid gap-6 border-t border-border-subtle px-5 py-5 lg:grid-cols-3">
         <div>
