@@ -10,7 +10,7 @@ export default async function AdminPage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="border-b border-border-subtle bg-surface/60 backdrop-blur">
+      <header className="border-b border-border-subtle bg-logo-bg">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-6 py-5">
           <BrandLogo />
           <div className="h-8 w-px bg-border-subtle" />

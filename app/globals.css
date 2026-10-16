@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  /* Navy sampled directly from the ColomboHurd logo background (#071434) */
-  --background: #071434;
+  /* Navy sampled directly from the ColomboHurd logo background (#091432) */
+  --background: #091432;
+  --logo-bg: #091432;
   --surface: #101d3c;
   --surface-elevated: #1a2644;
   --border-subtle: #2c3854;
@@ -18,6 +19,7 @@
 
 @theme inline {
   --color-background: var(--background);
+  --color-logo-bg: var(--logo-bg);
   --color-surface: var(--surface);
   --color-surface-elevated: var(--surface-elevated);
   --color-border-subtle: var(--border-subtle);

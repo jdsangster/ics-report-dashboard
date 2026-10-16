@@ -70,7 +70,7 @@ export default function CdrTurnoverPage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <header className="border-b border-border-subtle bg-surface/60 backdrop-blur">
+      <header className="border-b border-border-subtle bg-logo-bg">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <BrandLogo />
