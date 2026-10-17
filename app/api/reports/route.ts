@@ -23,6 +23,7 @@ import {
   WeekendData,
 } from "@/lib/types";
 import { REPORT_TYPE_SLUGS, ReportTypeSlug } from "@/lib/reports";
+import { mergeTurnoverRows, TurnoverRow } from "@/lib/turnoverMerge";
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE !== "false";
 
@@ -51,6 +52,44 @@ export async function GET(req: NextRequest) {
   }
 
   const supabase = getSupabaseServerClient();
+
+  if (reportType === "cdr-turnover") {
+    // The turnover log is built from every published row: full-list rows reset the state,
+    // additive rows apply on top (see mergeTurnoverRows). The page gets one merged report.
+    const { data: rows, error: turnoverError } = await supabase
+      .from(REPORTS_TABLE)
+      .select("id, created_at, data")
+      .eq("report_type", reportType)
+      .order("created_at", { ascending: true });
+    if (turnoverError) {
+      return NextResponse.json({ error: turnoverError.message }, { status: 500 });
+    }
+    if (!rows || rows.length === 0) {
+      return NextResponse.json({ source: "live", count: 0, reports: [] });
+    }
+    const merged = mergeTurnoverRows(
+      rows.map((row) => ({
+        id: row.id,
+        createdAt: row.created_at,
+        metadata: row.data.metadata,
+        events: row.data.events,
+      })) as TurnoverRow[]
+    );
+    const latest = rows[rows.length - 1];
+    const report: TurnoverData = {
+      id: latest.id,
+      createdAt: latest.created_at,
+      metadata: {
+        reportType: "CDR Turnover Report",
+        cadence: "Daily",
+        periodLabel: merged.periodLabel,
+        mode: "snapshot",
+      },
+      events: merged.events,
+    };
+    return NextResponse.json({ source: "live", count: 1, reports: [report] });
+  }
+
   const { data, error } = await supabase
     .from(REPORTS_TABLE)
     .select("id, created_at, data")

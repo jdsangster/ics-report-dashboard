@@ -1,9 +1,8 @@
 import { TurnoverData } from "./types";
 
 /**
- * A single cumulative log, same pattern as caseReviewMockData.ts — each publish
- * sends the full current event list (there's no stable per-row ID from the
- * source), so the "latest row wins" and simply replaces what the dashboard shows.
+ * Demo data: one merged log. In live mode the API builds this same shape from every
+ * published row (see mergeTurnoverRows) — the dashboard only ever sees one report.
  */
 export const mockTurnoverReports: TurnoverData[] = [
   {

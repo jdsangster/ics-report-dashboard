@@ -1,12 +1,10 @@
 # Prompt for generating the CDR Turnover Report JSON
 
-Unlike the weekly/weekly-cadence reports, this one isn't published on a schedule — it's a running
-log you update **as CDR changes happen** (an offboarding, a resignation, or a promotion to any
-role), one or a few at a time, along with the reason behind each exit. There's no source export to convert;
-you give Claude (or whoever
-generates the JSON) the new event(s), plus the full list of everything logged so far, and it
-outputs the updated full JSON — same "send the whole current state" pattern as
-[`CLAUDE_CL_CASE_REVIEW_PROMPT.md`](CLAUDE_CL_CASE_REVIEW_PROMPT.md).
+Unlike the weekly reports, this one isn't published on a schedule — it's a running log you update
+**as CDR changes happen** (an offboarding, a resignation, or a promotion to any role), along with
+the reason behind each exit. There's no source export to convert, and **each publish contains only
+the new event(s)**: the dashboard merges every publish into one log, so you never resend (or even
+look at) the existing list. This is the opposite of [`CLAUDE_CL_CASE_REVIEW_PROMPT.md`](CLAUDE_CL_CASE_REVIEW_PROMPT.md), which still needs the full list every time.
 
 This report keeps an accurate, dated record of **what happened** and why. Leadership's monthly
 goals (6 promotions and 3 exits — offboarded + quit — per month, from October 2026) are shown on
@@ -18,27 +16,17 @@ the dashboard next to the counts as "N of goal"; they live in `lib/turnoverUtils
 ## Instruction to paste into your Claude chat
 
 ```
-Add the new CDR change(s) below to the existing CDR Turnover Report JSON, then output the FULL
-updated JSON (existing events + the new one(s), not just the new one). This is a strict data
-contract — an automated system parses this JSON and will reject it if any key is renamed,
-missing, or restructured.
+Convert the new CDR change(s) below into a CDR Turnover Report JSON that contains ONLY those
+events — do not include any previously logged events. This is a strict data contract — an
+automated system parses this JSON and will reject it if any key is renamed, missing, or
+restructured.
 
-New change(s) to add:
-<paste the CDR name(s), team, outcome, and date here>
-
-EXISTING JSON (paste the current full JSON here, or say "this is the first entry" if there isn't
-one yet):
-<paste here>
+New change(s):
+<paste the CDR name(s), team, outcome, date and reason here — a pasted spreadsheet row is fine>
 
 SCHEMA (use these exact keys, nesting, and types):
 
 {
-  "metadata": {
-    "reportType": "CDR Turnover Report",
-    "cadence": "Daily",              // fixed placeholder — this report has no real cadence
-    "periodLabel": string            // "MM/DD – MM/DD" spanning the earliest to latest date
-                                      // across ALL events in the list
-  },
   "events": [
     {
       "cdr": string,
@@ -47,19 +35,30 @@ SCHEMA (use these exact keys, nesting, and types):
                                       // e.g. "Promoted to CL", "Promoted to TL"
       "date": string,                 // ISO "YYYY-MM-DD" — when the outcome took effect
       "startDate": string,            // OPTIONAL, ISO "YYYY-MM-DD" — when the CDR started, if known
-      "note": string                  // OPTIONAL but strongly encouraged for "Offboarded" and
+      "note": string,                 // OPTIONAL but strongly encouraged for "Offboarded" and
                                       // "Quit": a concise reason (e.g. "Bad performance",
                                       // "Found a better job opportunity", "Studies")
-      "reasonCategory": string        // OPTIONAL but strongly encouraged for "Offboarded" and
+      "reasonCategory": string,       // OPTIONAL but strongly encouraged for "Offboarded" and
                                       // "Quit": a SHORT label used to group reasons in the
                                       // quarterly summary, e.g. "Better job opportunity",
                                       // "Studies", "Personal family issues", "Bad performance".
                                       // Reuse the exact same label for the same kind of reason.
+      "remove": boolean               // OPTIONAL, only to delete a previously logged event (see
+                                      // CORRECTIONS below). A removal needs just cdr + outcome.
     }
   ]
 }
 
+CORRECTIONS (only when the user says an already-logged event was wrong):
+- Fix a date, team, reason or start date: send the event again with the same "cdr" and the same
+  "outcome" and the corrected fields. The newest publish for that cdr + outcome wins.
+- Delete an event that should not be in the log: send { "cdr": "...", "outcome": "...", "remove": true }.
+- Change the outcome itself (e.g. "Promoted to TL" -> "Promoted to Operations", or "Offboarded" ->
+  "Quit"): send one removal for the old outcome plus the new event, in the same JSON.
+
 CRITICAL — exact key names, do not substitute:
+- The only top-level key is "events". Do NOT add "metadata", "periodLabel" or "cadence" — the system
+  fills those in. Do not add a top-level "id" and do not wrap the object in "report" or "data".
 - "outcome" is "Offboarded" (involuntary exits, including fired for bad performance), "Quit"
   (voluntary resignations), or "Promoted to <role>" with the exact destination role spelled out
   ("Promoted to CL", "Promoted to TL", "Promoted to Operations", "Promoted to Support
@@ -68,52 +67,70 @@ CRITICAL — exact key names, do not substitute:
   (keep it to one or two sentences; no names of other people, no dates already in "date").
 - "reasonCategory" is a short, consistent label (same wording every time for the same reason) —
   the quarterly summary counts exits by this label, falling back to "note" when it is missing.
-- "cadence" is always the literal string "Daily" for this report.
-- Every event from prior publishes must be preserved — this isn't additive on the server side,
-  the JSON you send is the full replacement.
-- Do not add a top-level "id" field — the system assigns that.
-- Do not wrap the object in extra keys like "report" or "data".
+- Spell each CDR's name exactly as it appears in the spreadsheet, every time: corrections and
+  removals match on the name (case-insensitive) plus the outcome.
 
 Before you respond, verify your JSON against this checklist:
-[ ] Top-level keys are exactly: metadata, events.
-[ ] "events" includes every previously-logged change plus the new one(s) — nothing dropped.
+[ ] The only top-level key is "events", and it lists ONLY the new/corrected/removed events.
 [ ] Every event's "outcome" is "Offboarded", "Quit", or "Promoted to <role>".
-[ ] Every "Offboarded" and "Quit" event has a "note" with the reason, if the reason is known.
-[ ] Every "Offboarded" and "Quit" event also has a short "reasonCategory", worded consistently.
-[ ] periodLabel spans the earliest to latest date actually present in "events".
+[ ] Every "Offboarded" and "Quit" event has a "note" and a short "reasonCategory", if the reason is known.
+[ ] Dates are ISO "YYYY-MM-DD".
 
 Output ONLY a single fenced JSON code block. No explanation before or after it.
 ```
 
 ---
 
-## Reference schema (real example)
+## Reference schema (real examples)
+
+One new promotion:
 
 ```json
 {
-  "metadata": {
-    "reportType": "CDR Turnover Report",
-    "cadence": "Daily",
-    "periodLabel": "08/24 – 10/01"
-  },
   "events": [
-    { "cdr": "Katheryn Parada", "team": "Lightyear", "outcome": "Promoted to Support Specialist", "date": "2026-10-01", "startDate": "2026-05-05" },
-    { "cdr": "Camila Abran", "team": "Academia", "outcome": "Quit", "date": "2026-09-30", "startDate": "2026-08-31", "note": "Personal family issues", "reasonCategory": "Personal family issues" },
-    { "cdr": "Cameron Moorcraft", "team": "Titans", "outcome": "Quit", "date": "2026-09-28", "startDate": "2026-08-17", "note": "Found a better job opportunity", "reasonCategory": "Better job opportunity" },
-    { "cdr": "Marcio Oliveira", "team": "Lightyear", "outcome": "Promoted to CL", "date": "2026-09-18", "startDate": "2026-05-27" },
-    { "cdr": "Noraly Camargo", "team": "Titans", "outcome": "Offboarded", "date": "2026-09-18", "startDate": "2026-06-09", "note": "Bad performance", "reasonCategory": "Bad performance" },
-    { "cdr": "Valentina Mantegazza", "team": "The Booking Machines", "outcome": "Promoted to TL", "date": "2026-08-24" }
+    { "cdr": "Laura Bracalenti", "team": "Lightyear", "outcome": "Promoted to CL", "date": "2026-10-16", "startDate": "2026-05-05" }
+  ]
+}
+```
+
+A resignation with its reason:
+
+```json
+{
+  "events": [
+    { "cdr": "Camila Abran", "team": "Academia", "outcome": "Quit", "date": "2026-09-30", "startDate": "2026-08-31", "note": "Personal family issues", "reasonCategory": "Personal family issues" }
+  ]
+}
+```
+
+A correction (new date for an event already logged) plus a removal:
+
+```json
+{
+  "events": [
+    { "cdr": "Florencia Santos", "team": "Titans", "outcome": "Promoted to CL", "date": "2026-10-16", "startDate": "2026-05-05" },
+    { "cdr": "Patricia Gomez", "outcome": "Quit", "remove": true }
   ]
 }
 ```
 
 ## Publishing it
 
-1. Copy the full JSON block Claude generated.
+1. Copy the JSON block Claude generated.
 2. Go to `/admin`, log in.
 3. In **Tipo de reporte**, select **CDR Turnover Report**.
 4. Paste the JSON and click **Publicar reporte**.
 5. It appears immediately at `/reports/cdr-turnover`.
 
-Since there's no stable per-row ID, each publish sends the **full current event list** — the
-newest publish simply replaces what the dashboard shows, same as CL Case Review.
+## How the log is assembled
+
+The dashboard rebuilds the log from every publish, oldest first, so publishing is just "append":
+
+- An events-only JSON (like the ones above) is an **additive** publish: new events are added on top
+  of the current log.
+- Same CDR + same outcome as an existing event → the newest publish replaces it (that's how a
+  correction works, instead of creating a duplicate). `"remove": true` deletes it.
+- The period label ("MM/DD – MM/DD") is computed from the events — never write it yourself.
+- **Older publishes keep working.** A JSON that still has the old `metadata` block plus the
+  complete event list is treated as a full reset (everything before it is replaced by that list),
+  so use that form only if you ever need to rebuild the whole log from scratch.

@@ -1,4 +1,5 @@
 import { getSupabaseServerClient, REPORTS_TABLE } from "./supabaseClient";
+import { turnoverPeriodLabel } from "./turnoverMerge";
 import {
   CaseReviewPayload,
   ConversionTrackerPayload,
@@ -388,29 +389,55 @@ function isValidTurnoverOutcome(outcome: string): boolean {
 export function isValidTurnoverPayload(body: unknown): body is TurnoverPayload {
   if (!body || typeof body !== "object") return false;
   const b = body as Record<string, unknown>;
-  if (
-    typeof b.metadata !== "object" ||
-    b.metadata === null ||
-    typeof (b.metadata as Record<string, unknown>).cadence !== "string" ||
-    typeof (b.metadata as Record<string, unknown>).periodLabel !== "string"
-  ) {
-    return false;
+  // metadata is optional: an events-only payload is an additive ("delta") publish.
+  if (b.metadata !== undefined) {
+    const m = b.metadata as Record<string, unknown> | null;
+    if (
+      typeof m !== "object" ||
+      m === null ||
+      typeof m.cadence !== "string" ||
+      typeof m.periodLabel !== "string" ||
+      (m.mode !== undefined && m.mode !== "snapshot" && m.mode !== "delta")
+    ) {
+      return false;
+    }
   }
-  if (!Array.isArray(b.events)) return false;
+  if (!Array.isArray(b.events) || b.events.length === 0) return false;
   return b.events.every((e) => {
     if (!e || typeof e !== "object") return false;
     const ev = e as Record<string, unknown>;
+    if (
+      typeof ev.cdr !== "string" ||
+      typeof ev.outcome !== "string" ||
+      !isValidTurnoverOutcome(ev.outcome) ||
+      (ev.remove !== undefined && typeof ev.remove !== "boolean")
+    ) {
+      return false;
+    }
+    // A removal only needs to identify the event (cdr + outcome).
+    if (ev.remove === true) return true;
     return (
-      typeof ev.cdr === "string" &&
       typeof ev.team === "string" &&
-      typeof ev.outcome === "string" &&
-      isValidTurnoverOutcome(ev.outcome) &&
       typeof ev.date === "string" &&
       (ev.startDate === undefined || typeof ev.startDate === "string") &&
       (ev.note === undefined || typeof ev.note === "string") &&
       (ev.reasonCategory === undefined || typeof ev.reasonCategory === "string")
     );
   });
+}
+
+/** Fills in metadata for an events-only turnover payload, marking it as an additive delta. */
+export function normalizeTurnoverPayload(payload: TurnoverPayload): TurnoverPayload {
+  if (payload.metadata) return payload;
+  return {
+    metadata: {
+      reportType: "CDR Turnover Report",
+      cadence: "Daily",
+      periodLabel: turnoverPeriodLabel(payload.events.filter((e) => !e.remove)),
+      mode: "delta",
+    },
+    events: payload.events,
+  };
 }
 
 export function isValidReportPayloadFor(
@@ -431,8 +458,12 @@ export function isValidReportPayloadFor(
 
 export async function insertReport(
   reportType: ReportTypeSlug,
-  payload: AnyReportPayload
+  rawPayload: AnyReportPayload
 ): Promise<{ id: string }> {
+  const payload =
+    reportType === "cdr-turnover"
+      ? normalizeTurnoverPayload(rawPayload as TurnoverPayload)
+      : rawPayload;
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
     .from(REPORTS_TABLE)

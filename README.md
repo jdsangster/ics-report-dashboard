@@ -149,8 +149,9 @@ docs/
                                       Prompt template for converting the three raw Power BI
                                       exports (Full Data, Short Funnel, Campaigns) into the CDR
                                       Conversion Tracker JSON
-  CLAUDE_CDR_TURNOVER_PROMPT.md      Prompt template for appending an offboarding/resignation/
-                                      promotion to the CDR Turnover Report's running log
+  CLAUDE_CDR_TURNOVER_PROMPT.md      Prompt template for appending (events-only JSON) an
+                                      offboarding/resignation/promotion to the CDR Turnover
+                                      Report's running log
   ALL_REPORT_PROMPTS.md              All ten prompt templates above combined into one file
 ```
 
@@ -372,18 +373,18 @@ Week-over-week trend is **not** stored in the JSON — the dashboard computes it
 
 ## Report JSON schema (CDR Turnover Report)
 
-Full field-by-field reference and a real example: [`docs/CLAUDE_CDR_TURNOVER_PROMPT.md`](docs/CLAUDE_CDR_TURNOVER_PROMPT.md). Unlike the scheduled reports, this one is a running log you update as changes happen — same "send the full current list" pattern as CL Case Review, not a per-period publish. Top-level shape: `metadata` and `events` (every CDR change ever logged, each with `cdr`, `team`, `outcome` — `"Offboarded" | "Quit" | "Promoted to <role>"`, e.g. "Promoted to CL" / "Promoted to TL" — `date`, and optional `startDate`/`note`; `note` carries the concise reason for an exit, e.g. "Found a better job opportunity" or "Bad performance"; `reasonCategory` is a short consistent label for it, e.g. "Better job opportunity", that the quarterly summary groups by).
+Full field-by-field reference and a real example: [`docs/CLAUDE_CDR_TURNOVER_PROMPT.md`](docs/CLAUDE_CDR_TURNOVER_PROMPT.md). Unlike the scheduled reports, this one is a running log you update as changes happen, and **each publish contains only the new event(s)** — the API merges every publish into one log (see below). Top-level shape: just `events` (each with `cdr`, `team`, `outcome` — `"Offboarded" | "Quit" | "Promoted to <role>"`, e.g. "Promoted to CL" / "Promoted to TL" — `date`, and optional `startDate`/`note`; `note` carries the concise reason for an exit, e.g. "Found a better job opportunity" or "Bad performance"; `reasonCategory` is a short consistent label for it, e.g. "Better job opportunity", that the quarterly summary groups by).
 
 ```json
 {
-  "metadata": { "reportType": "CDR Turnover Report", "cadence": "Daily", "periodLabel": "09/18 – 10/01" },
   "events": [
     { "cdr": "Katheryn Parada", "team": "Lightyear", "outcome": "Promoted to Support Specialist", "date": "2026-10-01" },
-    { "cdr": "Noraly Camargo", "team": "Titans", "outcome": "Offboarded", "date": "2026-09-18", "startDate": "2026-06-09", "note": "Bad performance", "reasonCategory": "Bad performance" },
-    { "cdr": "Marcio Oliveira", "team": "Lightyear", "outcome": "Promoted to CL", "date": "2026-09-18", "startDate": "2026-05-27" }
+    { "cdr": "Noraly Camargo", "team": "Titans", "outcome": "Offboarded", "date": "2026-09-18", "startDate": "2026-06-09", "note": "Bad performance", "reasonCategory": "Bad performance" }
   ]
 }
 ```
+
+How the log is assembled (`mergeTurnoverRows` in `lib/turnoverMerge.ts`, used by `GET /api/reports?type=cdr-turnover`): every publish is read oldest-first. An events-only publish is stored as a *delta* (`metadata.mode: "delta"`, with `metadata`/`periodLabel` filled in automatically) and is added on top of the current log. Same CDR + same outcome as an existing event → the newest publish replaces it (a correction, not a duplicate); `{ "cdr": "...", "outcome": "...", "remove": true }` deletes one. A publish that still carries the old `metadata` block with the complete list is a *snapshot* and resets the log to that list, so rows published before this change keep working and can stay in Supabase.
 
 Leadership's monthly goals (6 promotions and 3 exits — offboarded + quit — per month, effective October 2026) are defined in `MONTHLY_GOALS` in `lib/turnoverUtils.ts` (change the numbers or `effectiveFrom` there) and shown as "N of goal" on the Monthly Goals card, the Monthly Breakdown's "vs. Goal" column and the quarterly summary. They are not part of the published JSON.
 

@@ -553,12 +553,19 @@ export interface TurnoverEvent {
   note?: string;
   /** Optional short label (e.g. "Studies") used to group exit reasons in the quarterly summary. */
   reasonCategory?: string;
+  /** Additive publishes only: true deletes the existing event with the same cdr + outcome. */
+  remove?: boolean;
 }
 
 export interface TurnoverMetadata {
   reportType: string;
   cadence: Cadence;
   periodLabel: string;
+  /**
+   * "snapshot" (default, legacy): `events` is the complete current list and replaces everything before it.
+   * "delta": `events` are only new/corrected/removed events, applied on top of the latest state.
+   */
+  mode?: "snapshot" | "delta";
 }
 
 /** Shape stored in Supabase's `reports.data` JSONB column for the CDR Turnover report type. */
