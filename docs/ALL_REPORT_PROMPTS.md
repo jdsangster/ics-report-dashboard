@@ -81,6 +81,10 @@ SCHEMA (use these exact keys, nesting, and types):
                                   // using a blank line ("\n\n") between them
 }
 
+TEAM RENAME — "Ruth" team is now "Valentina" team: for any data dated on or after 2026-08-24
+(Valentina took over Ruth's team), use "Team Valentina" (case review: "tl": "Valentina"). Data dated
+before 2026-08-24 keeps "Team Ruth" / "Ruth". Never mix both names inside the same report period.
+
 CRITICAL — exact key names, do not substitute:
 - Person's name is always "cdr" in outstandingPerformers and comparisonTable —
   never "name".
@@ -232,6 +236,10 @@ SCHEMA (use these exact keys, nesting, and types):
   ]
 }
 
+TEAM RENAME — "Ruth" team is now "Valentina" team: for any data dated on or after 2026-08-24
+(Valentina took over Ruth's team), use "Team Valentina" (case review: "tl": "Valentina"). Data dated
+before 2026-08-24 keeps "Team Ruth" / "Ruth". Never mix both names inside the same report period.
+
 CRITICAL — exact key names, do not substitute:
 - "meetingTarget" and "belowTarget" are two SEPARATE arrays (not one array
   with a status flag) — matches the two separate tables in the source report.
@@ -357,6 +365,10 @@ SCHEMA (use these exact keys, nesting, and types):
   "executiveSummary": string      // if long, separate into 2-4 short paragraphs
                                    // using a blank line ("\n\n") between them
 }
+
+TEAM RENAME — "Ruth" team is now "Valentina" team: for any data dated on or after 2026-08-24
+(Valentina took over Ruth's team), use "Team Valentina" (case review: "tl": "Valentina"). Data dated
+before 2026-08-24 keeps "Team Ruth" / "Ruth". Never mix both names inside the same report period.
 
 CRITICAL — exact key names, do not substitute:
 - Person's name is always "cdr" — never "name" or "teammate".
@@ -496,6 +508,10 @@ SCHEMA (use these exact keys, nesting, and types):
                                      // with "\n\n" between paragraphs
 }
 
+TEAM RENAME — "Ruth" team is now "Valentina" team: for any data dated on or after 2026-08-24
+(Valentina took over Ruth's team), use "Team Valentina" (case review: "tl": "Valentina"). Data dated
+before 2026-08-24 keeps "Team Ruth" / "Ruth". Never mix both names inside the same report period.
+
 CRITICAL — exact key names, do not substitute:
 - "tiers" is ALWAYS exactly 5 entries, in this fixed order, using these exact
   "key" values:
@@ -596,6 +612,10 @@ SCHEMA (use these exact keys, nesting, and types):
   "narrative": string                // OPTIONAL — omit the key entirely if
                                       // there's no closing summary this period
 }
+
+TEAM RENAME — "Ruth" team is now "Valentina" team: for any data dated on or after 2026-08-24
+(Valentina took over Ruth's team), use "Team Valentina" (case review: "tl": "Valentina"). Data dated
+before 2026-08-24 keeps "Team Ruth" / "Ruth". Never mix both names inside the same report period.
 
 CRITICAL — exact key names, do not substitute:
 - Only include a contributor in "contributors" if their BI count and Excel
@@ -709,6 +729,10 @@ SCHEMA (use these exact keys, nesting, and types):
     "operationalRisks": string[]
   }
 }
+
+TEAM RENAME — "Ruth" team is now "Valentina" team: for any data dated on or after 2026-08-24
+(Valentina took over Ruth's team), use "Team Valentina" (case review: "tl": "Valentina"). Data dated
+before 2026-08-24 keeps "Team Ruth" / "Ruth". Never mix both names inside the same report period.
 
 CRITICAL — exact key names, do not substitute:
 - "previousShare" / "currentShare" are plain numbers representing a percent,
@@ -837,6 +861,10 @@ SCHEMA (use these exact keys, nesting, and types):
     }
   ]
 }
+
+TEAM RENAME — "Ruth" team is now "Valentina" team: for any data dated on or after 2026-08-24
+(Valentina took over Ruth's team), use "Team Valentina" (case review: "tl": "Valentina"). Data dated
+before 2026-08-24 keeps "Team Ruth" / "Ruth". Never mix both names inside the same report period.
 
 CRITICAL — exact key names, do not substitute:
 - Every field in "cases" is required (use "" for a genuinely empty text field —
@@ -976,6 +1004,10 @@ SCHEMA (use these exact keys, nesting, and types):
   "executiveSummary": string      // if long, separate into 2-4 short paragraphs
                                    // using a blank line ("\n\n") between them
 }
+
+TEAM RENAME — "Ruth" team is now "Valentina" team: for any data dated on or after 2026-08-24
+(Valentina took over Ruth's team), use "Team Valentina" (case review: "tl": "Valentina"). Data dated
+before 2026-08-24 keeps "Team Ruth" / "Ruth". Never mix both names inside the same report period.
 
 CRITICAL — exact key names, do not substitute:
 - Person's name is always "cdr" — never "name" or "teammate".
@@ -1172,6 +1204,10 @@ SCHEMA (use these exact keys, nesting, and types):
                                      // (e.g. CDRs with a high % but 0 volume in one funnel)
 }
 
+TEAM RENAME — "Ruth" team is now "Valentina" team: for any data dated on or after 2026-08-24
+(Valentina took over Ruth's team), use "Team Valentina" (case review: "tl": "Valentina"). Data dated
+before 2026-08-24 keeps "Team Ruth" / "Ruth". Never mix both names inside the same report period.
+
 CRITICAL — exact key names, do not substitute:
 - "cadence" is always the literal string "Weekly" for this report.
 - Every numeric field is a plain number, never a string, never including "%".
@@ -1333,6 +1369,10 @@ CORRECTIONS (only when the user says an already-logged event was wrong):
 - Delete an event that should not be in the log: send { "cdr": "...", "outcome": "...", "remove": true }.
 - Change the outcome itself (e.g. "Promoted to TL" -> "Promoted to Operations", or "Offboarded" ->
   "Quit"): send one removal for the old outcome plus the new event, in the same JSON.
+
+TEAM RENAME — "Ruth" team is now "Valentina" team: for any data dated on or after 2026-08-24
+(Valentina took over Ruth's team), use "Team Valentina" (case review: "tl": "Valentina"). Data dated
+before 2026-08-24 keeps "Team Ruth" / "Ruth". Never mix both names inside the same report period.
 
 CRITICAL — exact key names, do not substitute:
 - The only top-level key is "events". Do NOT add "metadata", "periodLabel" or "cadence" — the system

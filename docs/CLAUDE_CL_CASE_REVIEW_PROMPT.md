@@ -47,6 +47,10 @@ SCHEMA (use these exact keys, nesting, and types):
   ]
 }
 
+TEAM RENAME — "Ruth" team is now "Valentina" team: for any data dated on or after 2026-08-24
+(Valentina took over Ruth's team), use "Team Valentina" (case review: "tl": "Valentina"). Data dated
+before 2026-08-24 keeps "Team Ruth" / "Ruth". Never mix both names inside the same report period.
+
 CRITICAL — exact key names, do not substitute:
 - Every field in "cases" is required (use "" for a genuinely empty text field —
   never omit the key).

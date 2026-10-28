@@ -98,6 +98,10 @@ SCHEMA (use these exact keys, nesting, and types):
                                      // (e.g. CDRs with a high % but 0 volume in one funnel)
 }
 
+TEAM RENAME — "Ruth" team is now "Valentina" team: for any data dated on or after 2026-08-24
+(Valentina took over Ruth's team), use "Team Valentina" (case review: "tl": "Valentina"). Data dated
+before 2026-08-24 keeps "Team Ruth" / "Ruth". Never mix both names inside the same report period.
+
 CRITICAL — exact key names, do not substitute:
 - "cadence" is always the literal string "Weekly" for this report.
 - Every numeric field is a plain number, never a string, never including "%".

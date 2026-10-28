@@ -51,6 +51,10 @@ SCHEMA (use these exact keys, nesting, and types):
                                   // using a blank line ("\n\n") between them
 }
 
+TEAM RENAME — "Ruth" team is now "Valentina" team: for any data dated on or after 2026-08-24
+(Valentina took over Ruth's team), use "Team Valentina" (case review: "tl": "Valentina"). Data dated
+before 2026-08-24 keeps "Team Ruth" / "Ruth". Never mix both names inside the same report period.
+
 CRITICAL — exact key names, do not substitute:
 - Person's name is always "cdr" in outstandingPerformers and comparisonTable —
   never "name".
