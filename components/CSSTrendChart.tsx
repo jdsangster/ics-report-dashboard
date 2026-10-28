@@ -25,6 +25,23 @@ function parsePeriodStart(periodLabel: string): number {
   return Number.isNaN(parsed) ? 0 : parsed;
 }
 
+function wrapLabel(text: string, maxChars: number): string[] {
+  const lines: string[] = [];
+  let current = "";
+  for (const word of text.split(" ")) {
+    if (current && (current + " " + word).length > maxChars) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = current ? current + " " + word : word;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+const LABEL_LINE_H = 13;
+
 export default function CSSTrendChart({ reports, activeId, onSelect }: CSSTrendChartProps) {
   const points = useMemo<TrendPoint[]>(() => {
     const sorted = [...reports].sort(
@@ -58,19 +75,24 @@ export default function CSSTrendChart({ reports, activeId, onSelect }: CSSTrendC
   }
 
   const W = 640;
-  const H = 220;
   const padL = 34;
   const padR = 24;
   const padT = 34;
-  const padB = 48;
+  const innerH = 138;
   const innerW = W - padL - padR;
-  const innerH = H - padT - padB;
   const max = Math.max(...points.map((p) => p.value), 1);
-  const stepX = points.length > 1 ? innerW / (points.length - 1) : 0;
+  const stepX = points.length > 1 ? innerW / (points.length - 1) : innerW;
+  // Wrap long period labels to the room between points (~7px per char at 11px).
+  const maxChars = Math.max(10, Math.floor((stepX - 40) / 7));
+  const wrapped = points.map((p) => wrapLabel(p.label, maxChars));
+  const maxLines = Math.max(...wrapped.map((l) => l.length));
+  const padB = 14 + maxLines * LABEL_LINE_H + 22;
+  const H = padT + innerH + padB;
   const scaleY = (v: number) => padT + innerH - (v / max) * innerH;
 
   const coords = points.map((p, i) => ({
     ...p,
+    lines: wrapped[i],
     x: padL + i * stepX,
     y: scaleY(p.value),
   }));
@@ -183,11 +205,16 @@ export default function CSSTrendChart({ reports, activeId, onSelect }: CSSTrendC
                   fontSize={11}
                   fontWeight={600}
                 >
-                  {p.label}
+                  <title>{p.label}</title>
+                  {p.lines.map((line, li) => (
+                    <tspan key={li} x={labelX} dy={li === 0 ? 0 : LABEL_LINE_H}>
+                      {line}
+                    </tspan>
+                  ))}
                 </text>
                 <text
                   x={labelX}
-                  y={padT + innerH + 34}
+                  y={padT + innerH + 20 + p.lines.length * LABEL_LINE_H + 1}
                   textAnchor={anchor}
                   className="text-muted"
                   fill="currentColor"
