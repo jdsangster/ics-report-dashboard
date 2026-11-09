@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { TrendingUp } from "lucide-react";
 import { TurnoverEvent } from "@/lib/types";
-import { TEAM_LEADS, isCLPromotion, monthName } from "@/lib/turnoverUtils";
+import { teamLeadOn, isCLPromotion, monthName } from "@/lib/turnoverUtils";
 
 interface TurnoverCLPromotionsProps {
   events: TurnoverEvent[];
@@ -20,7 +20,8 @@ export default function TurnoverCLPromotions({ events }: TurnoverCLPromotionsPro
       const m = e.date.slice(0, 7);
       byMonth.set(m, (byMonth.get(m) ?? 0) + 1);
       byYear.set(m.slice(0, 4), (byYear.get(m.slice(0, 4)) ?? 0) + 1);
-      byTeam.set(e.team, (byTeam.get(e.team) ?? 0) + 1);
+      const label = `${teamLeadOn(e.team, e.date) ?? "—"} · ${e.team}`;
+      byTeam.set(label, (byTeam.get(label) ?? 0) + 1);
     }
     const months = Array.from(byMonth.entries()).sort((a, b) => (a[0] < b[0] ? 1 : -1));
     const years = Array.from(byYear.entries()).sort((a, b) => (a[0] < b[0] ? 1 : -1));
@@ -91,7 +92,6 @@ export default function TurnoverCLPromotions({ events }: TurnoverCLPromotionsPro
               <li key={team} className="text-xs">
                 <div className="mb-1 flex justify-between gap-2">
                   <span className="text-foreground">
-                    {TEAM_LEADS[team] ? `${TEAM_LEADS[team]} · ` : ""}
                     {team}
                     {i === 0 && data.teams.length > 1 && data.teams[1][1] < n && (
                       <span className="ml-2 rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-medium text-gold">

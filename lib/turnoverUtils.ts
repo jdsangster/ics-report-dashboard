@@ -57,16 +57,24 @@ export function monthName(key: string): string {
   return new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
 }
 
-/**
- * Current team lead per turnover team. The log only stores the team name, so this maps each
- * team (Team 1-4 in the roster sheet) to its lead's name.
- */
+/** Team lead per turnover team (Team 1-4 in the roster sheet), as of today. */
 export const TEAM_LEADS: Record<string, string> = {
   Titans: "Angelo",
   "The Booking Machines": "Valentina",
   Lightyear: "Mairenis",
   Academia: "Martin",
 };
+
+/** Earlier leads, used for events dated before `until` (exclusive). Valentina took over Ruth's team on 2026-08-24. */
+const PAST_TEAM_LEADS: Record<string, { lead: string; until: string }[]> = {
+  "The Booking Machines": [{ lead: "Ruth", until: "2026-08-24" }],
+};
+
+/** Team lead of `team` on the given ISO date. */
+export function teamLeadOn(team: string, date: string): string | undefined {
+  const past = PAST_TEAM_LEADS[team]?.find((p) => date < p.until);
+  return past ? past.lead : TEAM_LEADS[team];
+}
 
 /** CDR -> CL promotions only ("Promoted to CL", "Promoted to CL Onboarding"); other roles don't count. */
 export function isCLPromotion(e: TurnoverEvent): boolean {
