@@ -58,10 +58,15 @@ export function monthName(key: string): string {
 }
 
 /**
- * Current team lead per turnover team. The log only stores the team name, so fill this in to
- * show the lead's name next to each team (e.g. { Titans: "Jane Doe" }).
+ * Current team lead per turnover team. The log only stores the team name, so this maps each
+ * team (Team 1-4 in the roster sheet) to its lead's name.
  */
-export const TEAM_LEADS: Record<string, string> = {};
+export const TEAM_LEADS: Record<string, string> = {
+  Titans: "Angelo",
+  "The Booking Machines": "Valentina",
+  Lightyear: "Mairenis",
+  Academia: "Martin",
+};
 
 /** CDR -> CL promotions only ("Promoted to CL", "Promoted to CL Onboarding"); other roles don't count. */
 export function isCLPromotion(e: TurnoverEvent): boolean {
