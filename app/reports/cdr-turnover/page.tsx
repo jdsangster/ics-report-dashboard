@@ -10,6 +10,7 @@ import TurnoverSummaryCard from "@/components/TurnoverSummaryCard";
 import TurnoverGoalsCard from "@/components/TurnoverGoalsCard";
 import TurnoverQuarterlySummary from "@/components/TurnoverQuarterlySummary";
 import TurnoverMonthlyTable from "@/components/TurnoverMonthlyTable";
+import TurnoverCLPromotions from "@/components/TurnoverCLPromotions";
 import TurnoverLogTable from "@/components/TurnoverLogTable";
 
 export default function CdrTurnoverPage() {
@@ -126,6 +127,7 @@ export default function CdrTurnoverPage() {
           <TurnoverSummaryCard events={activeReport.events} />
           <TurnoverGoalsCard events={activeReport.events} />
           <TurnoverQuarterlySummary events={activeReport.events} />
+          <TurnoverCLPromotions events={activeReport.events} />
           <TurnoverMonthlyTable events={activeReport.events} />
           <TurnoverLogTable events={activeReport.events} />
         </motion.div>

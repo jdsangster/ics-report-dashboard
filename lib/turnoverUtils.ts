@@ -56,3 +56,14 @@ export function monthName(key: string): string {
   const [y, m] = key.split("-").map(Number);
   return new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
 }
+
+/**
+ * Current team lead per turnover team. The log only stores the team name, so fill this in to
+ * show the lead's name next to each team (e.g. { Titans: "Jane Doe" }).
+ */
+export const TEAM_LEADS: Record<string, string> = {};
+
+/** CDR -> CL promotions only ("Promoted to CL", "Promoted to CL Onboarding"); other roles don't count. */
+export function isCLPromotion(e: TurnoverEvent): boolean {
+  return e.outcome.startsWith("Promoted to CL");
+}
