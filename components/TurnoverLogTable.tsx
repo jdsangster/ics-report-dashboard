@@ -282,7 +282,14 @@ export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
       </div>
 
       <div className="overflow-x-auto border-t border-border-subtle">
-        <table className="w-full text-sm">
+        <table className="w-full min-w-[56rem] table-fixed text-sm">
+          <colgroup>
+            <col className="w-[12%]" />
+            <col className="w-[19%]" />
+            <col className="w-[20%]" />
+            <col className="w-[23%]" />
+            <col className="w-[26%]" />
+          </colgroup>
           <thead>
             <tr className="border-b border-border-subtle text-left text-xs uppercase tracking-wide text-muted">
               {COLUMNS.map((col) => {
@@ -334,7 +341,7 @@ export default function TurnoverLogTable({ events }: TurnoverLogTableProps) {
                       {row.outcome}
                     </span>
                   </td>
-                  <td className="min-w-[18rem] max-w-md px-5 py-2.5 text-xs text-muted">
+                  <td className="px-5 py-2.5 text-xs text-muted">
                     {row.note ?? "—"}
                   </td>
                 </tr>
