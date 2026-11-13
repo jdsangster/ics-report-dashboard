@@ -1,6 +1,6 @@
 # Colombo&Hurd Reports Center
 
-Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics), **SF Weekly Report** (Short Funnel coverage vs. target, by CDR), **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention), **CL Case Review** (searchable CDR & Setter case log), **Weekend Report** (weekend IC production, day-by-day attention matrix), **IC and Show Up Rate** (ICS Ratio Ranking — CDRs grouped into performance tiers from Elite to Critical Opportunity Area), **IC Inconsistency** (BI vs. Excel IC count mismatches and the disposition errors behind them), **Operational Complaint Analysis (CSS)** (weekly complaint volume, category distribution, and CDR ranking), **CDR Conversion Tracker** ("The 70% Club" — ICs-over-Qualified-PCs conversion ranking, filtered to a reliable volume in both Short Funnel and Campaigns), and **CDR Turnover Report** (a running log of offboardings, resignations, and promotions). More report types are added the same way as they're needed.
+Executive reporting hub for Colombo&Hurd. A landing page lets you pick a report type; each one gets its own dashboard. Live report types today: **ICS Performance** (Daily / Weekend / Weekly inbound call metrics), **SF Weekly Report** (Short Funnel coverage vs. target, by CDR), **Total Calls Report** (weekly call volume, team/individual performance, contributors needing attention), **CL Case Review** (searchable CDR & Setter case log), **Weekend Report** (weekend IC production, day-by-day attention matrix), **IC and Show Up Rate** (ICS Ratio Ranking — CDRs grouped into performance tiers from Elite to Critical Opportunity Area), **IC Inconsistency** (BI vs. Excel IC count mismatches and the disposition errors behind them), **Operational Complaint Analysis (CSS)** (weekly complaint volume, category distribution, and CDR ranking), **CDR Conversion Tracker** ("The 70% Club" — ICs-over-Qualified-PCs conversion ranking, filtered to a reliable volume in both Short Funnel and Campaigns), **CDR Turnover Report** (a running log of offboardings, resignations, and promotions), and **CDR Scorecard** (call reviews by team lead — coverage per lead, reviews per week, overdue CDRs). More report types are added the same way as they're needed.
 
 Built with Next.js (App Router), Tailwind CSS, and Supabase, with a password-protected internal `/admin` page for publishing new reports — no SharePoint, Power Automate, or IT dependency required to ship a new report.
 
@@ -59,7 +59,7 @@ An `app/api/reports/webhook/route.ts` endpoint (API-key protected) also exists a
 
 ```
 app/
-  page.tsx                          Reports Center landing page — pick a report type
+  page.tsx                          Reports Center landing page — pick a report type; "For María Antonia" priority section (components/PriorityReports.tsx) on top
   admin/page.tsx                    Password-gated report publishing page
   reports/
     ics/page.tsx                    ICS Performance dashboard (live)
@@ -72,6 +72,7 @@ app/
     operational-complaints/page.tsx CSS Analysis Report (complaint volume, distribution, CDR ranking) dashboard (live)
     conversion-tracker/page.tsx     CDR Conversion Tracker ("The 70% Club") dashboard (live)
     cdr-turnover/page.tsx           CDR Turnover Report (offboardings, resignations, promotions) dashboard (live)
+    cdr-scorecard/page.tsx          CDR Scorecard (call reviews by team lead) dashboard (live)
     [slug]/page.tsx                 "Coming soon" placeholder for not-yet-built report types
   api/
     reports/route.ts                GET ?type=<slug> — list reports of that type (mock or Supabase)
@@ -133,6 +134,8 @@ lib/
   cssMockData.ts                     Simulated CSS Analysis Report for demo mode
   conversionTrackerMockData.ts       Simulated CDR Conversion Tracker report for demo mode
   turnoverMockData.ts                Simulated CDR Turnover Report for demo mode
+  scorecardMockData.ts / scorecardUtils.ts
+                                      CDR Scorecard demo data and per-team-lead stats
   supabaseClient.ts                  Server-only Supabase client (service role key)
   adminAuth.ts                       Password check + session cookie helpers
   utils.ts                           Formatting + badge/status style helpers + paragraph splitting
@@ -443,11 +446,11 @@ All reads/writes go through the service role key inside API routes, so Row Level
 ## Publishing a report (day-to-day workflow)
 
 1. Export the data from Power BI as you already do.
-2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_ICS_REPORT_PROMPT.md`](docs/CLAUDE_ICS_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_SF_WEEKLY_PROMPT.md`](docs/CLAUDE_SF_WEEKLY_PROMPT.md) for SF Weekly, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls, [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md) for Weekend, [`docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md`](docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md) for CL Case Review (paste the CSV export instead of a narrative report), [`docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md`](docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md) for IC and Show Up Rate, [`docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md`](docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md) for IC Inconsistency, [`docs/CLAUDE_CSS_ANALYSIS_PROMPT.md`](docs/CLAUDE_CSS_ANALYSIS_PROMPT.md) for Operational Complaint Analysis (CSS), [`docs/CLAUDE_CDR_CONVERSION_TRACKER_PROMPT.md`](docs/CLAUDE_CDR_CONVERSION_TRACKER_PROMPT.md) for the CDR Conversion Tracker (paste the three raw Power BI exports instead of a narrative report), [`docs/CLAUDE_CDR_TURNOVER_PROMPT.md`](docs/CLAUDE_CDR_TURNOVER_PROMPT.md) for the CDR Turnover Report (update as changes happen, not on a schedule) — so it outputs the JSON block.
+2. Run it through your Claude report chat, using the matching prompt — [`docs/CLAUDE_ICS_REPORT_PROMPT.md`](docs/CLAUDE_ICS_REPORT_PROMPT.md) for ICS, [`docs/CLAUDE_SF_WEEKLY_PROMPT.md`](docs/CLAUDE_SF_WEEKLY_PROMPT.md) for SF Weekly, [`docs/CLAUDE_TOTAL_CALLS_PROMPT.md`](docs/CLAUDE_TOTAL_CALLS_PROMPT.md) for Total Calls, [`docs/CLAUDE_WEEKEND_REPORT_PROMPT.md`](docs/CLAUDE_WEEKEND_REPORT_PROMPT.md) for Weekend, [`docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md`](docs/CLAUDE_CL_CASE_REVIEW_PROMPT.md) for CL Case Review (paste the CSV export instead of a narrative report), [`docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md`](docs/CLAUDE_IC_SHOW_UP_RATE_PROMPT.md) for IC and Show Up Rate, [`docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md`](docs/CLAUDE_IC_INCONSISTENCY_PROMPT.md) for IC Inconsistency, [`docs/CLAUDE_CSS_ANALYSIS_PROMPT.md`](docs/CLAUDE_CSS_ANALYSIS_PROMPT.md) for Operational Complaint Analysis (CSS), [`docs/CLAUDE_CDR_CONVERSION_TRACKER_PROMPT.md`](docs/CLAUDE_CDR_CONVERSION_TRACKER_PROMPT.md) for the CDR Conversion Tracker (paste the three raw Power BI exports instead of a narrative report), [`docs/CLAUDE_CDR_TURNOVER_PROMPT.md`](docs/CLAUDE_CDR_TURNOVER_PROMPT.md) for the CDR Turnover Report (update as changes happen, not on a schedule), [`docs/CLAUDE_CDR_SCORECARD_PROMPT.md`](docs/CLAUDE_CDR_SCORECARD_PROMPT.md) for the CDR Scorecard (attach the scorecard workbook) — so it outputs the JSON block.
 3. Go to `/admin`, log in with `ADMIN_PASSWORD`.
 4. Pick the matching report type from the **Tipo de reporte** dropdown.
 5. Paste the JSON block, click **Publicar reporte**.
-6. It appears immediately at `/reports/ics`, `/reports/sf-weekly`, `/reports/total-calls`, `/reports/weekend-report`, `/reports/cl-case-review`, `/reports/ic-show-up-rate`, `/reports/ic-inconsistency`, `/reports/operational-complaints`, `/reports/conversion-tracker`, or `/reports/cdr-turnover`.
+6. It appears immediately at `/reports/ics`, `/reports/sf-weekly`, `/reports/total-calls`, `/reports/weekend-report`, `/reports/cl-case-review`, `/reports/ic-show-up-rate`, `/reports/ic-inconsistency`, `/reports/operational-complaints`, `/reports/conversion-tracker`, `/reports/cdr-turnover`, or `/reports/cdr-scorecard`.
 
 ## Local development
 

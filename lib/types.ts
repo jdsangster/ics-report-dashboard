@@ -578,3 +578,49 @@ export interface TurnoverData extends TurnoverPayload {
   id: string;
   createdAt?: string;
 }
+
+// ---------------------------------------------------------------------------
+// CDR Scorecard (call reviews by team lead)
+// ---------------------------------------------------------------------------
+
+export type ScorecardStatus = "Up to date" | "Outdated" | "Not reviewed";
+
+export interface ScorecardMetadata {
+  reportType: string;
+  cadence: Cadence;
+  periodLabel: string;
+}
+
+export interface ScorecardCdr {
+  cdr: string;
+  /** Team lead's first name: Angelo | Valentina | Mairenis | Martin. */
+  teamLead: string;
+  /** Total call reviews logged for this CDR. */
+  callsReviewed: number;
+  /** ISO "YYYY-MM-DD" of the most recent review; omitted when never reviewed. */
+  lastReviewed?: string;
+  daysSinceReview?: number;
+  status: ScorecardStatus;
+}
+
+export interface ScorecardWeek {
+  /** "MM/DD – MM/DD" (Monday – Sunday). */
+  label: string;
+  /** Call reviews logged that week, per team lead. */
+  byLead: { teamLead: string; calls: number }[];
+}
+
+/** Shape stored in Supabase's `reports.data` JSONB column for the CDR Scorecard report type. */
+export interface ScorecardPayload {
+  metadata: ScorecardMetadata;
+  /** ISO "YYYY-MM-DD" the scorecard was read on. */
+  asOf: string;
+  cdrs: ScorecardCdr[];
+  /** Oldest first; the last entry is the most recent (possibly partial) week. */
+  weeks: ScorecardWeek[];
+}
+
+export interface ScorecardData extends ScorecardPayload {
+  id: string;
+  createdAt?: string;
+}

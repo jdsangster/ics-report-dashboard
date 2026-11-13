@@ -7,6 +7,7 @@ import {
   ICSInconsistencyPayload,
   ICSRatioPayload,
   ReportPayload,
+  ScorecardPayload,
   SFWeeklyPayload,
   TotalCallsPayload,
   TurnoverPayload,
@@ -23,7 +24,8 @@ export type ReportTypeSlug =
   | "ic-inconsistency"
   | "operational-complaints"
   | "conversion-tracker"
-  | "cdr-turnover";
+  | "cdr-turnover"
+  | "cdr-scorecard";
 
 export const REPORT_TYPE_SLUGS: ReportTypeSlug[] = [
   "ics",
@@ -36,6 +38,7 @@ export const REPORT_TYPE_SLUGS: ReportTypeSlug[] = [
   "operational-complaints",
   "conversion-tracker",
   "cdr-turnover",
+  "cdr-scorecard",
 ];
 
 type AnyReportPayload =
@@ -48,7 +51,8 @@ type AnyReportPayload =
   | ICSInconsistencyPayload
   | CSSPayload
   | ConversionTrackerPayload
-  | TurnoverPayload;
+  | TurnoverPayload
+  | ScorecardPayload;
 
 export function isValidReportPayload(body: unknown): body is ReportPayload {
   if (!body || typeof body !== "object") return false;
@@ -440,6 +444,50 @@ export function normalizeTurnoverPayload(payload: TurnoverPayload): TurnoverPayl
   };
 }
 
+const SCORECARD_STATUSES = ["Up to date", "Outdated", "Not reviewed"];
+
+export function isValidScorecardPayload(body: unknown): body is ScorecardPayload {
+  if (!body || typeof body !== "object") return false;
+  const b = body as Record<string, unknown>;
+  const m = b.metadata as Record<string, unknown> | undefined;
+  if (
+    !m ||
+    typeof m !== "object" ||
+    typeof m.cadence !== "string" ||
+    typeof m.periodLabel !== "string" ||
+    typeof b.asOf !== "string" ||
+    !Array.isArray(b.cdrs) ||
+    b.cdrs.length === 0 ||
+    !Array.isArray(b.weeks)
+  ) {
+    return false;
+  }
+  const cdrsOk = (b.cdrs as unknown[]).every((c) => {
+    const r = c as Record<string, unknown>;
+    return (
+      typeof r.cdr === "string" &&
+      typeof r.teamLead === "string" &&
+      typeof r.callsReviewed === "number" &&
+      typeof r.status === "string" &&
+      SCORECARD_STATUSES.includes(r.status) &&
+      (r.lastReviewed === undefined || typeof r.lastReviewed === "string") &&
+      (r.daysSinceReview === undefined || typeof r.daysSinceReview === "number")
+    );
+  });
+  if (!cdrsOk) return false;
+  return (b.weeks as unknown[]).every((w) => {
+    const r = w as Record<string, unknown>;
+    return (
+      typeof r.label === "string" &&
+      Array.isArray(r.byLead) &&
+      (r.byLead as unknown[]).every((l) => {
+        const x = l as Record<string, unknown>;
+        return typeof x.teamLead === "string" && typeof x.calls === "number";
+      })
+    );
+  });
+}
+
 export function isValidReportPayloadFor(
   reportType: ReportTypeSlug,
   body: unknown
@@ -453,6 +501,7 @@ export function isValidReportPayloadFor(
   if (reportType === "operational-complaints") return isValidCSSPayload(body);
   if (reportType === "conversion-tracker") return isValidConversionTrackerPayload(body);
   if (reportType === "cdr-turnover") return isValidTurnoverPayload(body);
+  if (reportType === "cdr-scorecard") return isValidScorecardPayload(body);
   return isValidReportPayload(body);
 }
 

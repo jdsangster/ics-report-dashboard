@@ -2,6 +2,7 @@ import {
   Activity,
   AlertTriangle,
   CalendarDays,
+  ClipboardCheck,
   Gavel,
   LogOut,
   MessageSquareWarning,
@@ -91,6 +92,13 @@ export const reportTypes: ReportTypeMeta[] = [
     name: "CDR Turnover Report",
     description: "Log of CDR offboardings, resignations, and promotions, with the reason behind each exit, by team and date.",
     icon: LogOut,
+    status: "live",
+  },
+  {
+    slug: "cdr-scorecard",
+    name: "CDR Scorecard",
+    description: "Call reviews by team lead — who is reviewing the most of their CDRs, calls reviewed per week, and which CDRs are overdue.",
+    icon: ClipboardCheck,
     status: "live",
   },
 ];

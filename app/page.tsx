@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { reportTypes } from "@/lib/reportTypes";
 import ReportTypeCard from "@/components/ReportTypeCard";
 import BrandLogo from "@/components/BrandLogo";
+import PriorityReports from "@/components/PriorityReports";
 
 export default function ReportsHub() {
   return (
@@ -23,6 +24,8 @@ export default function ReportsHub() {
       </header>
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10">
+        <PriorityReports />
+
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -30,7 +33,7 @@ export default function ReportsHub() {
           className="mb-8"
         >
           <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-            Select a report
+            All reports
           </h2>
           <p className="mt-1 text-sm text-muted">
             Choose a report type to view its executive dashboard.
