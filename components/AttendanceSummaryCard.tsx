@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { AttendanceData } from "@/lib/types";
-import { attended, leadAttendance, shortDate, teamLabel, weekdayOf } from "@/lib/attendanceUtils";
+import { attended, isExcused, leadAttendance, shortDate, teamLabel, weekdayOf } from "@/lib/attendanceUtils";
 
 interface AttendanceSummaryCardProps {
   /** Meetings, oldest first. */
@@ -13,14 +13,15 @@ interface AttendanceSummaryCardProps {
 export default function AttendanceSummaryCard({ meetings }: AttendanceSummaryCardProps) {
   const { latest, latestPct, overallPct, lowest, unique } = useMemo(() => {
     const latest = meetings[meetings.length - 1];
-    const present = latest.records.filter((r) => attended(r, latest.meeting.durationMinutes)).length;
+    const eligible = latest.records.filter((r) => !isExcused(r, latest.meeting.durationMinutes));
+    const present = eligible.filter((r) => attended(r, latest.meeting.durationMinutes)).length;
     const leads = leadAttendance(meetings);
     const seats = leads.reduce((s, l) => s + l.seats, 0);
     const overallPresent = leads.reduce((s, l) => s + l.present, 0);
     const lowest = leads[leads.length - 1];
     return {
       latest,
-      latestPct: latest.records.length ? (present / latest.records.length) * 100 : 0,
+      latestPct: eligible.length ? (present / eligible.length) * 100 : 0,
       overallPct: seats ? (overallPresent / seats) * 100 : 0,
       lowest,
       unique: leads.length > 1 && lowest.pct < leads[leads.length - 2].pct,

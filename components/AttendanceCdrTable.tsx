@@ -17,9 +17,10 @@ const STATUS_STYLES = {
   present: "border-success/30 bg-success/10 text-success",
   partial: "border-gold/30 bg-gold/10 text-gold",
   absent: "border-danger/30 bg-danger/10 text-danger",
+  excused: "border-border-subtle bg-surface-elevated text-muted",
 } as const;
 
-const STATUS_LABEL = { present: "Present", partial: "Left early / late", absent: "Absent" } as const;
+const STATUS_LABEL = { present: "Present", partial: "Left early / late", absent: "Absent", excused: "Excused (schedule)" } as const;
 
 function Select({ value, onChange, children }: { value: string; onChange: (v: string) => void; children: React.ReactNode }) {
   return (
@@ -48,7 +49,7 @@ export default function AttendanceCdrTable({ meetings }: AttendanceCdrTableProps
     () =>
       all
         .filter((c) => lead === "all" || c.teamLead === lead)
-        .filter((c) => (status === "all" ? true : status === "missed" ? c.latest !== "present" : c.latest === status)),
+        .filter((c) => (status === "all" ? true : status === "missed" ? c.latest !== "present" && c.latest !== "excused" : c.latest === status)),
     [all, lead, status]
   );
   const visible = expanded ? rows : rows.slice(0, VISIBLE_COUNT);
@@ -84,6 +85,7 @@ export default function AttendanceCdrTable({ meetings }: AttendanceCdrTableProps
             <option value="present">Present</option>
             <option value="partial">Left early / late</option>
             <option value="absent">Absent</option>
+            <option value="excused">Excused (schedule)</option>
           </Select>
         </div>
       </div>
@@ -121,7 +123,7 @@ export default function AttendanceCdrTable({ meetings }: AttendanceCdrTableProps
                   {c.latestMinutes === null ? "–" : `${c.latestMinutes} / ${latest.meeting.durationMinutes}`}
                 </td>
                 <td className="px-5 py-2.5 text-right text-foreground">
-                  {c.present}/{c.meetings} <span className="text-muted">({Math.round(c.pct)}%)</span>
+                  {c.meetings ? (<>{c.present}/{c.meetings} <span className="text-muted">({Math.round(c.pct)}%)</span></>) : <span className="text-muted">–</span>}
                 </td>
               </tr>
             ))}

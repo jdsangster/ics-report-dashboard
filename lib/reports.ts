@@ -516,7 +516,7 @@ export function isValidAttendancePayload(body: unknown): body is AttendancePaylo
   }
   return (b.records as unknown[]).every((r) => {
     const x = r as Record<string, unknown>;
-    return typeof x.cdr === "string" && typeof x.teamLead === "string" && typeof x.minutes === "number" && x.minutes >= 0;
+    return typeof x.cdr === "string" && typeof x.teamLead === "string" && typeof x.minutes === "number" && x.minutes >= 0 && (x.excused === undefined || typeof x.excused === "boolean");
   });
 }
 

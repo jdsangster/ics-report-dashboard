@@ -41,7 +41,7 @@ export default function AttendanceTeamCard({ meetings }: AttendanceTeamCardProps
         </div>
         <p className="text-xs text-muted">
           Share of each team&apos;s CDRs who were in the meeting for at least {Math.round(ATTENDANCE_THRESHOLD * 100)}% of
-          it, across all meetings. Lowest at the bottom.
+          it, across all meetings. CDRs who can't attend because of their schedule (day off) are left out. Lowest at the bottom.
         </p>
       </div>
       <div className="overflow-x-auto">
@@ -50,7 +50,7 @@ export default function AttendanceTeamCard({ meetings }: AttendanceTeamCardProps
             <tr className="border-b border-border-subtle text-left text-xs uppercase tracking-wide text-muted">
               <th className="px-5 py-3 font-medium">Team</th>
               <th className="px-5 py-3 font-medium">Attendance</th>
-              <th className="px-5 py-3 text-right font-medium">CDRs</th>
+              <th className="px-5 py-3 text-right font-medium">Can attend</th>
               {columns.map((m) => (
                 <th key={m.meeting.date} className="px-5 py-3 text-right font-medium">
                   {shortDate(m.meeting.date)}
@@ -60,7 +60,9 @@ export default function AttendanceTeamCard({ meetings }: AttendanceTeamCardProps
           </thead>
           <tbody>
             {stats.map((s, i) => {
-              const roster = s.perMeeting[s.perMeeting.length - 1]?.seats ?? 0;
+              const last = s.perMeeting[s.perMeeting.length - 1];
+              const roster = last?.seats ?? 0;
+              const excused = last?.excused ?? 0;
               return (
                 <tr key={s.lead} className="border-b border-border-subtle/60 last:border-0">
                   <td className="px-5 py-3">
@@ -87,7 +89,10 @@ export default function AttendanceTeamCard({ meetings }: AttendanceTeamCardProps
                       </span>
                     </div>
                   </td>
-                  <td className="px-5 py-3 text-right text-muted">{roster}</td>
+                  <td className="px-5 py-3 text-right text-muted">
+                    {roster}
+                    {excused > 0 && <span className="block text-[10px]">{excused} excused</span>}
+                  </td>
                   {columns.map((m) => {
                     const p = s.perMeeting.find((x) => x.date === m.meeting.date);
                     return (

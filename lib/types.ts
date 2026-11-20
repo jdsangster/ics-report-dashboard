@@ -652,6 +652,8 @@ export interface AttendanceRecord {
   teamLead: string;
   /** Minutes the CDR was in the meeting between start and end (0 when absent). */
   minutes: number;
+  /** true when the CDR couldn't attend because of their schedule (day off or shift). Omitted otherwise. */
+  excused?: boolean;
 }
 
 /** Shape stored in Supabase's `reports.data` JSONB column for the CDR Attendance report type: one row per meeting. */
