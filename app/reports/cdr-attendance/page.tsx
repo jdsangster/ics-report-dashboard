@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown } from "lucide-react";
 import { AttendanceData } from "@/lib/types";
 import { ATTENDANCE_THRESHOLD, meetingsOldestFirst, shortDate, weekdayOf } from "@/lib/attendanceUtils";
 import BrandLogo from "@/components/BrandLogo";
@@ -15,6 +15,7 @@ export default function CdrAttendancePage() {
   const [reports, setReports] = useState<AttendanceData[]>([]);
   const [source, setSource] = useState<"mock" | "live" | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState("all");
 
   useEffect(() => {
     let cancelled = false;
@@ -31,7 +32,12 @@ export default function CdrAttendancePage() {
     };
   }, []);
 
-  const meetings = useMemo(() => meetingsOldestFirst(reports), [reports]);
+  const allMeetings = useMemo(() => meetingsOldestFirst(reports), [reports]);
+  // One meeting picked from the dropdown, or every meeting stacked together.
+  const meetings = useMemo(() => {
+    const one = allMeetings.filter((m) => m.meeting.date === selected);
+    return one.length > 0 ? one : allMeetings;
+  }, [allMeetings, selected]);
 
   if (loading) {
     return (
@@ -41,7 +47,7 @@ export default function CdrAttendancePage() {
     );
   }
 
-  if (meetings.length === 0) {
+  if (allMeetings.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 text-sm text-muted">
         <p>No reports available yet.</p>
@@ -77,9 +83,25 @@ export default function CdrAttendancePage() {
               <p className="text-xs text-muted">Tuesday &amp; Friday CDR meetings</p>
             </div>
           </div>
-          <span className="w-fit rounded-lg border border-border-subtle bg-surface px-3 py-2 text-xs font-medium text-muted">
-            Last meeting {weekdayOf(latest.meeting.date)} {shortDate(latest.meeting.date)}
-          </span>
+          <div className="relative">
+            <select
+              value={meetings.length === 1 ? meetings[0].meeting.date : "all"}
+              onChange={(e) => setSelected(e.target.value)}
+              aria-label="Meeting"
+              className="appearance-none rounded-lg border border-border-subtle bg-surface px-3 py-2 pr-8 text-xs font-medium text-foreground outline-none focus:border-accent"
+            >
+              <option value="all">All meetings ({allMeetings.length})</option>
+              {[...allMeetings].reverse().map((m) => (
+                <option key={m.meeting.date} value={m.meeting.date}>
+                  {weekdayOf(m.meeting.date)} {shortDate(m.meeting.date)}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={14}
+              className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-muted"
+            />
+          </div>
         </div>
       </header>
 

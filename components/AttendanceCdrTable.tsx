@@ -68,8 +68,7 @@ export default function AttendanceCdrTable({ meetings }: AttendanceCdrTableProps
             <h2 className="text-sm font-semibold text-foreground">CDR Attendance</h2>
           </div>
           <p className="text-xs text-muted">
-            Status is for the latest meeting ({weekdayOf(latest.meeting.date)} {shortDate(latest.meeting.date)}); lowest
-            overall attendance first.
+            Status is for {weekdayOf(latest.meeting.date)} {shortDate(latest.meeting.date)}; lowest attendance first.
           </p>
         </div>
         <div className="flex gap-2">
@@ -80,7 +79,7 @@ export default function AttendanceCdrTable({ meetings }: AttendanceCdrTableProps
             ))}
           </Select>
           <Select value={status} onChange={(v) => { setStatus(v); setExpanded(false); }}>
-            <option value="missed">Missed the latest</option>
+            <option value="missed">Missed this meeting</option>
             <option value="all">All CDRs</option>
             <option value="present">Present</option>
             <option value="partial">Left early / late</option>
@@ -95,7 +94,7 @@ export default function AttendanceCdrTable({ meetings }: AttendanceCdrTableProps
             <tr className="border-b border-border-subtle text-left text-xs uppercase tracking-wide text-muted">
               <th className="px-5 py-3 font-medium">CDR</th>
               <th className="px-5 py-3 font-medium">Team lead</th>
-              <th className="px-5 py-3 font-medium">Latest meeting</th>
+              <th className="px-5 py-3 font-medium">Status</th>
               <th className="px-5 py-3 text-right font-medium">Minutes</th>
               <th className="px-5 py-3 text-right font-medium">Attended</th>
             </tr>

@@ -41,7 +41,7 @@ export default function AttendanceTeamCard({ meetings }: AttendanceTeamCardProps
         </div>
         <p className="text-xs text-muted">
           Share of each team&apos;s CDRs who were in the meeting for at least {Math.round(ATTENDANCE_THRESHOLD * 100)}% of
-          it, across all meetings. CDRs who can't attend because of their schedule (day off) are left out. Lowest at the bottom.
+          it{meetings.length > 1 ? ", across all meetings" : " in this meeting"}. CDRs who can't attend because of their schedule (day off) are left out. Lowest at the bottom.
         </p>
       </div>
       <div className="overflow-x-auto">

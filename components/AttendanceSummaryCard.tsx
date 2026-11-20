@@ -11,7 +11,7 @@ interface AttendanceSummaryCardProps {
 }
 
 export default function AttendanceSummaryCard({ meetings }: AttendanceSummaryCardProps) {
-  const { latest, latestPct, overallPct, lowest, unique } = useMemo(() => {
+  const { latest, latestPct, overallPct, excused, lowest, unique } = useMemo(() => {
     const latest = meetings[meetings.length - 1];
     const eligible = latest.records.filter((r) => !isExcused(r, latest.meeting.durationMinutes));
     const present = eligible.filter((r) => attended(r, latest.meeting.durationMinutes)).length;
@@ -23,6 +23,7 @@ export default function AttendanceSummaryCard({ meetings }: AttendanceSummaryCar
       latest,
       latestPct: eligible.length ? (present / eligible.length) * 100 : 0,
       overallPct: seats ? (overallPresent / seats) * 100 : 0,
+      excused: leads.reduce((s, l) => s + l.excused, 0),
       lowest,
       unique: leads.length > 1 && lowest.pct < leads[leads.length - 2].pct,
     };
@@ -31,11 +32,13 @@ export default function AttendanceSummaryCard({ meetings }: AttendanceSummaryCar
   const items = [
     { label: "Meetings tracked", value: meetings.length, tone: "text-foreground" },
     {
-      label: `Latest meeting · ${weekdayOf(latest.meeting.date)} ${shortDate(latest.meeting.date)}`,
+      label: `${meetings.length > 1 ? "Latest meeting" : "Meeting"} · ${weekdayOf(latest.meeting.date)} ${shortDate(latest.meeting.date)}`,
       value: `${Math.round(latestPct)}%`,
       tone: "text-accent",
     },
-    { label: "Overall attendance", value: `${Math.round(overallPct)}%`, tone: "text-foreground" },
+    meetings.length > 1
+      ? { label: "Overall attendance", value: `${Math.round(overallPct)}%`, tone: "text-foreground" }
+      : { label: "Excused by schedule", value: excused, tone: "text-muted" },
     {
       label: unique ? "Lowest attendance" : "Lowest attendance (tied)",
       value: `${teamLabel(lowest.lead)} · ${Math.round(lowest.pct)}%`,
