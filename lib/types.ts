@@ -624,3 +624,45 @@ export interface ScorecardData extends ScorecardPayload {
   id: string;
   createdAt?: string;
 }
+
+// ---------------------------------------------------------------------------
+// CDR Attendance (CDR meetings, from the Zoom participants export)
+// ---------------------------------------------------------------------------
+
+export interface AttendanceMetadata {
+  reportType: string;
+  cadence: Cadence;
+  periodLabel: string;
+}
+
+export interface AttendanceMeeting {
+  /** ISO "YYYY-MM-DD" of the meeting (Tuesdays and Fridays). */
+  date: string;
+  /** "HH:mm" (24h): when the CDRs were admitted from the waiting room. */
+  start: string;
+  /** "HH:mm" (24h): when the meeting ended. */
+  end: string;
+  /** Minutes between start and end; the 90% attendance rule is measured against this. */
+  durationMinutes: number;
+}
+
+export interface AttendanceRecord {
+  cdr: string;
+  /** Team lead's first name: Angelo | Valentina | Mairenis | Martin. */
+  teamLead: string;
+  /** Minutes the CDR was in the meeting between start and end (0 when absent). */
+  minutes: number;
+}
+
+/** Shape stored in Supabase's `reports.data` JSONB column for the CDR Attendance report type: one row per meeting. */
+export interface AttendancePayload {
+  metadata: AttendanceMetadata;
+  meeting: AttendanceMeeting;
+  /** Every CDR on the active roster, including the ones who did not join. */
+  records: AttendanceRecord[];
+}
+
+export interface AttendanceData extends AttendancePayload {
+  id: string;
+  createdAt?: string;
+}

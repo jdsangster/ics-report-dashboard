@@ -35,7 +35,11 @@ const PRIORITY_ITEMS: PriorityItem[] = [
     slug: "cdr-turnover",
     reportName: "CDR Turnover Report",
   },
-  { question: "Which team has the lowest attendance at the CDR meetings?" },
+  {
+    question: "Which team has the lowest attendance at the CDR meetings?",
+    slug: "cdr-attendance",
+    reportName: "CDR Attendance",
+  },
 ];
 
 export default function PriorityReports() {

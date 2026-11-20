@@ -10,6 +10,7 @@ import { mockCSSReports } from "@/lib/cssMockData";
 import { mockConversionTrackerReports } from "@/lib/conversionTrackerMockData";
 import { mockTurnoverReports } from "@/lib/turnoverMockData";
 import { mockScorecardReports } from "@/lib/scorecardMockData";
+import { mockAttendanceReports } from "@/lib/attendanceMockData";
 import { getSupabaseServerClient, REPORTS_TABLE } from "@/lib/supabaseClient";
 import {
   CaseReviewData,
@@ -19,6 +20,7 @@ import {
   ICSInconsistencyData,
   ReportData,
   ScorecardData,
+  AttendanceData,
   SFWeeklyData,
   TotalCallsData,
   TurnoverData,
@@ -40,6 +42,7 @@ function getMockReports(reportType: ReportTypeSlug) {
   if (reportType === "conversion-tracker") return mockConversionTrackerReports;
   if (reportType === "cdr-turnover") return mockTurnoverReports;
   if (reportType === "cdr-scorecard") return mockScorecardReports;
+  if (reportType === "cdr-attendance") return mockAttendanceReports;
   return mockReports;
 }
 
@@ -115,6 +118,7 @@ export async function GET(req: NextRequest) {
     | ConversionTrackerData
     | TurnoverData
     | ScorecardData
+    | AttendanceData
   )[] = (data ?? []).map((row) => ({
     id: row.id,
     createdAt: row.created_at,

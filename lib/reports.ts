@@ -2,6 +2,7 @@ import { getSupabaseServerClient, REPORTS_TABLE } from "./supabaseClient";
 import { turnoverPeriodLabel } from "./turnoverMerge";
 import {
   CaseReviewPayload,
+  AttendancePayload,
   ConversionTrackerPayload,
   CSSPayload,
   ICSInconsistencyPayload,
@@ -25,7 +26,8 @@ export type ReportTypeSlug =
   | "operational-complaints"
   | "conversion-tracker"
   | "cdr-turnover"
-  | "cdr-scorecard";
+  | "cdr-scorecard"
+  | "cdr-attendance";
 
 export const REPORT_TYPE_SLUGS: ReportTypeSlug[] = [
   "ics",
@@ -39,6 +41,7 @@ export const REPORT_TYPE_SLUGS: ReportTypeSlug[] = [
   "conversion-tracker",
   "cdr-turnover",
   "cdr-scorecard",
+  "cdr-attendance",
 ];
 
 type AnyReportPayload =
@@ -52,7 +55,8 @@ type AnyReportPayload =
   | CSSPayload
   | ConversionTrackerPayload
   | TurnoverPayload
-  | ScorecardPayload;
+  | ScorecardPayload
+  | AttendancePayload;
 
 export function isValidReportPayload(body: unknown): body is ReportPayload {
   if (!body || typeof body !== "object") return false;
@@ -488,6 +492,34 @@ export function isValidScorecardPayload(body: unknown): body is ScorecardPayload
   });
 }
 
+export function isValidAttendancePayload(body: unknown): body is AttendancePayload {
+  if (!body || typeof body !== "object") return false;
+  const b = body as Record<string, unknown>;
+  const m = b.metadata as Record<string, unknown> | undefined;
+  const mt = b.meeting as Record<string, unknown> | undefined;
+  if (
+    !m ||
+    typeof m !== "object" ||
+    typeof m.cadence !== "string" ||
+    typeof m.periodLabel !== "string" ||
+    !mt ||
+    typeof mt !== "object" ||
+    typeof mt.date !== "string" ||
+    typeof mt.start !== "string" ||
+    typeof mt.end !== "string" ||
+    typeof mt.durationMinutes !== "number" ||
+    mt.durationMinutes <= 0 ||
+    !Array.isArray(b.records) ||
+    b.records.length === 0
+  ) {
+    return false;
+  }
+  return (b.records as unknown[]).every((r) => {
+    const x = r as Record<string, unknown>;
+    return typeof x.cdr === "string" && typeof x.teamLead === "string" && typeof x.minutes === "number" && x.minutes >= 0;
+  });
+}
+
 export function isValidReportPayloadFor(
   reportType: ReportTypeSlug,
   body: unknown
@@ -502,6 +534,7 @@ export function isValidReportPayloadFor(
   if (reportType === "conversion-tracker") return isValidConversionTrackerPayload(body);
   if (reportType === "cdr-turnover") return isValidTurnoverPayload(body);
   if (reportType === "cdr-scorecard") return isValidScorecardPayload(body);
+  if (reportType === "cdr-attendance") return isValidAttendancePayload(body);
   return isValidReportPayload(body);
 }
 
