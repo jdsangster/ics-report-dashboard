@@ -288,12 +288,6 @@ export const mockAttendanceReports: AttendanceData[] = [
         "excused": true
       },
       {
-        "cdr": "Joaquin Castillo",
-        "teamLead": "Martin",
-        "minutes": 0,
-        "excused": true
-      },
-      {
         "cdr": "Leonardo De Rezende",
         "teamLead": "Martin",
         "minutes": 0,
@@ -325,18 +319,6 @@ export const mockAttendanceReports: AttendanceData[] = [
         "cdr": "Richard Silva",
         "teamLead": "Martin",
         "minutes": 59
-      },
-      {
-        "cdr": "Sebastian Balao",
-        "teamLead": "Martin",
-        "minutes": 0,
-        "excused": true
-      },
-      {
-        "cdr": "Sebastian Estrello",
-        "teamLead": "Martin",
-        "minutes": 0,
-        "excused": true
       },
       {
         "cdr": "Suellen Grabowski",
@@ -629,11 +611,6 @@ export const mockAttendanceReports: AttendanceData[] = [
         "minutes": 42
       },
       {
-        "cdr": "Joaquin Castillo",
-        "teamLead": "Martin",
-        "minutes": 0
-      },
-      {
         "cdr": "Leonardo De Rezende",
         "teamLead": "Martin",
         "minutes": 42
@@ -665,16 +642,6 @@ export const mockAttendanceReports: AttendanceData[] = [
         "teamLead": "Martin",
         "minutes": 0,
         "excused": true
-      },
-      {
-        "cdr": "Sebastian Balao",
-        "teamLead": "Martin",
-        "minutes": 0
-      },
-      {
-        "cdr": "Sebastian Estrello",
-        "teamLead": "Martin",
-        "minutes": 0
       },
       {
         "cdr": "Suellen Grabowski",

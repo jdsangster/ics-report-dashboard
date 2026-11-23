@@ -60,7 +60,7 @@ EXCUSED (schedule):
 - Each ROSTER line has the CDR's work days and shift (EST). The meetings are Tuesday and Friday,
   13:00-14:00 EST, so check the weekday of "meeting.date" against the CDR's days ("Friday - Tuesday"
   wraps over the weekend; "Monday - Thursday +" means no Friday, the "+" is a weekend day).
-- Set "excused": true when the CDR did NOT attend (under 90% of the window) AND that weekday is a day
+- Set "excused": true when the CDR did NOT attend (under 95% of the window) AND that weekday is a day
   off for them, or the meeting window falls outside their shift that day. Omit "excused" otherwise.
 - A CDR who attended on a day off is just present: no "excused". Breaks and lunch are never a reason.
 - The dashboard leaves excused CDRs out of the attendance %, so do not mark someone who simply missed
@@ -146,16 +146,16 @@ Team Martin (Academia):
   Anabella Roldan | Monday - Friday | 11:00 AM - 7:30 PM
   Elbert Arcila | Monday - Thursday + | 11:00 AM - 7:30 PM
   Joana Garcia | Wednesday - Sunday | 11:00 AM - 7:30 PM
-  Joaquin Castillo | Wednesday - Sunday | 11:00 AM - 7:30 PM
   Leonardo De Rezende | Wednesday - Sunday | 11:00 AM - 7:30 PM
   Lucia Torralba | Wednesday - Sunday | 11:00 AM - 7:30 PM
   Luhanna Vegh | Monday - Thursday + | 11:00 AM - 7:30 PM
   Magali Rocio | Wednesday - Sunday | 11:00 AM - 7:30 PM
   Maria Clara Lima | Monday - Thursday + | 11:00 AM - 7:30 PM
   Richard Silva | Monday - Thursday + | 11:00 AM - 7:30 PM
-  Sebastian Balao | Wednesday - Sunday | 11:00 AM - 7:30 PM
-  Sebastian Estrello | Wednesday - Sunday | 11:00 AM - 7:30 PM
   Suellen Grabowski | Monday - Thursday + | 12:00 PM - 8:30 PM
+
+NOT STARTED YET (leave these out of "records" until I move them to the ROSTER):
+  Sebastian Estrello, Sebastian Balao, Joaquin Castillo
 ```
 
 ---
@@ -197,7 +197,7 @@ Team Martin (Academia):
 
 ## What the dashboard shows
 
-- **Attendance by Team:** each team lead's share of CDRs present (in at least **90%** of the meeting)
+- **Attendance by Team:** each team lead's share of CDRs present (in at least **95%** of the meeting)
   across all meetings, leaving out the CDRs excused by schedule, best and lowest highlighted, plus the % of each of the last six meetings.
 - **CDR Attendance:** every CDR with their status in the latest meeting (Present / Left early or late
   / Absent / Excused), minutes, and their overall attendance. Defaults to the ones who missed the latest meeting.

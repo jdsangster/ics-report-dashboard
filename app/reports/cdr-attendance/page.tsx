@@ -10,6 +10,8 @@ import BrandLogo from "@/components/BrandLogo";
 import AttendanceSummaryCard from "@/components/AttendanceSummaryCard";
 import AttendanceTeamCard from "@/components/AttendanceTeamCard";
 import AttendanceCdrTable from "@/components/AttendanceCdrTable";
+import AttendanceExcusedCard from "@/components/AttendanceExcusedCard";
+import AttendanceMethodCard from "@/components/AttendanceMethodCard";
 
 export default function CdrAttendancePage() {
   const [reports, setReports] = useState<AttendanceData[]>([]);
@@ -130,6 +132,8 @@ export default function CdrAttendancePage() {
           <AttendanceSummaryCard meetings={meetings} />
           <AttendanceTeamCard meetings={meetings} />
           <AttendanceCdrTable meetings={meetings} />
+          <AttendanceExcusedCard meetings={meetings} />
+          <AttendanceMethodCard meetings={meetings} />
         </motion.div>
       </main>
 

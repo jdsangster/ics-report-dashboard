@@ -2,7 +2,7 @@ import { AttendanceData, AttendanceRecord } from "./types";
 import { teamOfLead } from "./scorecardUtils";
 
 /** A CDR counts as present when they were in at least this share of the meeting. */
-export const ATTENDANCE_THRESHOLD = 0.9;
+export const ATTENDANCE_THRESHOLD = 0.95;
 
 export function attended(r: AttendanceRecord, durationMinutes: number): boolean {
   return durationMinutes > 0 && r.minutes >= ATTENDANCE_THRESHOLD * durationMinutes;
